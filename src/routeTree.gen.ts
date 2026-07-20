@@ -10,32 +10,164 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as PublicRouteImport } from './routes/_public'
+import { Route as PublicIndexRouteImport } from './routes/_public/index'
+import { Route as PublicSponsorsRouteImport } from './routes/_public/sponsors'
+import { Route as PublicRulesRouteImport } from './routes/_public/rules'
+import { Route as PublicResultsRouteImport } from './routes/_public/results'
+import { Route as PublicPrizeStructureRouteImport } from './routes/_public/prize-structure'
+import { Route as PublicGalleryRouteImport } from './routes/_public/gallery'
+import { Route as PublicContactRouteImport } from './routes/_public/contact'
+import { Route as PublicAboutRouteImport } from './routes/_public/about'
+import { Route as PublicTournamentsIndexRouteImport } from './routes/_public/tournaments.index'
+import { Route as PublicTournamentsSlugRouteImport } from './routes/_public/tournaments.$slug'
+import { Route as PublicPlayersSlugRouteImport } from './routes/_public/players.$slug'
 
 const PublicRoute = PublicRouteImport.update({
   id: '/_public',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PublicIndexRoute = PublicIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicSponsorsRoute = PublicSponsorsRouteImport.update({
+  id: '/sponsors',
+  path: '/sponsors',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicRulesRoute = PublicRulesRouteImport.update({
+  id: '/rules',
+  path: '/rules',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicResultsRoute = PublicResultsRouteImport.update({
+  id: '/results',
+  path: '/results',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicPrizeStructureRoute = PublicPrizeStructureRouteImport.update({
+  id: '/prize-structure',
+  path: '/prize-structure',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicGalleryRoute = PublicGalleryRouteImport.update({
+  id: '/gallery',
+  path: '/gallery',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicContactRoute = PublicContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicAboutRoute = PublicAboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicTournamentsIndexRoute = PublicTournamentsIndexRouteImport.update({
+  id: '/tournaments/',
+  path: '/tournaments/',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicTournamentsSlugRoute = PublicTournamentsSlugRouteImport.update({
+  id: '/tournaments/$slug',
+  path: '/tournaments/$slug',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicPlayersSlugRoute = PublicPlayersSlugRouteImport.update({
+  id: '/players/$slug',
+  path: '/players/$slug',
+  getParentRoute: () => PublicRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof PublicRoute
+  '/': typeof PublicIndexRoute
+  '/about': typeof PublicAboutRoute
+  '/contact': typeof PublicContactRoute
+  '/gallery': typeof PublicGalleryRoute
+  '/prize-structure': typeof PublicPrizeStructureRoute
+  '/results': typeof PublicResultsRoute
+  '/rules': typeof PublicRulesRoute
+  '/sponsors': typeof PublicSponsorsRoute
+  '/players/$slug': typeof PublicPlayersSlugRoute
+  '/tournaments/$slug': typeof PublicTournamentsSlugRoute
+  '/tournaments/': typeof PublicTournamentsIndexRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof PublicRoute
+  '/about': typeof PublicAboutRoute
+  '/contact': typeof PublicContactRoute
+  '/gallery': typeof PublicGalleryRoute
+  '/prize-structure': typeof PublicPrizeStructureRoute
+  '/results': typeof PublicResultsRoute
+  '/rules': typeof PublicRulesRoute
+  '/sponsors': typeof PublicSponsorsRoute
+  '/': typeof PublicIndexRoute
+  '/players/$slug': typeof PublicPlayersSlugRoute
+  '/tournaments/$slug': typeof PublicTournamentsSlugRoute
+  '/tournaments': typeof PublicTournamentsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/_public': typeof PublicRoute
+  '/_public': typeof PublicRouteWithChildren
+  '/_public/about': typeof PublicAboutRoute
+  '/_public/contact': typeof PublicContactRoute
+  '/_public/gallery': typeof PublicGalleryRoute
+  '/_public/prize-structure': typeof PublicPrizeStructureRoute
+  '/_public/results': typeof PublicResultsRoute
+  '/_public/rules': typeof PublicRulesRoute
+  '/_public/sponsors': typeof PublicSponsorsRoute
+  '/_public/': typeof PublicIndexRoute
+  '/_public/players/$slug': typeof PublicPlayersSlugRoute
+  '/_public/tournaments/$slug': typeof PublicTournamentsSlugRoute
+  '/_public/tournaments/': typeof PublicTournamentsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/contact'
+    | '/gallery'
+    | '/prize-structure'
+    | '/results'
+    | '/rules'
+    | '/sponsors'
+    | '/players/$slug'
+    | '/tournaments/$slug'
+    | '/tournaments/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/_public'
+  to:
+    | '/about'
+    | '/contact'
+    | '/gallery'
+    | '/prize-structure'
+    | '/results'
+    | '/rules'
+    | '/sponsors'
+    | '/'
+    | '/players/$slug'
+    | '/tournaments/$slug'
+    | '/tournaments'
+  id:
+    | '__root__'
+    | '/_public'
+    | '/_public/about'
+    | '/_public/contact'
+    | '/_public/gallery'
+    | '/_public/prize-structure'
+    | '/_public/results'
+    | '/_public/rules'
+    | '/_public/sponsors'
+    | '/_public/'
+    | '/_public/players/$slug'
+    | '/_public/tournaments/$slug'
+    | '/_public/tournaments/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  PublicRoute: typeof PublicRoute
+  PublicRoute: typeof PublicRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -47,11 +179,119 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_public/': {
+      id: '/_public/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof PublicIndexRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/sponsors': {
+      id: '/_public/sponsors'
+      path: '/sponsors'
+      fullPath: '/sponsors'
+      preLoaderRoute: typeof PublicSponsorsRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/rules': {
+      id: '/_public/rules'
+      path: '/rules'
+      fullPath: '/rules'
+      preLoaderRoute: typeof PublicRulesRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/results': {
+      id: '/_public/results'
+      path: '/results'
+      fullPath: '/results'
+      preLoaderRoute: typeof PublicResultsRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/prize-structure': {
+      id: '/_public/prize-structure'
+      path: '/prize-structure'
+      fullPath: '/prize-structure'
+      preLoaderRoute: typeof PublicPrizeStructureRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/gallery': {
+      id: '/_public/gallery'
+      path: '/gallery'
+      fullPath: '/gallery'
+      preLoaderRoute: typeof PublicGalleryRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/contact': {
+      id: '/_public/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof PublicContactRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/about': {
+      id: '/_public/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof PublicAboutRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/tournaments/': {
+      id: '/_public/tournaments/'
+      path: '/tournaments'
+      fullPath: '/tournaments/'
+      preLoaderRoute: typeof PublicTournamentsIndexRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/tournaments/$slug': {
+      id: '/_public/tournaments/$slug'
+      path: '/tournaments/$slug'
+      fullPath: '/tournaments/$slug'
+      preLoaderRoute: typeof PublicTournamentsSlugRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/players/$slug': {
+      id: '/_public/players/$slug'
+      path: '/players/$slug'
+      fullPath: '/players/$slug'
+      preLoaderRoute: typeof PublicPlayersSlugRouteImport
+      parentRoute: typeof PublicRoute
+    }
   }
 }
 
+interface PublicRouteChildren {
+  PublicAboutRoute: typeof PublicAboutRoute
+  PublicContactRoute: typeof PublicContactRoute
+  PublicGalleryRoute: typeof PublicGalleryRoute
+  PublicPrizeStructureRoute: typeof PublicPrizeStructureRoute
+  PublicResultsRoute: typeof PublicResultsRoute
+  PublicRulesRoute: typeof PublicRulesRoute
+  PublicSponsorsRoute: typeof PublicSponsorsRoute
+  PublicIndexRoute: typeof PublicIndexRoute
+  PublicPlayersSlugRoute: typeof PublicPlayersSlugRoute
+  PublicTournamentsSlugRoute: typeof PublicTournamentsSlugRoute
+  PublicTournamentsIndexRoute: typeof PublicTournamentsIndexRoute
+}
+
+const PublicRouteChildren: PublicRouteChildren = {
+  PublicAboutRoute: PublicAboutRoute,
+  PublicContactRoute: PublicContactRoute,
+  PublicGalleryRoute: PublicGalleryRoute,
+  PublicPrizeStructureRoute: PublicPrizeStructureRoute,
+  PublicResultsRoute: PublicResultsRoute,
+  PublicRulesRoute: PublicRulesRoute,
+  PublicSponsorsRoute: PublicSponsorsRoute,
+  PublicIndexRoute: PublicIndexRoute,
+  PublicPlayersSlugRoute: PublicPlayersSlugRoute,
+  PublicTournamentsSlugRoute: PublicTournamentsSlugRoute,
+  PublicTournamentsIndexRoute: PublicTournamentsIndexRoute,
+}
+
+const PublicRouteWithChildren =
+  PublicRoute._addFileChildren(PublicRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
-  PublicRoute: PublicRoute,
+  PublicRoute: PublicRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

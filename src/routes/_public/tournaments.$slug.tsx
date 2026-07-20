@@ -4,7 +4,7 @@ import { tournamentBySlugQuery, standingsQuery } from "@/lib/supabase-queries";
 import { format } from "date-fns";
 
 export const Route = createFileRoute("/_public/tournaments/$slug")({
-  head: ({ loaderData }) => {
+  head: ({ loaderData }: { loaderData?: any }) => {
     if (!loaderData) return { meta: [{ title: "Tournament" }] };
     return {
       meta: [

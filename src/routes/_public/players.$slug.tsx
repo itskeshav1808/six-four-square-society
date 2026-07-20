@@ -3,7 +3,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { playerBySlugQuery, playerHistoryQuery } from "@/lib/supabase-queries";
 
 export const Route = createFileRoute("/_public/players/$slug")({
-  head: ({ loaderData }) => ({
+  head: ({ loaderData }: { loaderData?: any }) => ({
     meta: [{ title: `${loaderData?.full_name ?? "Player"} — 64 Squares Society` }],
   }),
   loader: async ({ context, params }) => {
