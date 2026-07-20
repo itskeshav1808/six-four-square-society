@@ -45,7 +45,7 @@ function ControlCenter() {
     load();
   };
   const toggleRound = async (r: any, field: "is_published" | "is_completed") => {
-    await supabase.from("rounds").update({ [field]: !r[field] }).eq("id", r.id);
+    await supabase.from("rounds").update({ [field]: !r[field] } as any).eq("id", r.id as any);
     load();
   };
   const generatePairings = async (r: any) => {

@@ -24,7 +24,7 @@ function Verifications() {
     const patch = ok
       ? { payment_status: "verified", status: "approved", approved_at: new Date().toISOString() }
       : { payment_status: "failed", status: "rejected" };
-    await supabase.from("registrations").update(patch).eq("id", r.id);
+    await supabase.from("registrations").update(patch as any).eq("id", r.id);
     await supabase.from("payments").update({ status: ok ? "verified" : "failed", verified_at: new Date().toISOString() }).eq("registration_id", r.id);
     toast.success(ok ? "Verified · player approved" : "Marked failed");
     load();

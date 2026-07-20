@@ -29,7 +29,7 @@ function Settings() {
   };
   const remAllow = async (id: string) => { await supabase.from("admin_allowlist").delete().eq("id", id); load(); };
   const saveContent = async (item: any) => {
-    await supabase.from("site_content").update({ value: item.value }).eq("id", item.id);
+    await supabase.from("site_content").update({ body: item.body } as any).eq("key", item.key);
     toast.success(`Saved ${item.key}`);
   };
 
@@ -59,7 +59,7 @@ function Settings() {
             {content.map((c: any) => (
               <div key={c.id}>
                 <label className="text-xs uppercase text-muted-foreground">{c.key}</label>
-                <textarea rows={3} value={c.value ?? ""} onChange={(e) => setContent((prev) => prev.map((x) => x.id === c.id ? { ...x, value: e.target.value } : x))} className="mt-1 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm" />
+                <textarea rows={3} value={c.body ?? ""} onChange={(e) => setContent((prev) => prev.map((x) => x.key === c.key ? { ...x, body: e.target.value } : x))} className="mt-1 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm" />
                 <button onClick={() => saveContent(c)} className="mt-1 text-xs text-primary">Save</button>
               </div>
             ))}
