@@ -9,11 +9,13 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as PublicRouteImport } from './routes/_public'
 import { Route as PublicIndexRouteImport } from './routes/_public/index'
 import { Route as PublicSponsorsRouteImport } from './routes/_public/sponsors'
 import { Route as PublicRulesRouteImport } from './routes/_public/rules'
 import { Route as PublicResultsRouteImport } from './routes/_public/results'
+import { Route as PublicRegisterRouteImport } from './routes/_public/register'
 import { Route as PublicPrizeStructureRouteImport } from './routes/_public/prize-structure'
 import { Route as PublicGalleryRouteImport } from './routes/_public/gallery'
 import { Route as PublicContactRouteImport } from './routes/_public/contact'
@@ -21,7 +23,13 @@ import { Route as PublicAboutRouteImport } from './routes/_public/about'
 import { Route as PublicTournamentsIndexRouteImport } from './routes/_public/tournaments.index'
 import { Route as PublicTournamentsSlugRouteImport } from './routes/_public/tournaments.$slug'
 import { Route as PublicPlayersSlugRouteImport } from './routes/_public/players.$slug'
+import { Route as PublicRegisterSuccessIdRouteImport } from './routes/_public/register.success.$id'
 
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PublicRoute = PublicRouteImport.update({
   id: '/_public',
   getParentRoute: () => rootRouteImport,
@@ -44,6 +52,11 @@ const PublicRulesRoute = PublicRulesRouteImport.update({
 const PublicResultsRoute = PublicResultsRouteImport.update({
   id: '/results',
   path: '/results',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicRegisterRoute = PublicRegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
   getParentRoute: () => PublicRoute,
 } as any)
 const PublicPrizeStructureRoute = PublicPrizeStructureRouteImport.update({
@@ -81,25 +94,35 @@ const PublicPlayersSlugRoute = PublicPlayersSlugRouteImport.update({
   path: '/players/$slug',
   getParentRoute: () => PublicRoute,
 } as any)
+const PublicRegisterSuccessIdRoute = PublicRegisterSuccessIdRouteImport.update({
+  id: '/success/$id',
+  path: '/success/$id',
+  getParentRoute: () => PublicRegisterRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof PublicIndexRoute
+  '/auth': typeof AuthRoute
   '/about': typeof PublicAboutRoute
   '/contact': typeof PublicContactRoute
   '/gallery': typeof PublicGalleryRoute
   '/prize-structure': typeof PublicPrizeStructureRoute
+  '/register': typeof PublicRegisterRouteWithChildren
   '/results': typeof PublicResultsRoute
   '/rules': typeof PublicRulesRoute
   '/sponsors': typeof PublicSponsorsRoute
   '/players/$slug': typeof PublicPlayersSlugRoute
   '/tournaments/$slug': typeof PublicTournamentsSlugRoute
   '/tournaments/': typeof PublicTournamentsIndexRoute
+  '/register/success/$id': typeof PublicRegisterSuccessIdRoute
 }
 export interface FileRoutesByTo {
+  '/auth': typeof AuthRoute
   '/about': typeof PublicAboutRoute
   '/contact': typeof PublicContactRoute
   '/gallery': typeof PublicGalleryRoute
   '/prize-structure': typeof PublicPrizeStructureRoute
+  '/register': typeof PublicRegisterRouteWithChildren
   '/results': typeof PublicResultsRoute
   '/rules': typeof PublicRulesRoute
   '/sponsors': typeof PublicSponsorsRoute
@@ -107,14 +130,17 @@ export interface FileRoutesByTo {
   '/players/$slug': typeof PublicPlayersSlugRoute
   '/tournaments/$slug': typeof PublicTournamentsSlugRoute
   '/tournaments': typeof PublicTournamentsIndexRoute
+  '/register/success/$id': typeof PublicRegisterSuccessIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_public': typeof PublicRouteWithChildren
+  '/auth': typeof AuthRoute
   '/_public/about': typeof PublicAboutRoute
   '/_public/contact': typeof PublicContactRoute
   '/_public/gallery': typeof PublicGalleryRoute
   '/_public/prize-structure': typeof PublicPrizeStructureRoute
+  '/_public/register': typeof PublicRegisterRouteWithChildren
   '/_public/results': typeof PublicResultsRoute
   '/_public/rules': typeof PublicRulesRoute
   '/_public/sponsors': typeof PublicSponsorsRoute
@@ -122,27 +148,33 @@ export interface FileRoutesById {
   '/_public/players/$slug': typeof PublicPlayersSlugRoute
   '/_public/tournaments/$slug': typeof PublicTournamentsSlugRoute
   '/_public/tournaments/': typeof PublicTournamentsIndexRoute
+  '/_public/register/success/$id': typeof PublicRegisterSuccessIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/auth'
     | '/about'
     | '/contact'
     | '/gallery'
     | '/prize-structure'
+    | '/register'
     | '/results'
     | '/rules'
     | '/sponsors'
     | '/players/$slug'
     | '/tournaments/$slug'
     | '/tournaments/'
+    | '/register/success/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/auth'
     | '/about'
     | '/contact'
     | '/gallery'
     | '/prize-structure'
+    | '/register'
     | '/results'
     | '/rules'
     | '/sponsors'
@@ -150,13 +182,16 @@ export interface FileRouteTypes {
     | '/players/$slug'
     | '/tournaments/$slug'
     | '/tournaments'
+    | '/register/success/$id'
   id:
     | '__root__'
     | '/_public'
+    | '/auth'
     | '/_public/about'
     | '/_public/contact'
     | '/_public/gallery'
     | '/_public/prize-structure'
+    | '/_public/register'
     | '/_public/results'
     | '/_public/rules'
     | '/_public/sponsors'
@@ -164,14 +199,23 @@ export interface FileRouteTypes {
     | '/_public/players/$slug'
     | '/_public/tournaments/$slug'
     | '/_public/tournaments/'
+    | '/_public/register/success/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   PublicRoute: typeof PublicRouteWithChildren
+  AuthRoute: typeof AuthRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_public': {
       id: '/_public'
       path: ''
@@ -205,6 +249,13 @@ declare module '@tanstack/react-router' {
       path: '/results'
       fullPath: '/results'
       preLoaderRoute: typeof PublicResultsRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/register': {
+      id: '/_public/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof PublicRegisterRouteImport
       parentRoute: typeof PublicRoute
     }
     '/_public/prize-structure': {
@@ -256,14 +307,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicPlayersSlugRouteImport
       parentRoute: typeof PublicRoute
     }
+    '/_public/register/success/$id': {
+      id: '/_public/register/success/$id'
+      path: '/success/$id'
+      fullPath: '/register/success/$id'
+      preLoaderRoute: typeof PublicRegisterSuccessIdRouteImport
+      parentRoute: typeof PublicRegisterRoute
+    }
   }
 }
+
+interface PublicRegisterRouteChildren {
+  PublicRegisterSuccessIdRoute: typeof PublicRegisterSuccessIdRoute
+}
+
+const PublicRegisterRouteChildren: PublicRegisterRouteChildren = {
+  PublicRegisterSuccessIdRoute: PublicRegisterSuccessIdRoute,
+}
+
+const PublicRegisterRouteWithChildren = PublicRegisterRoute._addFileChildren(
+  PublicRegisterRouteChildren,
+)
 
 interface PublicRouteChildren {
   PublicAboutRoute: typeof PublicAboutRoute
   PublicContactRoute: typeof PublicContactRoute
   PublicGalleryRoute: typeof PublicGalleryRoute
   PublicPrizeStructureRoute: typeof PublicPrizeStructureRoute
+  PublicRegisterRoute: typeof PublicRegisterRouteWithChildren
   PublicResultsRoute: typeof PublicResultsRoute
   PublicRulesRoute: typeof PublicRulesRoute
   PublicSponsorsRoute: typeof PublicSponsorsRoute
@@ -278,6 +349,7 @@ const PublicRouteChildren: PublicRouteChildren = {
   PublicContactRoute: PublicContactRoute,
   PublicGalleryRoute: PublicGalleryRoute,
   PublicPrizeStructureRoute: PublicPrizeStructureRoute,
+  PublicRegisterRoute: PublicRegisterRouteWithChildren,
   PublicResultsRoute: PublicResultsRoute,
   PublicRulesRoute: PublicRulesRoute,
   PublicSponsorsRoute: PublicSponsorsRoute,
@@ -292,6 +364,7 @@ const PublicRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   PublicRoute: PublicRouteWithChildren,
+  AuthRoute: AuthRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
