@@ -8,7 +8,7 @@ export const Route = createFileRoute("/_admin")({
   component: AdminLayout,
 });
 
-const nav = [
+const nav: { to: string; label: string; icon: any; exact?: boolean }[] = [
   { to: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
   { to: "/admin/tournaments", label: "Tournaments", icon: Trophy },
   { to: "/admin/registrations", label: "Registrations", icon: ClipboardList },
@@ -23,7 +23,7 @@ const nav = [
   { to: "/admin/announcements", label: "Announcements", icon: Megaphone },
   { to: "/admin/analytics", label: "Analytics", icon: BarChart3 },
   { to: "/admin/settings", label: "Settings", icon: Settings },
-] as const;
+];
 
 function AdminLayout() {
   const { user, role, loading, signOut } = useAuth();
@@ -57,7 +57,7 @@ function AdminLayout() {
             const active = n.exact ? pathname === n.to : pathname.startsWith(n.to);
             const Icon = n.icon;
             return (
-              <Link key={n.to} to={n.to} className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition ${active ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}>
+              <Link key={n.to} to={n.to as any} className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition ${active ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}>
                 <Icon size={16} />{n.label}
               </Link>
             );

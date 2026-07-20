@@ -8,11 +8,11 @@ export const Route = createFileRoute("/_volunteer")({
   component: VolunteerLayout,
 });
 
-const nav = [
+const nav: { to: string; label: string; icon: any; exact?: boolean }[] = [
   { to: "/volunteer", label: "My Tasks", icon: ClipboardList, exact: true },
   { to: "/volunteer/check-in", label: "Check-In Scanner", icon: QrCode },
   { to: "/volunteer/announcements", label: "Announcements", icon: Megaphone },
-] as const;
+];
 
 function VolunteerLayout() {
   const { user, role, loading, signOut } = useAuth();
@@ -48,7 +48,7 @@ function VolunteerLayout() {
             const active = n.exact ? pathname === n.to : pathname.startsWith(n.to);
             const Icon = n.icon;
             return (
-              <Link key={n.to} to={n.to} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm whitespace-nowrap ${active ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}>
+              <Link key={n.to} to={n.to as any} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm whitespace-nowrap ${active ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}>
                 <Icon size={14} />{n.label}
               </Link>
             );
