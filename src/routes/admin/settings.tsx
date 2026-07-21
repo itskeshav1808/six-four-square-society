@@ -27,7 +27,7 @@ function Settings() {
     const { error } = await supabase.from("admin_allowlist").insert({ email: newEmail.toLowerCase().trim() });
     if (error) toast.error(error.message); else { toast.success("Added"); setNewEmail(""); load(); }
   };
-  const remAllow = async (id: string) => { await supabase.from("admin_allowlist").delete().eq("id", id); load(); };
+  const remAllow = async (email: string) => { await supabase.from("admin_allowlist").delete().eq("email", email); load(); };
   const saveContent = async (item: any) => {
     await supabase.from("site_content").update({ body: item.body } as any).eq("key", item.key);
     toast.success(`Saved ${item.key}`);
@@ -45,9 +45,9 @@ function Settings() {
           </div>
           <div className="divide-y divide-border">
             {allow.map((a) => (
-              <div key={a.id} className="flex justify-between items-center py-2 text-sm">
+              <div key={a.email} className="flex justify-between items-center py-2 text-sm">
                 <span>{a.email}</span>
-                <button onClick={() => remAllow(a.id)} className="text-destructive"><Trash2 size={14} /></button>
+                <button onClick={() => remAllow(a.email)} className="text-destructive"><Trash2 size={14} /></button>
               </div>
             ))}
           </div>
