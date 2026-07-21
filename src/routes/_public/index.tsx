@@ -15,6 +15,24 @@ export const Route = createFileRoute("/_public/")({
   component: Home,
 });
 
+function HeroTitle({ title }: { title?: string | null }) {
+  const full = title?.trim() || "Every Move Matters";
+  const idx = full.toLowerCase().lastIndexOf("matters");
+  if (idx === -1) {
+    return <>{full}</>;
+  }
+  const before = full.slice(0, idx).trimEnd();
+  const after = full.slice(idx + "matters".length).trimStart();
+  return (
+    <>
+      {before}
+      {before ? <br /> : null}
+      <span className="text-gradient-gold">Matters</span>
+      {after ? ` ${after}` : null}
+    </>
+  );
+}
+
 function Home() {
   const { data: featured } = useSuspenseQuery(featuredTournamentQuery);
   const { data: heroTitle } = useSuspenseQuery(siteContentQuery("home_hero_title"));
@@ -36,9 +54,7 @@ function Home() {
               <Sparkles size={14} className="text-gold" /> 64 Squares Society
             </span>
             <h1 className="mt-4 font-display text-5xl sm:text-7xl font-semibold leading-[1.05]">
-              {heroTitle?.title ?? "Every Move"}
-              <br />
-              <span className="text-gradient-gold">Matters</span>
+              <HeroTitle title={heroTitle?.title} />
             </h1>
             <p className="mt-6 text-lg text-muted-foreground max-w-xl">
               {heroSub?.title ?? "Premier chess tournaments, live standings, and a community built for the long game."}
