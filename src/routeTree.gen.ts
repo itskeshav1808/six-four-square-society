@@ -9,9 +9,28 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as VolunteerRouteImport } from './routes/volunteer'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as PublicRouteImport } from './routes/_public'
+import { Route as VolunteerIndexRouteImport } from './routes/volunteer/index'
+import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as PublicIndexRouteImport } from './routes/_public/index'
+import { Route as VolunteerCheckInRouteImport } from './routes/volunteer/check-in'
+import { Route as VolunteerAnnouncementsRouteImport } from './routes/volunteer/announcements'
+import { Route as AdminVolunteersRouteImport } from './routes/admin/volunteers'
+import { Route as AdminVerificationsRouteImport } from './routes/admin/verifications'
+import { Route as AdminTournamentsRouteImport } from './routes/admin/tournaments'
+import { Route as AdminSponsorsRouteImport } from './routes/admin/sponsors'
+import { Route as AdminSettingsRouteImport } from './routes/admin/settings'
+import { Route as AdminRegistrationsRouteImport } from './routes/admin/registrations'
+import { Route as AdminMediaRouteImport } from './routes/admin/media'
+import { Route as AdminInventoryRouteImport } from './routes/admin/inventory'
+import { Route as AdminFinanceRouteImport } from './routes/admin/finance'
+import { Route as AdminControlCenterRouteImport } from './routes/admin/control-center'
+import { Route as AdminCertificatesRouteImport } from './routes/admin/certificates'
+import { Route as AdminAnnouncementsRouteImport } from './routes/admin/announcements'
+import { Route as AdminAnalyticsRouteImport } from './routes/admin/analytics'
 import { Route as PublicSponsorsRouteImport } from './routes/_public/sponsors'
 import { Route as PublicRulesRouteImport } from './routes/_public/rules'
 import { Route as PublicResultsRouteImport } from './routes/_public/results'
@@ -25,19 +44,114 @@ import { Route as PublicTournamentsSlugRouteImport } from './routes/_public/tour
 import { Route as PublicPlayersSlugRouteImport } from './routes/_public/players.$slug'
 import { Route as PublicRegisterSuccessIdRouteImport } from './routes/_public/register.success.$id'
 
+const VolunteerRoute = VolunteerRouteImport.update({
+  id: '/volunteer',
+  path: '/volunteer',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PublicRoute = PublicRouteImport.update({
   id: '/_public',
   getParentRoute: () => rootRouteImport,
 } as any)
+const VolunteerIndexRoute = VolunteerIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => VolunteerRoute,
+} as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
+} as any)
 const PublicIndexRoute = PublicIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => PublicRoute,
+} as any)
+const VolunteerCheckInRoute = VolunteerCheckInRouteImport.update({
+  id: '/check-in',
+  path: '/check-in',
+  getParentRoute: () => VolunteerRoute,
+} as any)
+const VolunteerAnnouncementsRoute = VolunteerAnnouncementsRouteImport.update({
+  id: '/announcements',
+  path: '/announcements',
+  getParentRoute: () => VolunteerRoute,
+} as any)
+const AdminVolunteersRoute = AdminVolunteersRouteImport.update({
+  id: '/volunteers',
+  path: '/volunteers',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminVerificationsRoute = AdminVerificationsRouteImport.update({
+  id: '/verifications',
+  path: '/verifications',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminTournamentsRoute = AdminTournamentsRouteImport.update({
+  id: '/tournaments',
+  path: '/tournaments',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminSponsorsRoute = AdminSponsorsRouteImport.update({
+  id: '/sponsors',
+  path: '/sponsors',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminSettingsRoute = AdminSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminRegistrationsRoute = AdminRegistrationsRouteImport.update({
+  id: '/registrations',
+  path: '/registrations',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminMediaRoute = AdminMediaRouteImport.update({
+  id: '/media',
+  path: '/media',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminInventoryRoute = AdminInventoryRouteImport.update({
+  id: '/inventory',
+  path: '/inventory',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminFinanceRoute = AdminFinanceRouteImport.update({
+  id: '/finance',
+  path: '/finance',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminControlCenterRoute = AdminControlCenterRouteImport.update({
+  id: '/control-center',
+  path: '/control-center',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminCertificatesRoute = AdminCertificatesRouteImport.update({
+  id: '/certificates',
+  path: '/certificates',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminAnnouncementsRoute = AdminAnnouncementsRouteImport.update({
+  id: '/announcements',
+  path: '/announcements',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminAnalyticsRoute = AdminAnalyticsRouteImport.update({
+  id: '/analytics',
+  path: '/analytics',
+  getParentRoute: () => AdminRoute,
 } as any)
 const PublicSponsorsRoute = PublicSponsorsRouteImport.update({
   id: '/sponsors',
@@ -102,7 +216,9 @@ const PublicRegisterSuccessIdRoute = PublicRegisterSuccessIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof PublicIndexRoute
+  '/admin': typeof AdminRouteWithChildren
   '/auth': typeof AuthRoute
+  '/volunteer': typeof VolunteerRouteWithChildren
   '/about': typeof PublicAboutRoute
   '/contact': typeof PublicContactRoute
   '/gallery': typeof PublicGalleryRoute
@@ -111,6 +227,23 @@ export interface FileRoutesByFullPath {
   '/results': typeof PublicResultsRoute
   '/rules': typeof PublicRulesRoute
   '/sponsors': typeof PublicSponsorsRoute
+  '/admin/analytics': typeof AdminAnalyticsRoute
+  '/admin/announcements': typeof AdminAnnouncementsRoute
+  '/admin/certificates': typeof AdminCertificatesRoute
+  '/admin/control-center': typeof AdminControlCenterRoute
+  '/admin/finance': typeof AdminFinanceRoute
+  '/admin/inventory': typeof AdminInventoryRoute
+  '/admin/media': typeof AdminMediaRoute
+  '/admin/registrations': typeof AdminRegistrationsRoute
+  '/admin/settings': typeof AdminSettingsRoute
+  '/admin/sponsors': typeof AdminSponsorsRoute
+  '/admin/tournaments': typeof AdminTournamentsRoute
+  '/admin/verifications': typeof AdminVerificationsRoute
+  '/admin/volunteers': typeof AdminVolunteersRoute
+  '/volunteer/announcements': typeof VolunteerAnnouncementsRoute
+  '/volunteer/check-in': typeof VolunteerCheckInRoute
+  '/admin/': typeof AdminIndexRoute
+  '/volunteer/': typeof VolunteerIndexRoute
   '/players/$slug': typeof PublicPlayersSlugRoute
   '/tournaments/$slug': typeof PublicTournamentsSlugRoute
   '/tournaments/': typeof PublicTournamentsIndexRoute
@@ -126,7 +259,24 @@ export interface FileRoutesByTo {
   '/results': typeof PublicResultsRoute
   '/rules': typeof PublicRulesRoute
   '/sponsors': typeof PublicSponsorsRoute
+  '/admin/analytics': typeof AdminAnalyticsRoute
+  '/admin/announcements': typeof AdminAnnouncementsRoute
+  '/admin/certificates': typeof AdminCertificatesRoute
+  '/admin/control-center': typeof AdminControlCenterRoute
+  '/admin/finance': typeof AdminFinanceRoute
+  '/admin/inventory': typeof AdminInventoryRoute
+  '/admin/media': typeof AdminMediaRoute
+  '/admin/registrations': typeof AdminRegistrationsRoute
+  '/admin/settings': typeof AdminSettingsRoute
+  '/admin/sponsors': typeof AdminSponsorsRoute
+  '/admin/tournaments': typeof AdminTournamentsRoute
+  '/admin/verifications': typeof AdminVerificationsRoute
+  '/admin/volunteers': typeof AdminVolunteersRoute
+  '/volunteer/announcements': typeof VolunteerAnnouncementsRoute
+  '/volunteer/check-in': typeof VolunteerCheckInRoute
   '/': typeof PublicIndexRoute
+  '/admin': typeof AdminIndexRoute
+  '/volunteer': typeof VolunteerIndexRoute
   '/players/$slug': typeof PublicPlayersSlugRoute
   '/tournaments/$slug': typeof PublicTournamentsSlugRoute
   '/tournaments': typeof PublicTournamentsIndexRoute
@@ -135,7 +285,9 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_public': typeof PublicRouteWithChildren
+  '/admin': typeof AdminRouteWithChildren
   '/auth': typeof AuthRoute
+  '/volunteer': typeof VolunteerRouteWithChildren
   '/_public/about': typeof PublicAboutRoute
   '/_public/contact': typeof PublicContactRoute
   '/_public/gallery': typeof PublicGalleryRoute
@@ -144,7 +296,24 @@ export interface FileRoutesById {
   '/_public/results': typeof PublicResultsRoute
   '/_public/rules': typeof PublicRulesRoute
   '/_public/sponsors': typeof PublicSponsorsRoute
+  '/admin/analytics': typeof AdminAnalyticsRoute
+  '/admin/announcements': typeof AdminAnnouncementsRoute
+  '/admin/certificates': typeof AdminCertificatesRoute
+  '/admin/control-center': typeof AdminControlCenterRoute
+  '/admin/finance': typeof AdminFinanceRoute
+  '/admin/inventory': typeof AdminInventoryRoute
+  '/admin/media': typeof AdminMediaRoute
+  '/admin/registrations': typeof AdminRegistrationsRoute
+  '/admin/settings': typeof AdminSettingsRoute
+  '/admin/sponsors': typeof AdminSponsorsRoute
+  '/admin/tournaments': typeof AdminTournamentsRoute
+  '/admin/verifications': typeof AdminVerificationsRoute
+  '/admin/volunteers': typeof AdminVolunteersRoute
+  '/volunteer/announcements': typeof VolunteerAnnouncementsRoute
+  '/volunteer/check-in': typeof VolunteerCheckInRoute
   '/_public/': typeof PublicIndexRoute
+  '/admin/': typeof AdminIndexRoute
+  '/volunteer/': typeof VolunteerIndexRoute
   '/_public/players/$slug': typeof PublicPlayersSlugRoute
   '/_public/tournaments/$slug': typeof PublicTournamentsSlugRoute
   '/_public/tournaments/': typeof PublicTournamentsIndexRoute
@@ -154,7 +323,9 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin'
     | '/auth'
+    | '/volunteer'
     | '/about'
     | '/contact'
     | '/gallery'
@@ -163,6 +334,23 @@ export interface FileRouteTypes {
     | '/results'
     | '/rules'
     | '/sponsors'
+    | '/admin/analytics'
+    | '/admin/announcements'
+    | '/admin/certificates'
+    | '/admin/control-center'
+    | '/admin/finance'
+    | '/admin/inventory'
+    | '/admin/media'
+    | '/admin/registrations'
+    | '/admin/settings'
+    | '/admin/sponsors'
+    | '/admin/tournaments'
+    | '/admin/verifications'
+    | '/admin/volunteers'
+    | '/volunteer/announcements'
+    | '/volunteer/check-in'
+    | '/admin/'
+    | '/volunteer/'
     | '/players/$slug'
     | '/tournaments/$slug'
     | '/tournaments/'
@@ -178,7 +366,24 @@ export interface FileRouteTypes {
     | '/results'
     | '/rules'
     | '/sponsors'
+    | '/admin/analytics'
+    | '/admin/announcements'
+    | '/admin/certificates'
+    | '/admin/control-center'
+    | '/admin/finance'
+    | '/admin/inventory'
+    | '/admin/media'
+    | '/admin/registrations'
+    | '/admin/settings'
+    | '/admin/sponsors'
+    | '/admin/tournaments'
+    | '/admin/verifications'
+    | '/admin/volunteers'
+    | '/volunteer/announcements'
+    | '/volunteer/check-in'
     | '/'
+    | '/admin'
+    | '/volunteer'
     | '/players/$slug'
     | '/tournaments/$slug'
     | '/tournaments'
@@ -186,7 +391,9 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/_public'
+    | '/admin'
     | '/auth'
+    | '/volunteer'
     | '/_public/about'
     | '/_public/contact'
     | '/_public/gallery'
@@ -195,7 +402,24 @@ export interface FileRouteTypes {
     | '/_public/results'
     | '/_public/rules'
     | '/_public/sponsors'
+    | '/admin/analytics'
+    | '/admin/announcements'
+    | '/admin/certificates'
+    | '/admin/control-center'
+    | '/admin/finance'
+    | '/admin/inventory'
+    | '/admin/media'
+    | '/admin/registrations'
+    | '/admin/settings'
+    | '/admin/sponsors'
+    | '/admin/tournaments'
+    | '/admin/verifications'
+    | '/admin/volunteers'
+    | '/volunteer/announcements'
+    | '/volunteer/check-in'
     | '/_public/'
+    | '/admin/'
+    | '/volunteer/'
     | '/_public/players/$slug'
     | '/_public/tournaments/$slug'
     | '/_public/tournaments/'
@@ -204,16 +428,32 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   PublicRoute: typeof PublicRouteWithChildren
+  AdminRoute: typeof AdminRouteWithChildren
   AuthRoute: typeof AuthRoute
+  VolunteerRoute: typeof VolunteerRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/volunteer': {
+      id: '/volunteer'
+      path: '/volunteer'
+      fullPath: '/volunteer'
+      preLoaderRoute: typeof VolunteerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth': {
       id: '/auth'
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_public': {
@@ -223,12 +463,131 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/volunteer/': {
+      id: '/volunteer/'
+      path: '/'
+      fullPath: '/volunteer/'
+      preLoaderRoute: typeof VolunteerIndexRouteImport
+      parentRoute: typeof VolunteerRoute
+    }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/_public/': {
       id: '/_public/'
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof PublicIndexRouteImport
       parentRoute: typeof PublicRoute
+    }
+    '/volunteer/check-in': {
+      id: '/volunteer/check-in'
+      path: '/check-in'
+      fullPath: '/volunteer/check-in'
+      preLoaderRoute: typeof VolunteerCheckInRouteImport
+      parentRoute: typeof VolunteerRoute
+    }
+    '/volunteer/announcements': {
+      id: '/volunteer/announcements'
+      path: '/announcements'
+      fullPath: '/volunteer/announcements'
+      preLoaderRoute: typeof VolunteerAnnouncementsRouteImport
+      parentRoute: typeof VolunteerRoute
+    }
+    '/admin/volunteers': {
+      id: '/admin/volunteers'
+      path: '/volunteers'
+      fullPath: '/admin/volunteers'
+      preLoaderRoute: typeof AdminVolunteersRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/verifications': {
+      id: '/admin/verifications'
+      path: '/verifications'
+      fullPath: '/admin/verifications'
+      preLoaderRoute: typeof AdminVerificationsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/tournaments': {
+      id: '/admin/tournaments'
+      path: '/tournaments'
+      fullPath: '/admin/tournaments'
+      preLoaderRoute: typeof AdminTournamentsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/sponsors': {
+      id: '/admin/sponsors'
+      path: '/sponsors'
+      fullPath: '/admin/sponsors'
+      preLoaderRoute: typeof AdminSponsorsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/settings': {
+      id: '/admin/settings'
+      path: '/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AdminSettingsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/registrations': {
+      id: '/admin/registrations'
+      path: '/registrations'
+      fullPath: '/admin/registrations'
+      preLoaderRoute: typeof AdminRegistrationsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/media': {
+      id: '/admin/media'
+      path: '/media'
+      fullPath: '/admin/media'
+      preLoaderRoute: typeof AdminMediaRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/inventory': {
+      id: '/admin/inventory'
+      path: '/inventory'
+      fullPath: '/admin/inventory'
+      preLoaderRoute: typeof AdminInventoryRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/finance': {
+      id: '/admin/finance'
+      path: '/finance'
+      fullPath: '/admin/finance'
+      preLoaderRoute: typeof AdminFinanceRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/control-center': {
+      id: '/admin/control-center'
+      path: '/control-center'
+      fullPath: '/admin/control-center'
+      preLoaderRoute: typeof AdminControlCenterRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/certificates': {
+      id: '/admin/certificates'
+      path: '/certificates'
+      fullPath: '/admin/certificates'
+      preLoaderRoute: typeof AdminCertificatesRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/announcements': {
+      id: '/admin/announcements'
+      path: '/announcements'
+      fullPath: '/admin/announcements'
+      preLoaderRoute: typeof AdminAnnouncementsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/analytics': {
+      id: '/admin/analytics'
+      path: '/analytics'
+      fullPath: '/admin/analytics'
+      preLoaderRoute: typeof AdminAnalyticsRouteImport
+      parentRoute: typeof AdminRoute
     }
     '/_public/sponsors': {
       id: '/_public/sponsors'
@@ -362,9 +721,63 @@ const PublicRouteChildren: PublicRouteChildren = {
 const PublicRouteWithChildren =
   PublicRoute._addFileChildren(PublicRouteChildren)
 
+interface AdminRouteChildren {
+  AdminAnalyticsRoute: typeof AdminAnalyticsRoute
+  AdminAnnouncementsRoute: typeof AdminAnnouncementsRoute
+  AdminCertificatesRoute: typeof AdminCertificatesRoute
+  AdminControlCenterRoute: typeof AdminControlCenterRoute
+  AdminFinanceRoute: typeof AdminFinanceRoute
+  AdminInventoryRoute: typeof AdminInventoryRoute
+  AdminMediaRoute: typeof AdminMediaRoute
+  AdminRegistrationsRoute: typeof AdminRegistrationsRoute
+  AdminSettingsRoute: typeof AdminSettingsRoute
+  AdminSponsorsRoute: typeof AdminSponsorsRoute
+  AdminTournamentsRoute: typeof AdminTournamentsRoute
+  AdminVerificationsRoute: typeof AdminVerificationsRoute
+  AdminVolunteersRoute: typeof AdminVolunteersRoute
+  AdminIndexRoute: typeof AdminIndexRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminAnalyticsRoute: AdminAnalyticsRoute,
+  AdminAnnouncementsRoute: AdminAnnouncementsRoute,
+  AdminCertificatesRoute: AdminCertificatesRoute,
+  AdminControlCenterRoute: AdminControlCenterRoute,
+  AdminFinanceRoute: AdminFinanceRoute,
+  AdminInventoryRoute: AdminInventoryRoute,
+  AdminMediaRoute: AdminMediaRoute,
+  AdminRegistrationsRoute: AdminRegistrationsRoute,
+  AdminSettingsRoute: AdminSettingsRoute,
+  AdminSponsorsRoute: AdminSponsorsRoute,
+  AdminTournamentsRoute: AdminTournamentsRoute,
+  AdminVerificationsRoute: AdminVerificationsRoute,
+  AdminVolunteersRoute: AdminVolunteersRoute,
+  AdminIndexRoute: AdminIndexRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
+interface VolunteerRouteChildren {
+  VolunteerAnnouncementsRoute: typeof VolunteerAnnouncementsRoute
+  VolunteerCheckInRoute: typeof VolunteerCheckInRoute
+  VolunteerIndexRoute: typeof VolunteerIndexRoute
+}
+
+const VolunteerRouteChildren: VolunteerRouteChildren = {
+  VolunteerAnnouncementsRoute: VolunteerAnnouncementsRoute,
+  VolunteerCheckInRoute: VolunteerCheckInRoute,
+  VolunteerIndexRoute: VolunteerIndexRoute,
+}
+
+const VolunteerRouteWithChildren = VolunteerRoute._addFileChildren(
+  VolunteerRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   PublicRoute: PublicRouteWithChildren,
+  AdminRoute: AdminRouteWithChildren,
   AuthRoute: AuthRoute,
+  VolunteerRoute: VolunteerRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

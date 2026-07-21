@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Plus, Trash2, Sparkles } from "lucide-react";
 
-export const Route = createFileRoute("/_admin/media")({
+export const Route = createFileRoute("/admin/media")({
   component: MediaAdmin,
 });
 

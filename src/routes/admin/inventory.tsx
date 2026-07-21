@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Plus, Trash2, Save } from "lucide-react";
 
-export const Route = createFileRoute("/_admin/inventory")({
+export const Route = createFileRoute("/admin/inventory")({
   component: Inventory,
 });
 

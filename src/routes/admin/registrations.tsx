@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { Search, Download, CheckCircle2, XCircle, QrCode } from "lucide-react";
 import * as XLSX from "xlsx";
 
-export const Route = createFileRoute("/_admin/registrations")({
+export const Route = createFileRoute("/admin/registrations")({
   component: RegistrationsAdmin,
 });
 

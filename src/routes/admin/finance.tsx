@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 
-export const Route = createFileRoute("/_admin/finance")({
+export const Route = createFileRoute("/admin/finance")({
   component: Finance,
 });
 

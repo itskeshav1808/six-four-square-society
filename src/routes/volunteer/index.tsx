@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { CheckCircle2 } from "lucide-react";
 
-export const Route = createFileRoute("/_volunteer/")({
+export const Route = createFileRoute("/volunteer/")({
   component: VolunteerTasks,
 });
 

@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line, CartesianGrid } from "recharts";
 
-export const Route = createFileRoute("/_admin/analytics")({
+export const Route = createFileRoute("/admin/analytics")({
   component: Analytics,
 });
 

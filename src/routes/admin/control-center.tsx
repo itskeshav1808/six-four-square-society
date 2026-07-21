@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Radio, Users, CheckCircle2, PlayCircle } from "lucide-react";
 
-export const Route = createFileRoute("/_admin/control-center")({
+export const Route = createFileRoute("/admin/control-center")({
   component: ControlCenter,
 });
 

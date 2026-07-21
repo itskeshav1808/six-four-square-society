@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Search, CheckCircle2, Camera, CameraOff } from "lucide-react";
 
-export const Route = createFileRoute("/_volunteer/check-in")({
+export const Route = createFileRoute("/volunteer/check-in")({
   component: CheckIn,
 });
 

@@ -4,7 +4,7 @@ import { LayoutDashboard, Trophy, Users, ShieldCheck, Radio, HandCoins, Package,
 import { Brand } from "@/components/brand";
 import { ThemeToggle } from "@/components/theme-toggle";
 
-export const Route = createFileRoute("/_admin")({
+export const Route = createFileRoute("/admin")({
   component: AdminLayout,
 });
 
