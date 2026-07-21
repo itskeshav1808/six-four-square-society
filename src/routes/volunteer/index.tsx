@@ -16,7 +16,7 @@ function VolunteerTasks() {
   };
   useEffect(() => { load(); }, []);
 
-  const setStatus = async (id: string, status: string) => {
+  const setStatus = async (id: string, status: "pending" | "in_progress" | "completed") => {
     await supabase.from("volunteer_tasks").update({ status, completed_at: status === "completed" ? new Date().toISOString() : null }).eq("id", id);
     toast.success("Updated");
     load();
