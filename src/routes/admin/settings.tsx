@@ -27,7 +27,7 @@ function Settings() {
     const { error } = await supabase.from("admin_allowlist").insert({ email: newEmail.toLowerCase().trim() });
     if (error) toast.error(error.message); else { toast.success("Added"); setNewEmail(""); load(); }
   };
-  const remAllow = async (id: string) => { await supabase.from("admin_allowlist").delete().eq("id", id); load(); };
+  const remAllow = async (email: string) => { await supabase.from("admin_allowlist").delete().eq("email", email); load(); };
   const saveContent = async (item: any) => {
     await supabase.from("site_content").update({ body: item.body } as any).eq("key", item.key);
     toast.success(`Saved ${item.key}`);
