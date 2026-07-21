@@ -1,8 +1,9 @@
-import { createFileRoute, Outlet, Link, redirect, useRouter, useRouterState } from "@tanstack/react-router";
+import { createFileRoute, Outlet, Link, useRouterState } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth-context";
-import { LayoutDashboard, Trophy, Users, ShieldCheck, Radio, HandCoins, Package, Award, Image, BarChart3, Settings, LogOut, Handshake, ClipboardList, Megaphone } from "lucide-react";
+import { LayoutDashboard, Trophy, Users, ShieldCheck, Radio, HandCoins, Package, Award, Image, BarChart3, Settings, LogOut, Handshake, ClipboardList, Megaphone, Menu, X } from "lucide-react";
 import { Brand } from "@/components/brand";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { useEffect, useState } from "react";
 
 export const Route = createFileRoute("/admin")({
   component: AdminLayout,
@@ -28,6 +29,12 @@ const nav: { to: string; label: string; icon: any; exact?: boolean }[] = [
 function AdminLayout() {
   const { user, role, loading, signOut } = useAuth();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const [open, setOpen] = useState(false);
+
+  // Auto-close the drawer whenever the route changes
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
 
   if (loading) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Loading…</div>;
   if (!user) {
@@ -50,14 +57,46 @@ function AdminLayout() {
 
   return (
     <div className="min-h-screen bg-background">
-      <aside className="fixed inset-y-0 left-0 w-60 border-r border-border bg-card/50 backdrop-blur flex flex-col">
-        <Link to="/admin" className="p-4 border-b border-border"><Brand size={32} /></Link>
+      {/* Mobile top bar */}
+      <header className="lg:hidden fixed top-0 inset-x-0 z-40 h-14 flex items-center justify-between px-3 border-b border-border bg-card/80 backdrop-blur">
+        <button
+          onClick={() => setOpen(true)}
+          className="p-2 rounded-lg hover:bg-muted"
+          aria-label="Open menu"
+        >
+          <Menu size={20} />
+        </button>
+        <Link to="/admin"><Brand size={28} /></Link>
+        <ThemeToggle />
+      </header>
+
+      {/* Backdrop (mobile only) */}
+      {open && (
+        <div
+          onClick={() => setOpen(false)}
+          className="lg:hidden fixed inset-0 z-40 bg-black/50 backdrop-blur-sm"
+        />
+      )}
+
+      <aside
+        className={`fixed inset-y-0 left-0 z-50 w-64 border-r border-border bg-card flex flex-col transition-transform duration-200 lg:translate-x-0 ${open ? "translate-x-0" : "-translate-x-full"} lg:bg-card/50 lg:backdrop-blur`}
+      >
+        <div className="flex items-center justify-between p-4 border-b border-border">
+          <Link to="/admin"><Brand size={32} /></Link>
+          <button
+            onClick={() => setOpen(false)}
+            className="lg:hidden p-1.5 rounded-md hover:bg-muted"
+            aria-label="Close menu"
+          >
+            <X size={18} />
+          </button>
+        </div>
         <nav className="flex-1 overflow-y-auto p-2 space-y-1">
           {nav.map((n) => {
             const active = n.exact ? pathname === n.to : pathname.startsWith(n.to);
             const Icon = n.icon;
             return (
-              <Link key={n.to} to={n.to as any} className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition ${active ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}>
+              <Link key={n.to} to={n.to as any} onClick={() => setOpen(false)} className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition ${active ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}>
                 <Icon size={16} />{n.label}
               </Link>
             );
@@ -68,7 +107,8 @@ function AdminLayout() {
           <button onClick={signOut} className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground"><LogOut size={14} />Sign out</button>
         </div>
       </aside>
-      <main className="ml-60 min-h-screen">
+
+      <main className="lg:ml-64 min-h-screen pt-14 lg:pt-0">
         <Outlet />
       </main>
     </div>
