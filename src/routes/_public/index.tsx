@@ -36,9 +36,7 @@ function Home() {
               <Sparkles size={14} className="text-gold" /> 64 Squares Society
             </span>
             <h1 className="mt-4 font-display text-5xl sm:text-7xl font-semibold leading-[1.05]">
-              {heroTitle?.title ?? "Every Move"}
-              <br />
-              <span className="text-gradient-gold">Matters</span>
+              <HeroTitle title={heroTitle?.title} />
             </h1>
             <p className="mt-6 text-lg text-muted-foreground max-w-xl">
               {heroSub?.title ?? "Premier chess tournaments, live standings, and a community built for the long game."}
