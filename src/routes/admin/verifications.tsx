@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { CheckCircle2, XCircle, ExternalLink } from "lucide-react";
 
-export const Route = createFileRoute("/_admin/verifications")({
+export const Route = createFileRoute("/admin/verifications")({
   component: Verifications,
 });
 

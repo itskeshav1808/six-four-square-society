@@ -4,7 +4,7 @@ import { Brand } from "@/components/brand";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { QrCode, ClipboardList, Megaphone, LogOut } from "lucide-react";
 
-export const Route = createFileRoute("/_volunteer")({
+export const Route = createFileRoute("/volunteer")({
   component: VolunteerLayout,
 });
 

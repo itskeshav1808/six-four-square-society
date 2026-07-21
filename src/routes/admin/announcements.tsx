@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Megaphone, Send, ExternalLink } from "lucide-react";
 
-export const Route = createFileRoute("/_admin/announcements")({
+export const Route = createFileRoute("/admin/announcements")({
   component: Announcements,
 });
 

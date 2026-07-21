@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Plus, Pencil, ExternalLink } from "lucide-react";
 
-export const Route = createFileRoute("/_admin/tournaments")({
+export const Route = createFileRoute("/admin/tournaments")({
   component: TournamentsAdmin,
 });
 

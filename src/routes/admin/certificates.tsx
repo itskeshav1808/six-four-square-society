@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { jsPDF } from "jspdf";
 import { Award, Download } from "lucide-react";
 
-export const Route = createFileRoute("/_admin/certificates")({
+export const Route = createFileRoute("/admin/certificates")({
   component: Certificates,
 });
 
