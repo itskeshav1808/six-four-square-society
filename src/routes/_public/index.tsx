@@ -15,6 +15,24 @@ export const Route = createFileRoute("/_public/")({
   component: Home,
 });
 
+function HeroTitle({ title }: { title?: string | null }) {
+  const full = title?.trim() || "Every Move Matters";
+  const idx = full.toLowerCase().lastIndexOf("matters");
+  if (idx === -1) {
+    return <>{full}</>;
+  }
+  const before = full.slice(0, idx).trimEnd();
+  const after = full.slice(idx + "matters".length).trimStart();
+  return (
+    <>
+      {before}
+      {before ? <br /> : null}
+      <span className="text-gradient-gold">Matters</span>
+      {after ? ` ${after}` : null}
+    </>
+  );
+}
+
 function Home() {
   const { data: featured } = useSuspenseQuery(featuredTournamentQuery);
   const { data: heroTitle } = useSuspenseQuery(siteContentQuery("home_hero_title"));
