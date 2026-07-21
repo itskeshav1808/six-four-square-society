@@ -45,9 +45,9 @@ function Settings() {
           </div>
           <div className="divide-y divide-border">
             {allow.map((a) => (
-              <div key={a.id} className="flex justify-between items-center py-2 text-sm">
+              <div key={a.email} className="flex justify-between items-center py-2 text-sm">
                 <span>{a.email}</span>
-                <button onClick={() => remAllow(a.id)} className="text-destructive"><Trash2 size={14} /></button>
+                <button onClick={() => remAllow(a.email)} className="text-destructive"><Trash2 size={14} /></button>
               </div>
             ))}
           </div>
