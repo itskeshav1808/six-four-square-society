@@ -2,31 +2,17 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { jsPDF } from "jspdf";
-import { Award, Download } from "lucide-react";
+import { Award, Download, FileArchive, Loader2 } from "lucide-react";
+import { makeCertificatePdf, mergeCertificatesToMaster } from "@/lib/certificate-pdf";
 
 export const Route = createFileRoute("/admin/certificates")({
   component: Certificates,
 });
 
-function makePdf({ recipient, title, details, tournamentName }: { recipient: string; title: string; details?: string; tournamentName: string }) {
-  const doc = new jsPDF({ orientation: "landscape", unit: "pt", format: "a4" });
-  const w = doc.internal.pageSize.getWidth();
-  const h = doc.internal.pageSize.getHeight();
-  doc.setFillColor(11, 18, 32); doc.rect(0, 0, w, h, "F");
-  doc.setDrawColor(212, 175, 55); doc.setLineWidth(4); doc.rect(24, 24, w - 48, h - 48);
-  doc.setDrawColor(212, 175, 55); doc.setLineWidth(1); doc.rect(36, 36, w - 72, h - 72);
-  doc.setTextColor(212, 175, 55); doc.setFont("times", "bold"); doc.setFontSize(14); doc.text("64 SQUARES SOCIETY", w / 2, 90, { align: "center" });
-  doc.setFontSize(10); doc.setFont("times", "italic"); doc.text("Every Move Matters", w / 2, 108, { align: "center" });
-  doc.setTextColor(255, 255, 255); doc.setFont("times", "bold"); doc.setFontSize(36); doc.text(title, w / 2, 180, { align: "center" });
-  doc.setFont("times", "normal"); doc.setFontSize(14); doc.text("This certificate is presented to", w / 2, 220, { align: "center" });
-  doc.setFont("times", "bold"); doc.setFontSize(46); doc.setTextColor(212, 175, 55); doc.text(recipient, w / 2, 285, { align: "center" });
-  doc.setTextColor(255, 255, 255); doc.setFont("times", "normal"); doc.setFontSize(14);
-  doc.text(`for outstanding participation in ${tournamentName}.`, w / 2, 325, { align: "center" });
-  if (details) doc.text(details, w / 2, 355, { align: "center" });
-  doc.setFontSize(10); doc.setTextColor(180, 180, 180);
-  doc.text(new Date().toLocaleDateString(), 100, h - 70); doc.text("Chief Arbiter", w - 100, h - 70, { align: "right" });
-  return doc;
+function playerUrl(slug?: string | null) {
+  if (!slug) return undefined;
+  const origin = typeof window !== "undefined" ? window.location.origin : "";
+  return `${origin}/players/${slug}`;
 }
 
 function Certificates() {
@@ -35,19 +21,52 @@ function Certificates() {
   const [regs, setRegs] = useState<any[]>([]);
   const [tpl, setTpl] = useState({ cert_type: "participation", title: "Certificate of Participation", details: "" });
   const [certs, setCerts] = useState<any[]>([]);
+  const [buildingMaster, setBuildingMaster] = useState(false);
 
-  useEffect(() => { supabase.from("tournaments").select("id,name").then(({ data }) => setTournaments(data ?? [])); }, []);
+  useEffect(() => {
+    supabase.from("tournaments").select("id,name").then(({ data }) => setTournaments(data ?? []));
+  }, []);
+
+  const refreshCerts = () => {
+    supabase
+      .from("certificates")
+      .select("*, player:players(full_name, slug), tournament:tournaments(name)")
+      .eq("tournament_id", tid)
+      .order("issued_at", { ascending: false })
+      .then(({ data }) => setCerts(data ?? []));
+  };
+
   useEffect(() => {
     if (!tid) return;
-    supabase.from("registrations").select("id, player:players(id, full_name)").eq("tournament_id", tid).eq("status", "approved").then(({ data }) => setRegs(data ?? []));
-    supabase.from("certificates").select("*, player:players(full_name)").eq("tournament_id", tid).order("issued_at", { ascending: false }).then(({ data }) => setCerts(data ?? []));
+    supabase
+      .from("registrations")
+      .select("id, player:players(id, full_name, slug)")
+      .eq("tournament_id", tid)
+      .eq("status", "approved")
+      .then(({ data }) => setRegs(data ?? []));
+    refreshCerts();
   }, [tid]);
 
   const issueOne = async (r: any, preview = false) => {
     const tn = tournaments.find((t) => t.id === tid)?.name ?? "";
-    const doc = makePdf({ recipient: r.player?.full_name, title: tpl.title, details: tpl.details, tournamentName: tn });
+    const target = playerUrl(r.player?.slug);
+    const doc = await makeCertificatePdf({
+      recipient: r.player?.full_name,
+      title: tpl.title,
+      details: tpl.details,
+      tournamentName: tn,
+      qrTargetUrl: target,
+    });
     if (preview) { doc.save(`${r.player?.full_name}.pdf`); return; }
-    await supabase.from("certificates").insert({ tournament_id: tid, player_id: r.player?.id, cert_type: tpl.cert_type, title: tpl.title, recipient_name: r.player?.full_name, details: tpl.details });
+    await supabase.from("certificates").insert({
+      tournament_id: tid,
+      player_id: r.player?.id,
+      cert_type: tpl.cert_type,
+      title: tpl.title,
+      recipient_name: r.player?.full_name,
+      details: tpl.details,
+      qr_target_url: target ?? null,
+    });
     doc.save(`${r.player?.full_name}.pdf`);
   };
 
@@ -55,12 +74,59 @@ function Certificates() {
     if (!regs.length) return toast.error("No approved players");
     for (const r of regs) await issueOne(r);
     toast.success(`Issued ${regs.length} certificates`);
-    supabase.from("certificates").select("*, player:players(full_name)").eq("tournament_id", tid).order("issued_at", { ascending: false }).then(({ data }) => setCerts(data ?? []));
+    refreshCerts();
+  };
+
+  const downloadMaster = async () => {
+    setBuildingMaster(true);
+    try {
+      const { data, error } = await supabase
+        .from("certificates")
+        .select("*, player:players(full_name, slug), tournament:tournaments(name)")
+        .order("issued_at", { ascending: true });
+      if (error) throw error;
+      if (!data?.length) { toast.error("No certificates issued yet"); return; }
+      toast.info(`Building master PDF (${data.length} certificates)…`);
+      const pdfs = [];
+      for (const c of data) {
+        const doc = await makeCertificatePdf({
+          recipient: c.recipient_name ?? c.player?.full_name ?? "Recipient",
+          title: c.title ?? "Certificate",
+          details: c.details ?? undefined,
+          tournamentName: c.tournament?.name ?? "",
+          issuedAt: c.issued_at,
+          qrTargetUrl: c.qr_target_url ?? playerUrl(c.player?.slug),
+        });
+        pdfs.push(doc);
+      }
+      const blob = await mergeCertificatesToMaster(pdfs);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `64squares-master-certificates-${new Date().toISOString().slice(0, 10)}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast.success("Master PDF downloaded");
+    } catch (e: any) {
+      toast.error(e.message ?? "Failed to build master PDF");
+    } finally {
+      setBuildingMaster(false);
+    }
   };
 
   return (
     <div className="p-8">
-      <h1 className="font-display text-3xl font-semibold mb-6">Certificate Generator</h1>
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+        <h1 className="font-display text-3xl font-semibold">Certificate Generator</h1>
+        <button
+          onClick={downloadMaster}
+          disabled={buildingMaster}
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-border bg-card hover:bg-accent/20 text-sm disabled:opacity-50"
+        >
+          {buildingMaster ? <Loader2 size={14} className="animate-spin" /> : <FileArchive size={14} />}
+          Download master PDF (all certificates)
+        </button>
+      </div>
       <div className="grid gap-6 lg:grid-cols-[1fr_1.5fr]">
         <div className="rounded-2xl border border-border bg-card p-5 space-y-3">
           <select value={tid} onChange={(e) => setTid(e.target.value)} className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"><option value="">Select tournament</option>{tournaments.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}</select>
@@ -70,6 +136,7 @@ function Certificates() {
           <input placeholder="Title" value={tpl.title} onChange={(e) => setTpl({ ...tpl, title: e.target.value })} className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm" />
           <textarea placeholder="Details / achievement" value={tpl.details} onChange={(e) => setTpl({ ...tpl, details: e.target.value })} rows={3} className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm" />
           <button onClick={issueAll} disabled={!tid} className="w-full py-2 rounded-lg bg-primary text-primary-foreground text-sm disabled:opacity-50 inline-flex items-center justify-center gap-2"><Award size={14} />Generate for all approved</button>
+          <p className="text-xs text-muted-foreground">Each certificate PDF includes a QR code linking to that player's public Chess Passport.</p>
         </div>
 
         <div className="rounded-2xl border border-border bg-card p-5">

@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { ArrowRight, Trophy, Users, Calendar, Sparkles } from "lucide-react";
 import { featuredTournamentQuery, siteContentQuery, sponsorsQuery } from "@/lib/supabase-queries";
 import { format } from "date-fns";
+import { DailyPuzzle } from "@/components/daily-puzzle";
 
 export const Route = createFileRoute("/_public/")({
   loader: ({ context }) => {
@@ -110,6 +111,9 @@ function Home() {
           </motion.div>
         </section>
       )}
+
+      {/* Daily puzzle */}
+      <DailyPuzzle />
 
       {/* Value props */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
