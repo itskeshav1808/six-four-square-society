@@ -40,6 +40,7 @@ function Register() {
   const [proofUrl, setProofUrl] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [showGateway, setShowGateway] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
 
   useEffect(() => {
     if (tournament?.tournament_categories?.[0]) setCategoryId(tournament.tournament_categories[0].id);
@@ -76,6 +77,7 @@ function Register() {
         status: payment.status === "verified" ? "approved" : "pending",
         dummy_payment_id: payment.dummy_payment_id ?? null,
         proof_url: payment.proof_url ?? null,
+        terms_accepted_at: new Date().toISOString(),
       }).select().single();
       if (re) throw re;
 
@@ -99,11 +101,13 @@ function Register() {
   };
 
   const onGatewaySuccess = async (paymentId: string) => {
+    if (!termsAccepted) { toast.error("Please accept the Terms & Privacy Policy"); return; }
     const reg = await submit({ method: "dummy_gateway", status: "verified", dummy_payment_id: paymentId });
     if (reg) nav({ to: "/register/success/$id", params: { id: reg.id } });
   };
 
   const onManualSubmit = async () => {
+    if (!termsAccepted) { toast.error("Please accept the Terms & Privacy Policy"); return; }
     if (!proofUrl.trim()) { toast.error("Please add a link to your payment proof"); return; }
     const reg = await submit({ method: "manual_proof", status: "pending", proof_url: proofUrl });
     if (reg) nav({ to: "/register/success/$id", params: { id: reg.id } });
@@ -196,16 +200,32 @@ function Register() {
               </button>
             </div>
 
+            <label className="flex items-start gap-3 text-sm rounded-xl border border-border bg-muted/30 p-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={termsAccepted}
+                onChange={(e) => setTermsAccepted(e.target.checked)}
+                className="mt-1 h-4 w-4 accent-[color:var(--color-primary)]"
+              />
+              <span>
+                I agree to the{" "}
+                <a href="/terms" target="_blank" rel="noreferrer" className="underline text-gold">Terms &amp; Conditions</a>{" "}
+                and{" "}
+                <a href="/privacy" target="_blank" rel="noreferrer" className="underline text-gold">Privacy Policy</a>.
+                {" "}For junior categories, a parent or guardian must accept on the player's behalf.
+              </span>
+            </label>
+
             {paymentPath === "gateway" ? (
-              <button disabled={submitting} onClick={() => setShowGateway(true)} className="w-full py-3 rounded-lg bg-primary text-primary-foreground font-medium hover:opacity-90 disabled:opacity-50">
-                Pay ₹{amount}
+              <button disabled={submitting || !termsAccepted} onClick={() => setShowGateway(true)} className="w-full py-3 rounded-lg bg-primary text-primary-foreground font-medium hover:opacity-90 disabled:opacity-50">
+                {termsAccepted ? `Pay ₹${amount}` : "Accept Terms to continue"}
               </button>
             ) : (
               <div className="space-y-3">
                 <div className="text-sm text-muted-foreground">Pay via UPI / bank transfer, then paste a link to your screenshot (Google Drive, Imgur, etc).</div>
                 <input value={proofUrl} onChange={(e) => setProofUrl(e.target.value)} placeholder="https://..." className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm" />
-                <button disabled={submitting} onClick={onManualSubmit} className="w-full py-3 rounded-lg bg-primary text-primary-foreground font-medium disabled:opacity-50">
-                  {submitting ? "Submitting…" : "Submit registration"}
+                <button disabled={submitting || !termsAccepted} onClick={onManualSubmit} className="w-full py-3 rounded-lg bg-primary text-primary-foreground font-medium disabled:opacity-50">
+                  {submitting ? "Submitting…" : termsAccepted ? "Submit registration" : "Accept Terms to continue"}
                 </button>
               </div>
             )}
