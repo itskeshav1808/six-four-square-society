@@ -95,6 +95,8 @@ export function PublicFooter() {
           <Link to="/prize-structure" className="text-muted-foreground hover:text-foreground">Prizes</Link>
           <Link to="/gallery" className="text-muted-foreground hover:text-foreground">Gallery</Link>
           <Link to="/sponsors" className="text-muted-foreground hover:text-foreground">Sponsors</Link>
+          <Link to="/privacy" className="text-muted-foreground hover:text-foreground">Privacy Policy</Link>
+          <Link to="/terms" className="text-muted-foreground hover:text-foreground">Terms &amp; Conditions</Link>
         </div>
         <div className="text-sm text-muted-foreground">
           <div>64squaressociety@gmail.com</div>
