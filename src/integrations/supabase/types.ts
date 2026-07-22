@@ -111,6 +111,7 @@ export type Database = {
           issued_at: string
           pdf_url: string | null
           player_id: string | null
+          qr_target_url: string | null
           recipient_name: string
           title: string
           tournament_id: string | null
@@ -123,6 +124,7 @@ export type Database = {
           issued_at?: string
           pdf_url?: string | null
           player_id?: string | null
+          qr_target_url?: string | null
           recipient_name: string
           title: string
           tournament_id?: string | null
@@ -135,6 +137,7 @@ export type Database = {
           issued_at?: string
           pdf_url?: string | null
           player_id?: string | null
+          qr_target_url?: string | null
           recipient_name?: string
           title?: string
           tournament_id?: string | null
@@ -515,6 +518,42 @@ export type Database = {
         }
         Relationships: []
       }
+      puzzles: {
+        Row: {
+          created_at: string
+          fen: string
+          hint: string | null
+          id: string
+          is_active: boolean
+          side_to_move: string
+          solution: string
+          source: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          fen: string
+          hint?: string | null
+          id?: string
+          is_active?: boolean
+          side_to_move?: string
+          solution: string
+          source?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          fen?: string
+          hint?: string | null
+          id?: string
+          is_active?: boolean
+          side_to_move?: string
+          solution?: string
+          source?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       registrations: {
         Row: {
           amount: number | null
@@ -536,6 +575,7 @@ export type Database = {
           proof_url: string | null
           qr_token: string
           status: Database["public"]["Enums"]["registration_status"]
+          terms_accepted_at: string | null
           tournament_id: string
           updated_at: string
         }
@@ -559,6 +599,7 @@ export type Database = {
           proof_url?: string | null
           qr_token?: string
           status?: Database["public"]["Enums"]["registration_status"]
+          terms_accepted_at?: string | null
           tournament_id: string
           updated_at?: string
         }
@@ -582,6 +623,7 @@ export type Database = {
           proof_url?: string | null
           qr_token?: string
           status?: Database["public"]["Enums"]["registration_status"]
+          terms_accepted_at?: string | null
           tournament_id?: string
           updated_at?: string
         }
