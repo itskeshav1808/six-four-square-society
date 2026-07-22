@@ -31,11 +31,13 @@ import { Route as AdminControlCenterRouteImport } from './routes/admin/control-c
 import { Route as AdminCertificatesRouteImport } from './routes/admin/certificates'
 import { Route as AdminAnnouncementsRouteImport } from './routes/admin/announcements'
 import { Route as AdminAnalyticsRouteImport } from './routes/admin/analytics'
+import { Route as PublicTermsRouteImport } from './routes/_public/terms'
 import { Route as PublicSponsorsRouteImport } from './routes/_public/sponsors'
 import { Route as PublicRulesRouteImport } from './routes/_public/rules'
 import { Route as PublicResultsRouteImport } from './routes/_public/results'
 import { Route as PublicRegisterRouteImport } from './routes/_public/register'
 import { Route as PublicPrizeStructureRouteImport } from './routes/_public/prize-structure'
+import { Route as PublicPrivacyRouteImport } from './routes/_public/privacy'
 import { Route as PublicGalleryRouteImport } from './routes/_public/gallery'
 import { Route as PublicContactRouteImport } from './routes/_public/contact'
 import { Route as PublicAboutRouteImport } from './routes/_public/about'
@@ -153,6 +155,11 @@ const AdminAnalyticsRoute = AdminAnalyticsRouteImport.update({
   path: '/analytics',
   getParentRoute: () => AdminRoute,
 } as any)
+const PublicTermsRoute = PublicTermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => PublicRoute,
+} as any)
 const PublicSponsorsRoute = PublicSponsorsRouteImport.update({
   id: '/sponsors',
   path: '/sponsors',
@@ -176,6 +183,11 @@ const PublicRegisterRoute = PublicRegisterRouteImport.update({
 const PublicPrizeStructureRoute = PublicPrizeStructureRouteImport.update({
   id: '/prize-structure',
   path: '/prize-structure',
+  getParentRoute: () => PublicRoute,
+} as any)
+const PublicPrivacyRoute = PublicPrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
   getParentRoute: () => PublicRoute,
 } as any)
 const PublicGalleryRoute = PublicGalleryRouteImport.update({
@@ -222,11 +234,13 @@ export interface FileRoutesByFullPath {
   '/about': typeof PublicAboutRoute
   '/contact': typeof PublicContactRoute
   '/gallery': typeof PublicGalleryRoute
+  '/privacy': typeof PublicPrivacyRoute
   '/prize-structure': typeof PublicPrizeStructureRoute
   '/register': typeof PublicRegisterRouteWithChildren
   '/results': typeof PublicResultsRoute
   '/rules': typeof PublicRulesRoute
   '/sponsors': typeof PublicSponsorsRoute
+  '/terms': typeof PublicTermsRoute
   '/admin/analytics': typeof AdminAnalyticsRoute
   '/admin/announcements': typeof AdminAnnouncementsRoute
   '/admin/certificates': typeof AdminCertificatesRoute
@@ -254,11 +268,13 @@ export interface FileRoutesByTo {
   '/about': typeof PublicAboutRoute
   '/contact': typeof PublicContactRoute
   '/gallery': typeof PublicGalleryRoute
+  '/privacy': typeof PublicPrivacyRoute
   '/prize-structure': typeof PublicPrizeStructureRoute
   '/register': typeof PublicRegisterRouteWithChildren
   '/results': typeof PublicResultsRoute
   '/rules': typeof PublicRulesRoute
   '/sponsors': typeof PublicSponsorsRoute
+  '/terms': typeof PublicTermsRoute
   '/admin/analytics': typeof AdminAnalyticsRoute
   '/admin/announcements': typeof AdminAnnouncementsRoute
   '/admin/certificates': typeof AdminCertificatesRoute
@@ -291,11 +307,13 @@ export interface FileRoutesById {
   '/_public/about': typeof PublicAboutRoute
   '/_public/contact': typeof PublicContactRoute
   '/_public/gallery': typeof PublicGalleryRoute
+  '/_public/privacy': typeof PublicPrivacyRoute
   '/_public/prize-structure': typeof PublicPrizeStructureRoute
   '/_public/register': typeof PublicRegisterRouteWithChildren
   '/_public/results': typeof PublicResultsRoute
   '/_public/rules': typeof PublicRulesRoute
   '/_public/sponsors': typeof PublicSponsorsRoute
+  '/_public/terms': typeof PublicTermsRoute
   '/admin/analytics': typeof AdminAnalyticsRoute
   '/admin/announcements': typeof AdminAnnouncementsRoute
   '/admin/certificates': typeof AdminCertificatesRoute
@@ -329,11 +347,13 @@ export interface FileRouteTypes {
     | '/about'
     | '/contact'
     | '/gallery'
+    | '/privacy'
     | '/prize-structure'
     | '/register'
     | '/results'
     | '/rules'
     | '/sponsors'
+    | '/terms'
     | '/admin/analytics'
     | '/admin/announcements'
     | '/admin/certificates'
@@ -361,11 +381,13 @@ export interface FileRouteTypes {
     | '/about'
     | '/contact'
     | '/gallery'
+    | '/privacy'
     | '/prize-structure'
     | '/register'
     | '/results'
     | '/rules'
     | '/sponsors'
+    | '/terms'
     | '/admin/analytics'
     | '/admin/announcements'
     | '/admin/certificates'
@@ -397,11 +419,13 @@ export interface FileRouteTypes {
     | '/_public/about'
     | '/_public/contact'
     | '/_public/gallery'
+    | '/_public/privacy'
     | '/_public/prize-structure'
     | '/_public/register'
     | '/_public/results'
     | '/_public/rules'
     | '/_public/sponsors'
+    | '/_public/terms'
     | '/admin/analytics'
     | '/admin/announcements'
     | '/admin/certificates'
@@ -589,6 +613,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAnalyticsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/_public/terms': {
+      id: '/_public/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof PublicTermsRouteImport
+      parentRoute: typeof PublicRoute
+    }
     '/_public/sponsors': {
       id: '/_public/sponsors'
       path: '/sponsors'
@@ -622,6 +653,13 @@ declare module '@tanstack/react-router' {
       path: '/prize-structure'
       fullPath: '/prize-structure'
       preLoaderRoute: typeof PublicPrizeStructureRouteImport
+      parentRoute: typeof PublicRoute
+    }
+    '/_public/privacy': {
+      id: '/_public/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PublicPrivacyRouteImport
       parentRoute: typeof PublicRoute
     }
     '/_public/gallery': {
@@ -692,11 +730,13 @@ interface PublicRouteChildren {
   PublicAboutRoute: typeof PublicAboutRoute
   PublicContactRoute: typeof PublicContactRoute
   PublicGalleryRoute: typeof PublicGalleryRoute
+  PublicPrivacyRoute: typeof PublicPrivacyRoute
   PublicPrizeStructureRoute: typeof PublicPrizeStructureRoute
   PublicRegisterRoute: typeof PublicRegisterRouteWithChildren
   PublicResultsRoute: typeof PublicResultsRoute
   PublicRulesRoute: typeof PublicRulesRoute
   PublicSponsorsRoute: typeof PublicSponsorsRoute
+  PublicTermsRoute: typeof PublicTermsRoute
   PublicIndexRoute: typeof PublicIndexRoute
   PublicPlayersSlugRoute: typeof PublicPlayersSlugRoute
   PublicTournamentsSlugRoute: typeof PublicTournamentsSlugRoute
@@ -707,11 +747,13 @@ const PublicRouteChildren: PublicRouteChildren = {
   PublicAboutRoute: PublicAboutRoute,
   PublicContactRoute: PublicContactRoute,
   PublicGalleryRoute: PublicGalleryRoute,
+  PublicPrivacyRoute: PublicPrivacyRoute,
   PublicPrizeStructureRoute: PublicPrizeStructureRoute,
   PublicRegisterRoute: PublicRegisterRouteWithChildren,
   PublicResultsRoute: PublicResultsRoute,
   PublicRulesRoute: PublicRulesRoute,
   PublicSponsorsRoute: PublicSponsorsRoute,
+  PublicTermsRoute: PublicTermsRoute,
   PublicIndexRoute: PublicIndexRoute,
   PublicPlayersSlugRoute: PublicPlayersSlugRoute,
   PublicTournamentsSlugRoute: PublicTournamentsSlugRoute,
@@ -782,13 +824,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
