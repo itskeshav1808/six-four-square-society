@@ -76,20 +76,20 @@ function PlayerPage() {
     queryFn: async () => {
       const { data: pairings } = await supabase
         .from("pairings")
-        .select("id, result, white_id, black_id, round:rounds(round_number, status, tournament:tournaments(name,start_date))")
-        .or(`white_id.eq.${p.id},black_id.eq.${p.id}`);
+        .select("id, result, white_player_id, black_player_id, round:rounds(round_number, is_completed, is_published, tournament:tournaments(name,start_date))")
+        .or(`white_player_id.eq.${p.id},black_player_id.eq.${p.id}`);
       const enriched = await Promise.all((pairings ?? []).map(async (pr: any) => {
-        const oppId = pr.white_id === p.id ? pr.black_id : pr.white_id;
+        const oppId = pr.white_player_id === p.id ? pr.black_player_id : pr.white_player_id;
         if (!oppId) return { ...pr, opp: null };
         const { data: opp } = await supabase
           .from("players")
           .select("id, full_name, slug, rating, city")
           .eq("id", oppId)
           .maybeSingle();
-        return { ...pr, opp, playerSide: pr.white_id === p.id ? "white" : "black" };
+        return { ...pr, opp, playerSide: pr.white_player_id === p.id ? "white" : "black" };
       }));
-      const upcoming = enriched.find((e: any) => e.round?.status !== "completed" && !e.result);
-      const past = enriched.filter((e: any) => e.round?.status === "completed" || e.result);
+      const upcoming = enriched.find((e: any) => e.round?.is_published && !e.round?.is_completed && !e.result);
+      const past = enriched.filter((e: any) => e.round?.is_completed || (e.result && e.result !== ""));
       return { upcoming, past };
     },
   });
@@ -289,8 +289,8 @@ function ScoutStat({ label, value, color }: { label: string; value: number; colo
 }
 
 function formatResult(m: any, playerId: string) {
-  if (m.result === "draw") return "Draw";
-  if (m.result === "white_wins") return m.white_id === playerId ? "Win" : "Loss";
-  if (m.result === "black_wins") return m.black_id === playerId ? "Win" : "Loss";
+  if (m.result === "draw" || m.result === "1/2-1/2") return "Draw";
+  if (m.result === "white_wins" || m.result === "1-0") return m.white_player_id === playerId ? "Win" : "Loss";
+  if (m.result === "black_wins" || m.result === "0-1") return m.black_player_id === playerId ? "Win" : "Loss";
   return "—";
 }
