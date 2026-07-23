@@ -9,7 +9,25 @@ export type CertInput = {
   tournamentName: string;
   issuedAt?: string | Date;
   qrTargetUrl?: string; // e.g. https://.../players/<slug>
+  photoUrl?: string;
 };
+
+async function fetchImageDataUrl(url: string): Promise<{ dataUrl: string; format: "PNG" | "JPEG" } | null> {
+  try {
+    const res = await fetch(url, { mode: "cors" });
+    if (!res.ok) return null;
+    const blob = await res.blob();
+    const format = blob.type.includes("png") ? "PNG" : "JPEG";
+    return await new Promise((resolve) => {
+      const fr = new FileReader();
+      fr.onload = () => resolve({ dataUrl: fr.result as string, format });
+      fr.onerror = () => resolve(null);
+      fr.readAsDataURL(blob);
+    });
+  } catch {
+    return null;
+  }
+}
 
 export async function makeCertificatePdf(input: CertInput): Promise<jsPDF> {
   const doc = new jsPDF({ orientation: "landscape", unit: "pt", format: "a4" });
