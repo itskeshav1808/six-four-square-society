@@ -111,10 +111,12 @@ function RegistrationsAdmin() {
                   </select>
                 </td>
                 <td className="px-3 py-2"><span className={`text-xs ${r.checkin_status === "checked_in" ? "text-success" : "text-muted-foreground"}`}>{r.checkin_status}</span></td>
-                <td className="px-3 py-2 flex gap-1">
-                  {r.status !== "approved" && <button onClick={() => approve(r)} title="Approve" className="p-1 rounded hover:bg-success/10 text-success"><CheckCircle2 size={16} /></button>}
-                  {r.status !== "rejected" && <button onClick={() => reject(r)} title="Reject" className="p-1 rounded hover:bg-destructive/10 text-destructive"><XCircle size={16} /></button>}
-                  <a href={`/register/success/${r.id}`} target="_blank" rel="noreferrer" title="QR" className="p-1 rounded hover:bg-muted"><QrCode size={16} /></a>
+                <td className="px-3 py-2">
+                  <div className="flex gap-1">
+                    <button onClick={() => approve(r)} disabled={r.status === "approved"} title="Approve" className="p-1 rounded hover:bg-success/10 text-success disabled:opacity-30 disabled:cursor-not-allowed"><CheckCircle2 size={16} /></button>
+                    <button onClick={() => reject(r)} disabled={r.status === "rejected"} title="Reject" className="p-1 rounded hover:bg-destructive/10 text-destructive disabled:opacity-30 disabled:cursor-not-allowed"><XCircle size={16} /></button>
+                    <a href={`/register/success/${r.id}`} target="_blank" rel="noreferrer" title="View QR" className="p-1 rounded hover:bg-muted"><QrCode size={16} /></a>
+                  </div>
                 </td>
               </tr>
             ))}
