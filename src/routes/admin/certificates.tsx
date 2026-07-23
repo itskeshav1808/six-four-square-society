@@ -40,7 +40,7 @@ function Certificates() {
     if (!tid) return;
     supabase
       .from("registrations")
-      .select("id, player:players(id, full_name, slug)")
+      .select("id, player:players(id, full_name, slug, avatar_url)")
       .eq("tournament_id", tid)
       .eq("status", "approved")
       .then(({ data }) => setRegs(data ?? []));
