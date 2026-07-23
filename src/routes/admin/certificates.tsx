@@ -83,7 +83,7 @@ function Certificates() {
     try {
       const { data, error } = await supabase
         .from("certificates")
-        .select("*, player:players(full_name, slug), tournament:tournaments(name)")
+        .select("*, player:players(full_name, slug, avatar_url), tournament:tournaments(name)")
         .order("issued_at", { ascending: true });
       if (error) throw error;
       if (!data?.length) { toast.error("No certificates issued yet"); return; }
@@ -97,6 +97,7 @@ function Certificates() {
           tournamentName: c.tournament?.name ?? "",
           issuedAt: c.issued_at,
           qrTargetUrl: c.qr_target_url ?? playerUrl(c.player?.slug),
+          photoUrl: c.player?.avatar_url ?? undefined,
         });
         pdfs.push(doc);
       }
