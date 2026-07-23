@@ -40,6 +40,29 @@ export async function makeCertificatePdf(input: CertInput): Promise<jsPDF> {
   doc.text("64 SQUARES SOCIETY", w / 2, 90, { align: "center" });
   doc.setFontSize(10); doc.setFont("times", "italic");
   doc.text("Every Move Matters", w / 2, 108, { align: "center" });
+
+  if (input.photoUrl) {
+    const img = await fetchImageDataUrl(input.photoUrl);
+    if (img) {
+      const size = 96;
+      const cx = w / 2;
+      const cy = 200;
+      // gold ring
+      doc.setFillColor(212, 175, 55);
+      doc.circle(cx, cy, size / 2 + 4, "F");
+      doc.setFillColor(11, 18, 32);
+      doc.circle(cx, cy, size / 2 + 2, "F");
+      // clip to circle and draw image
+      try {
+        (doc as any).saveGraphicsState?.();
+        doc.circle(cx, cy, size / 2, "S");
+        doc.addImage(img.dataUrl, img.format, cx - size / 2, cy - size / 2, size, size);
+        (doc as any).restoreGraphicsState?.();
+      } catch {
+        doc.addImage(img.dataUrl, img.format, cx - size / 2, cy - size / 2, size, size);
+      }
+    }
+  }
   doc.setTextColor(255, 255, 255); doc.setFont("times", "bold"); doc.setFontSize(36);
   doc.text(input.title, w / 2, 180, { align: "center" });
   doc.setFont("times", "normal"); doc.setFontSize(14);
