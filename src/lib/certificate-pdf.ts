@@ -44,22 +44,17 @@ export async function makeCertificatePdf(input: CertInput): Promise<jsPDF> {
   if (input.photoUrl) {
     const img = await fetchImageDataUrl(input.photoUrl);
     if (img) {
-      const size = 96;
-      const cx = w / 2;
-      const cy = 200;
-      // gold ring
+      const size = 80;
+      const cx = 90;
+      const cy = 90;
       doc.setFillColor(212, 175, 55);
       doc.circle(cx, cy, size / 2 + 4, "F");
       doc.setFillColor(11, 18, 32);
       doc.circle(cx, cy, size / 2 + 2, "F");
-      // clip to circle and draw image
       try {
-        (doc as any).saveGraphicsState?.();
-        doc.circle(cx, cy, size / 2, "S");
         doc.addImage(img.dataUrl, img.format, cx - size / 2, cy - size / 2, size, size);
-        (doc as any).restoreGraphicsState?.();
       } catch {
-        doc.addImage(img.dataUrl, img.format, cx - size / 2, cy - size / 2, size, size);
+        // ignore image errors
       }
     }
   }
