@@ -56,6 +56,7 @@ function Certificates() {
       details: tpl.details,
       tournamentName: tn,
       qrTargetUrl: target,
+      photoUrl: r.player?.avatar_url ?? undefined,
     });
     if (preview) { doc.save(`${r.player?.full_name}.pdf`); return; }
     await supabase.from("certificates").insert({
