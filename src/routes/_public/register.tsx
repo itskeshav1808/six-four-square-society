@@ -52,7 +52,35 @@ function Register() {
   const category = tournament?.tournament_categories?.find((c: any) => c.id === categoryId);
   const amount = Number(category?.entry_fee ?? tournament?.entry_fee ?? 0);
 
-  const canStep2 = tournamentSlug && player.full_name && player.email && player.phone && player.city && categoryId;
+  const canStep2 = tournamentSlug && player.full_name && player.email && player.phone && player.city && categoryId && photoFile;
+
+  const onPhotoChange = (f: File | null) => {
+    if (!f) { setPhotoFile(null); setPhotoPreview(""); return; }
+    if (!f.type.startsWith("image/")) { toast.error("Please upload an image file"); return; }
+    if (f.size > 5 * 1024 * 1024) { toast.error("Photo must be under 5MB"); return; }
+    setPhotoFile(f);
+    setPhotoPreview(URL.createObjectURL(f));
+  };
+
+  const uploadPhoto = async (): Promise<string | null> => {
+    if (!photoFile) return null;
+    setUploadingPhoto(true);
+    try {
+      const ext = photoFile.name.split(".").pop()?.toLowerCase() || "jpg";
+      const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+      const { error } = await supabase.storage.from("player-photos").upload(path, photoFile, {
+        contentType: photoFile.type, upsert: false,
+      });
+      if (error) throw error;
+      const { data: signed } = await supabase.storage.from("player-photos").createSignedUrl(path, 60 * 60 * 24 * 365 * 5);
+      return signed?.signedUrl ?? null;
+    } catch (e: any) {
+      toast.error(e.message ?? "Photo upload failed");
+      return null;
+    } finally {
+      setUploadingPhoto(false);
+    }
+  };
 
   const submit = async (payment: { method: "dummy_gateway" | "manual_proof"; status: "verified" | "pending"; dummy_payment_id?: string; proof_url?: string }) => {
     if (!tournament) return null;
