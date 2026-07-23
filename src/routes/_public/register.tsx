@@ -84,8 +84,11 @@ function Register() {
 
   const submit = async (payment: { method: "dummy_gateway" | "manual_proof"; status: "verified" | "pending"; dummy_payment_id?: string; proof_url?: string }) => {
     if (!tournament) return null;
+    if (!photoFile) { toast.error("Please upload your photo"); return null; }
     setSubmitting(true);
     try {
+      const avatarUrl = await uploadPhoto();
+      if (!avatarUrl) { setSubmitting(false); return null; }
       const { data: p, error: pe } = await supabase.from("players").insert({
         full_name: player.full_name, dob: player.dob || null, gender: player.gender || null,
         city: player.city, state: player.state || null, school: player.school || null,
@@ -94,6 +97,7 @@ function Register() {
         fide_id: player.fide_id || null, cda_id: player.cda_id || null,
         rating: player.rating ? parseInt(player.rating) : 0,
         emergency_contact: player.emergency_contact || null,
+        avatar_url: avatarUrl,
         slug: slugify(player.full_name),
       }).select().single();
       if (pe) throw pe;
