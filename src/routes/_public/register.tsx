@@ -35,6 +35,9 @@ function Register() {
     phone: "", email: "", parent_name: "", parent_phone: "",
     fide_id: "", cda_id: "", rating: "", emergency_contact: "",
   });
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string>("");
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [categoryId, setCategoryId] = useState<string>("");
   const [paymentPath, setPaymentPath] = useState<"gateway" | "proof">("gateway");
   const [proofUrl, setProofUrl] = useState("");
