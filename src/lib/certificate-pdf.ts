@@ -9,7 +9,25 @@ export type CertInput = {
   tournamentName: string;
   issuedAt?: string | Date;
   qrTargetUrl?: string; // e.g. https://.../players/<slug>
+  photoUrl?: string;
 };
+
+async function fetchImageDataUrl(url: string): Promise<{ dataUrl: string; format: "PNG" | "JPEG" } | null> {
+  try {
+    const res = await fetch(url, { mode: "cors" });
+    if (!res.ok) return null;
+    const blob = await res.blob();
+    const format = blob.type.includes("png") ? "PNG" : "JPEG";
+    return await new Promise((resolve) => {
+      const fr = new FileReader();
+      fr.onload = () => resolve({ dataUrl: fr.result as string, format });
+      fr.onerror = () => resolve(null);
+      fr.readAsDataURL(blob);
+    });
+  } catch {
+    return null;
+  }
+}
 
 export async function makeCertificatePdf(input: CertInput): Promise<jsPDF> {
   const doc = new jsPDF({ orientation: "landscape", unit: "pt", format: "a4" });
@@ -22,6 +40,24 @@ export async function makeCertificatePdf(input: CertInput): Promise<jsPDF> {
   doc.text("64 SQUARES SOCIETY", w / 2, 90, { align: "center" });
   doc.setFontSize(10); doc.setFont("times", "italic");
   doc.text("Every Move Matters", w / 2, 108, { align: "center" });
+
+  if (input.photoUrl) {
+    const img = await fetchImageDataUrl(input.photoUrl);
+    if (img) {
+      const size = 80;
+      const cx = 90;
+      const cy = 90;
+      doc.setFillColor(212, 175, 55);
+      doc.circle(cx, cy, size / 2 + 4, "F");
+      doc.setFillColor(11, 18, 32);
+      doc.circle(cx, cy, size / 2 + 2, "F");
+      try {
+        doc.addImage(img.dataUrl, img.format, cx - size / 2, cy - size / 2, size, size);
+      } catch {
+        // ignore image errors
+      }
+    }
+  }
   doc.setTextColor(255, 255, 255); doc.setFont("times", "bold"); doc.setFontSize(36);
   doc.text(input.title, w / 2, 180, { align: "center" });
   doc.setFont("times", "normal"); doc.setFontSize(14);

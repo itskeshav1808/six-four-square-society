@@ -40,7 +40,7 @@ function Certificates() {
     if (!tid) return;
     supabase
       .from("registrations")
-      .select("id, player:players(id, full_name, slug)")
+      .select("id, player:players(id, full_name, slug, avatar_url)")
       .eq("tournament_id", tid)
       .eq("status", "approved")
       .then(({ data }) => setRegs(data ?? []));
@@ -56,6 +56,7 @@ function Certificates() {
       details: tpl.details,
       tournamentName: tn,
       qrTargetUrl: target,
+      photoUrl: r.player?.avatar_url ?? undefined,
     });
     if (preview) { doc.save(`${r.player?.full_name}.pdf`); return; }
     await supabase.from("certificates").insert({
@@ -82,7 +83,7 @@ function Certificates() {
     try {
       const { data, error } = await supabase
         .from("certificates")
-        .select("*, player:players(full_name, slug), tournament:tournaments(name)")
+        .select("*, player:players(full_name, slug, avatar_url), tournament:tournaments(name)")
         .order("issued_at", { ascending: true });
       if (error) throw error;
       if (!data?.length) { toast.error("No certificates issued yet"); return; }
@@ -96,6 +97,7 @@ function Certificates() {
           tournamentName: c.tournament?.name ?? "",
           issuedAt: c.issued_at,
           qrTargetUrl: c.qr_target_url ?? playerUrl(c.player?.slug),
+          photoUrl: c.player?.avatar_url ?? undefined,
         });
         pdfs.push(doc);
       }
