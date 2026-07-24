@@ -7,6 +7,8 @@ import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle2, XCircle, Loader2 } from "lucide-react";
 import QRCode from "qrcode";
+import { cropFaceSquare } from "@/lib/face-crop";
+
 
 type SearchParams = { tournament?: string };
 
@@ -54,22 +56,33 @@ function Register() {
 
   const canStep2 = tournamentSlug && player.full_name && player.email && player.phone && player.city && categoryId && photoFile;
 
-  const onPhotoChange = (f: File | null) => {
+  const onPhotoChange = async (f: File | null) => {
     if (!f) { setPhotoFile(null); setPhotoPreview(""); return; }
     if (!f.type.startsWith("image/")) { toast.error("Please upload an image file"); return; }
     if (f.size > 5 * 1024 * 1024) { toast.error("Photo must be under 5MB"); return; }
-    setPhotoFile(f);
-    setPhotoPreview(URL.createObjectURL(f));
+    setUploadingPhoto(true);
+    try {
+      // Face-aware square crop (falls back to center-crop if no face detected)
+      const cropped = await cropFaceSquare(f);
+      const croppedFile = new File([cropped], f.name.replace(/\.\w+$/, ".jpg"), { type: "image/jpeg" });
+      setPhotoFile(croppedFile);
+      setPhotoPreview(URL.createObjectURL(cropped));
+    } catch (err: any) {
+      // Fall back to using the original file as-is
+      console.warn("Face crop failed, using original photo:", err);
+      setPhotoFile(f);
+      setPhotoPreview(URL.createObjectURL(f));
+    } finally {
+      setUploadingPhoto(false);
+    }
   };
 
   const uploadPhoto = async (): Promise<string | null> => {
     if (!photoFile) return null;
-    setUploadingPhoto(true);
     try {
-      const ext = photoFile.name.split(".").pop()?.toLowerCase() || "jpg";
-      const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+      const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.jpg`;
       const { error } = await supabase.storage.from("player-photos").upload(path, photoFile, {
-        contentType: photoFile.type, upsert: false,
+        contentType: "image/jpeg", upsert: false,
       });
       if (error) throw error;
       const { data: signed } = await supabase.storage.from("player-photos").createSignedUrl(path, 60 * 60 * 24 * 365 * 5);
@@ -77,10 +90,9 @@ function Register() {
     } catch (e: any) {
       toast.error(e.message ?? "Photo upload failed");
       return null;
-    } finally {
-      setUploadingPhoto(false);
     }
   };
+
 
   const submit = async (payment: { method: "dummy_gateway" | "manual_proof"; status: "verified" | "pending"; dummy_payment_id?: string; proof_url?: string }) => {
     if (!tournament) return null;
