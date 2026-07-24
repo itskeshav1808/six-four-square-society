@@ -141,15 +141,24 @@ function PlayerPage() {
         <div className="absolute -bottom-24 -left-24 w-72 h-72 rounded-full bg-gold/10 blur-3xl" />
         <div className="relative flex items-start justify-between gap-6 flex-wrap">
           <div className="flex items-center gap-5">
-            <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-gold to-amber-600 flex items-center justify-center font-display text-3xl text-navy shadow-lg">
-              {initials}
-            </div>
+            {p.avatar_url ? (
+              <img
+                src={p.avatar_url}
+                alt={p.full_name}
+                className="w-24 h-24 rounded-full object-cover ring-2 ring-gold shadow-lg"
+              />
+            ) : (
+              <div className="w-24 h-24 rounded-full bg-gradient-to-br from-gold to-amber-600 flex items-center justify-center font-display text-3xl text-navy shadow-lg">
+                {initials}
+              </div>
+            )}
             <div>
               <div className="text-xs uppercase tracking-[0.25em] text-gold/80">64 Squares Society · Passport</div>
               <div className="mt-1 font-display text-3xl sm:text-4xl font-semibold">{p.full_name}</div>
               <div className="text-sm text-white/70 mt-1">{p.city}{p.state ? `, ${p.state}` : ""}{p.school ? ` · ${p.school}` : ""}</div>
             </div>
           </div>
+
           <div className="text-right">
             <div className="text-xs uppercase tracking-[0.2em] text-white/60">Rating</div>
             <div className="font-display text-5xl text-gold leading-none">{p.rating || "—"}</div>
