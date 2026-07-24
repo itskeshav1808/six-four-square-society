@@ -42,6 +42,7 @@ import { Route as PublicGalleryRouteImport } from './routes/_public/gallery'
 import { Route as PublicContactRouteImport } from './routes/_public/contact'
 import { Route as PublicAboutRouteImport } from './routes/_public/about'
 import { Route as PublicTournamentsIndexRouteImport } from './routes/_public/tournaments.index'
+import { Route as VCheckinTokenRouteImport } from './routes/v/checkin.$token'
 import { Route as PublicTournamentsSlugRouteImport } from './routes/_public/tournaments.$slug'
 import { Route as PublicPlayersSlugRouteImport } from './routes/_public/players.$slug'
 import { Route as PublicRegisterSuccessIdRouteImport } from './routes/_public/register.success.$id'
@@ -210,6 +211,11 @@ const PublicTournamentsIndexRoute = PublicTournamentsIndexRouteImport.update({
   path: '/tournaments/',
   getParentRoute: () => PublicRoute,
 } as any)
+const VCheckinTokenRoute = VCheckinTokenRouteImport.update({
+  id: '/v/checkin/$token',
+  path: '/v/checkin/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PublicTournamentsSlugRoute = PublicTournamentsSlugRouteImport.update({
   id: '/tournaments/$slug',
   path: '/tournaments/$slug',
@@ -260,6 +266,7 @@ export interface FileRoutesByFullPath {
   '/volunteer/': typeof VolunteerIndexRoute
   '/players/$slug': typeof PublicPlayersSlugRoute
   '/tournaments/$slug': typeof PublicTournamentsSlugRoute
+  '/v/checkin/$token': typeof VCheckinTokenRoute
   '/tournaments/': typeof PublicTournamentsIndexRoute
   '/register/success/$id': typeof PublicRegisterSuccessIdRoute
 }
@@ -295,6 +302,7 @@ export interface FileRoutesByTo {
   '/volunteer': typeof VolunteerIndexRoute
   '/players/$slug': typeof PublicPlayersSlugRoute
   '/tournaments/$slug': typeof PublicTournamentsSlugRoute
+  '/v/checkin/$token': typeof VCheckinTokenRoute
   '/tournaments': typeof PublicTournamentsIndexRoute
   '/register/success/$id': typeof PublicRegisterSuccessIdRoute
 }
@@ -334,6 +342,7 @@ export interface FileRoutesById {
   '/volunteer/': typeof VolunteerIndexRoute
   '/_public/players/$slug': typeof PublicPlayersSlugRoute
   '/_public/tournaments/$slug': typeof PublicTournamentsSlugRoute
+  '/v/checkin/$token': typeof VCheckinTokenRoute
   '/_public/tournaments/': typeof PublicTournamentsIndexRoute
   '/_public/register/success/$id': typeof PublicRegisterSuccessIdRoute
 }
@@ -373,6 +382,7 @@ export interface FileRouteTypes {
     | '/volunteer/'
     | '/players/$slug'
     | '/tournaments/$slug'
+    | '/v/checkin/$token'
     | '/tournaments/'
     | '/register/success/$id'
   fileRoutesByTo: FileRoutesByTo
@@ -408,6 +418,7 @@ export interface FileRouteTypes {
     | '/volunteer'
     | '/players/$slug'
     | '/tournaments/$slug'
+    | '/v/checkin/$token'
     | '/tournaments'
     | '/register/success/$id'
   id:
@@ -446,6 +457,7 @@ export interface FileRouteTypes {
     | '/volunteer/'
     | '/_public/players/$slug'
     | '/_public/tournaments/$slug'
+    | '/v/checkin/$token'
     | '/_public/tournaments/'
     | '/_public/register/success/$id'
   fileRoutesById: FileRoutesById
@@ -455,6 +467,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRouteWithChildren
   AuthRoute: typeof AuthRoute
   VolunteerRoute: typeof VolunteerRouteWithChildren
+  VCheckinTokenRoute: typeof VCheckinTokenRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -690,6 +703,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicTournamentsIndexRouteImport
       parentRoute: typeof PublicRoute
     }
+    '/v/checkin/$token': {
+      id: '/v/checkin/$token'
+      path: '/v/checkin/$token'
+      fullPath: '/v/checkin/$token'
+      preLoaderRoute: typeof VCheckinTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_public/tournaments/$slug': {
       id: '/_public/tournaments/$slug'
       path: '/tournaments/$slug'
@@ -820,17 +840,8 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRouteWithChildren,
   AuthRoute: AuthRoute,
   VolunteerRoute: VolunteerRouteWithChildren,
+  VCheckinTokenRoute: VCheckinTokenRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

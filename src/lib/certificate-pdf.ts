@@ -1,6 +1,8 @@
 import { jsPDF } from "jspdf";
 import QRCode from "qrcode";
 import { PDFDocument } from "pdf-lib";
+import { circleMaskDataUrl } from "./face-crop";
+
 
 export type CertInput = {
   recipient: string;
@@ -42,22 +44,25 @@ export async function makeCertificatePdf(input: CertInput): Promise<jsPDF> {
   doc.text("Every Move Matters", w / 2, 108, { align: "center" });
 
   if (input.photoUrl) {
-    const img = await fetchImageDataUrl(input.photoUrl);
-    if (img) {
+    const circularDataUrl = await circleMaskDataUrl(input.photoUrl, 400);
+    if (circularDataUrl) {
       const size = 80;
       const cx = 90;
       const cy = 90;
+      // Gold ring backing
       doc.setFillColor(212, 175, 55);
       doc.circle(cx, cy, size / 2 + 4, "F");
       doc.setFillColor(11, 18, 32);
       doc.circle(cx, cy, size / 2 + 2, "F");
       try {
-        doc.addImage(img.dataUrl, img.format, cx - size / 2, cy - size / 2, size, size);
+        // The PNG is already circle-masked with transparent corners.
+        doc.addImage(circularDataUrl, "PNG", cx - size / 2, cy - size / 2, size, size);
       } catch {
         // ignore image errors
       }
     }
   }
+
   doc.setTextColor(255, 255, 255); doc.setFont("times", "bold"); doc.setFontSize(36);
   doc.text(input.title, w / 2, 180, { align: "center" });
   doc.setFont("times", "normal"); doc.setFontSize(14);

@@ -50,13 +50,23 @@ function CheckIn() {
     search();
   };
 
+  const parseToken = (decoded: string): string => {
+    // Support: raw token, "64s:token" legacy prefix, and full URLs "/v/checkin/{token}"
+    if (decoded.includes("/v/checkin/")) {
+      const m = decoded.match(/\/v\/checkin\/([A-Za-z0-9_-]+)/);
+      if (m) return m[1];
+    }
+    if (decoded.startsWith("64s:")) return decoded.slice(4);
+    return decoded.trim();
+  };
+
   const startScan = async () => {
     setScanning(true);
     const html5 = new Html5Qrcode("qr-reader");
     scannerRef.current = html5;
     try {
       await html5.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, async (decoded) => {
-        const token = decoded.startsWith("64s:") ? decoded.slice(4) : decoded;
+        const token = parseToken(decoded);
         const { data } = await supabase.from("registrations").select("id, checkin_status, tournament_id, player:players(full_name)").eq("qr_token", token).maybeSingle();
         if (!data) { toast.error("Unknown QR"); return; }
         if (data.tournament_id !== tid) toast.warning(`Player is registered for a different tournament — checking in anyway`);
@@ -68,6 +78,7 @@ function CheckIn() {
       setScanning(false);
     }
   };
+
   const stopScan = async () => {
     try { await scannerRef.current?.stop(); await scannerRef.current?.clear(); } catch {}
     scannerRef.current = null;

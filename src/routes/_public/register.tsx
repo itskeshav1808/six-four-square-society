@@ -7,6 +7,8 @@ import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle2, XCircle, Loader2 } from "lucide-react";
 import QRCode from "qrcode";
+import { cropFaceSquare } from "@/lib/face-crop";
+
 
 type SearchParams = { tournament?: string };
 
@@ -54,22 +56,33 @@ function Register() {
 
   const canStep2 = tournamentSlug && player.full_name && player.email && player.phone && player.city && categoryId && photoFile;
 
-  const onPhotoChange = (f: File | null) => {
+  const onPhotoChange = async (f: File | null) => {
     if (!f) { setPhotoFile(null); setPhotoPreview(""); return; }
     if (!f.type.startsWith("image/")) { toast.error("Please upload an image file"); return; }
     if (f.size > 5 * 1024 * 1024) { toast.error("Photo must be under 5MB"); return; }
-    setPhotoFile(f);
-    setPhotoPreview(URL.createObjectURL(f));
+    setUploadingPhoto(true);
+    try {
+      // Face-aware square crop (falls back to center-crop if no face detected)
+      const cropped = await cropFaceSquare(f);
+      const croppedFile = new File([cropped], f.name.replace(/\.\w+$/, ".jpg"), { type: "image/jpeg" });
+      setPhotoFile(croppedFile);
+      setPhotoPreview(URL.createObjectURL(cropped));
+    } catch (err: any) {
+      // Fall back to using the original file as-is
+      console.warn("Face crop failed, using original photo:", err);
+      setPhotoFile(f);
+      setPhotoPreview(URL.createObjectURL(f));
+    } finally {
+      setUploadingPhoto(false);
+    }
   };
 
   const uploadPhoto = async (): Promise<string | null> => {
     if (!photoFile) return null;
-    setUploadingPhoto(true);
     try {
-      const ext = photoFile.name.split(".").pop()?.toLowerCase() || "jpg";
-      const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+      const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.jpg`;
       const { error } = await supabase.storage.from("player-photos").upload(path, photoFile, {
-        contentType: photoFile.type, upsert: false,
+        contentType: "image/jpeg", upsert: false,
       });
       if (error) throw error;
       const { data: signed } = await supabase.storage.from("player-photos").createSignedUrl(path, 60 * 60 * 24 * 365 * 5);
@@ -77,10 +90,9 @@ function Register() {
     } catch (e: any) {
       toast.error(e.message ?? "Photo upload failed");
       return null;
-    } finally {
-      setUploadingPhoto(false);
     }
   };
+
 
   const submit = async (payment: { method: "dummy_gateway" | "manual_proof"; status: "verified" | "pending"; dummy_payment_id?: string; proof_url?: string }) => {
     if (!tournament) return null;
@@ -208,22 +220,28 @@ function Register() {
               </div>
             ))}
             <div className="sm:col-span-2">
-              <label className="text-sm font-medium">Photo* <span className="text-xs text-muted-foreground font-normal">(printed on your certificate & profile)</span></label>
+              <label className="text-sm font-medium">Photo* <span className="text-xs text-muted-foreground font-normal">(auto-cropped to your face, printed on your certificate & profile)</span></label>
               <div className="mt-1 flex items-center gap-4 rounded-lg border border-dashed border-input bg-background p-3">
-                <div className="h-20 w-20 rounded-full overflow-hidden bg-muted flex items-center justify-center text-xs text-muted-foreground shrink-0">
-                  {photoPreview ? <img src={photoPreview} alt="preview" className="h-full w-full object-cover" /> : "No photo"}
+                <div className="h-20 w-20 rounded-full overflow-hidden bg-muted flex items-center justify-center text-xs text-muted-foreground shrink-0 ring-2 ring-gold/40">
+                  {uploadingPhoto ? <Loader2 size={20} className="animate-spin" />
+                    : photoPreview ? <img src={photoPreview} alt="preview" className="h-full w-full object-cover" />
+                    : "No photo"}
                 </div>
                 <div className="flex-1">
                   <input
                     type="file"
                     accept="image/*"
+                    disabled={uploadingPhoto}
                     onChange={(e) => onPhotoChange(e.target.files?.[0] ?? null)}
                     className="text-sm w-full"
                   />
-                  <div className="text-xs text-muted-foreground mt-1">Clear headshot, JPG/PNG, under 5MB.</div>
+                  <div className="text-xs text-muted-foreground mt-1">
+                    {uploadingPhoto ? "Detecting your face and cropping…" : "Clear headshot works best. JPG/PNG under 5MB."}
+                  </div>
                 </div>
               </div>
             </div>
+
             <div className="sm:col-span-2 flex gap-3 mt-2">
               <button onClick={() => setStep(1)} className="flex-1 py-2.5 rounded-lg border border-border">Back</button>
               <button onClick={() => setStep(3)} disabled={!canStep2} className="flex-1 py-2.5 rounded-lg bg-primary text-primary-foreground font-medium disabled:opacity-50">Continue</button>
