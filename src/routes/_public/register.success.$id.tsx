@@ -18,16 +18,20 @@ function SuccessPage() {
     (async () => {
       const { data } = await supabase
         .from("registrations")
-        .select("*, tournament:tournaments(name, start_date, venue), player:players(full_name, email)")
+        .select("*, tournament:tournaments(name, start_date, venue), player:players(full_name, email, avatar_url)")
         .eq("id", id)
         .maybeSingle();
       setReg(data);
       if (data?.qr_token) {
-        const dataUrl = await QRCode.toDataURL(`64s:${data.qr_token}`, { width: 320, margin: 1, color: { dark: "#0b1220", light: "#ffffff" } });
+        // Encode as a URL so any camera app opens the check-in page.
+        const origin = typeof window !== "undefined" ? window.location.origin : "";
+        const checkinUrl = `${origin}/v/checkin/${data.qr_token}`;
+        const dataUrl = await QRCode.toDataURL(checkinUrl, { width: 320, margin: 1, color: { dark: "#0b1220", light: "#ffffff" } });
         setQrDataUrl(dataUrl);
       }
     })();
   }, [id]);
+
 
   if (!reg) return <div className="p-16 text-center">Loading…</div>;
   const verified = reg.payment_status === "verified";
