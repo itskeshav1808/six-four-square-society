@@ -8,7 +8,7 @@ export const Route = createFileRoute("/admin/content")({
   component: ContentManager,
 });
 
-type Row = { id: string; key: string; title: string | null; body: string | null };
+type Row = { key: string; title: string | null; body: string | null };
 
 // Grouping heuristic — keys with these prefixes get grouped under a friendly label.
 const GROUPS: { label: string; match: (k: string) => boolean }[] = [

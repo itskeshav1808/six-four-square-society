@@ -28,6 +28,7 @@ import { Route as AdminMediaRouteImport } from './routes/admin/media'
 import { Route as AdminInventoryRouteImport } from './routes/admin/inventory'
 import { Route as AdminFinanceRouteImport } from './routes/admin/finance'
 import { Route as AdminControlCenterRouteImport } from './routes/admin/control-center'
+import { Route as AdminContentRouteImport } from './routes/admin/content'
 import { Route as AdminCertificatesRouteImport } from './routes/admin/certificates'
 import { Route as AdminAnnouncementsRouteImport } from './routes/admin/announcements'
 import { Route as AdminAnalyticsRouteImport } from './routes/admin/analytics'
@@ -141,6 +142,11 @@ const AdminControlCenterRoute = AdminControlCenterRouteImport.update({
   path: '/control-center',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminContentRoute = AdminContentRouteImport.update({
+  id: '/content',
+  path: '/content',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminCertificatesRoute = AdminCertificatesRouteImport.update({
   id: '/certificates',
   path: '/certificates',
@@ -250,6 +256,7 @@ export interface FileRoutesByFullPath {
   '/admin/analytics': typeof AdminAnalyticsRoute
   '/admin/announcements': typeof AdminAnnouncementsRoute
   '/admin/certificates': typeof AdminCertificatesRoute
+  '/admin/content': typeof AdminContentRoute
   '/admin/control-center': typeof AdminControlCenterRoute
   '/admin/finance': typeof AdminFinanceRoute
   '/admin/inventory': typeof AdminInventoryRoute
@@ -285,6 +292,7 @@ export interface FileRoutesByTo {
   '/admin/analytics': typeof AdminAnalyticsRoute
   '/admin/announcements': typeof AdminAnnouncementsRoute
   '/admin/certificates': typeof AdminCertificatesRoute
+  '/admin/content': typeof AdminContentRoute
   '/admin/control-center': typeof AdminControlCenterRoute
   '/admin/finance': typeof AdminFinanceRoute
   '/admin/inventory': typeof AdminInventoryRoute
@@ -325,6 +333,7 @@ export interface FileRoutesById {
   '/admin/analytics': typeof AdminAnalyticsRoute
   '/admin/announcements': typeof AdminAnnouncementsRoute
   '/admin/certificates': typeof AdminCertificatesRoute
+  '/admin/content': typeof AdminContentRoute
   '/admin/control-center': typeof AdminControlCenterRoute
   '/admin/finance': typeof AdminFinanceRoute
   '/admin/inventory': typeof AdminInventoryRoute
@@ -366,6 +375,7 @@ export interface FileRouteTypes {
     | '/admin/analytics'
     | '/admin/announcements'
     | '/admin/certificates'
+    | '/admin/content'
     | '/admin/control-center'
     | '/admin/finance'
     | '/admin/inventory'
@@ -401,6 +411,7 @@ export interface FileRouteTypes {
     | '/admin/analytics'
     | '/admin/announcements'
     | '/admin/certificates'
+    | '/admin/content'
     | '/admin/control-center'
     | '/admin/finance'
     | '/admin/inventory'
@@ -440,6 +451,7 @@ export interface FileRouteTypes {
     | '/admin/analytics'
     | '/admin/announcements'
     | '/admin/certificates'
+    | '/admin/content'
     | '/admin/control-center'
     | '/admin/finance'
     | '/admin/inventory'
@@ -603,6 +615,13 @@ declare module '@tanstack/react-router' {
       path: '/control-center'
       fullPath: '/admin/control-center'
       preLoaderRoute: typeof AdminControlCenterRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/content': {
+      id: '/admin/content'
+      path: '/content'
+      fullPath: '/admin/content'
+      preLoaderRoute: typeof AdminContentRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/certificates': {
@@ -787,6 +806,7 @@ interface AdminRouteChildren {
   AdminAnalyticsRoute: typeof AdminAnalyticsRoute
   AdminAnnouncementsRoute: typeof AdminAnnouncementsRoute
   AdminCertificatesRoute: typeof AdminCertificatesRoute
+  AdminContentRoute: typeof AdminContentRoute
   AdminControlCenterRoute: typeof AdminControlCenterRoute
   AdminFinanceRoute: typeof AdminFinanceRoute
   AdminInventoryRoute: typeof AdminInventoryRoute
@@ -804,6 +824,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminAnalyticsRoute: AdminAnalyticsRoute,
   AdminAnnouncementsRoute: AdminAnnouncementsRoute,
   AdminCertificatesRoute: AdminCertificatesRoute,
+  AdminContentRoute: AdminContentRoute,
   AdminControlCenterRoute: AdminControlCenterRoute,
   AdminFinanceRoute: AdminFinanceRoute,
   AdminInventoryRoute: AdminInventoryRoute,
