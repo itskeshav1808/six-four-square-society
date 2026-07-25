@@ -23,6 +23,8 @@ const nav: { to: string; label: string; icon: any; exact?: boolean }[] = [
   { to: "/admin/sponsors", label: "Sponsors", icon: Handshake },
   { to: "/admin/announcements", label: "Announcements", icon: Megaphone },
   { to: "/admin/analytics", label: "Analytics", icon: BarChart3 },
+  { to: "/admin/content", label: "Content Manager", icon: FileText },
+  { to: "/admin/form-builder", label: "Form Builder", icon: FormInput },
   { to: "/admin/settings", label: "Settings", icon: Settings },
 ];
 
