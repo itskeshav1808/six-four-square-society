@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useEffect, useMemo, useState } from "react";
+import { useSuspenseQuery, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { tournamentsQuery, tournamentBySlugQuery } from "@/lib/supabase-queries";
 import { toast } from "sonner";
@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle2, XCircle, Loader2 } from "lucide-react";
 import QRCode from "qrcode";
 import { cropFaceSquare } from "@/lib/face-crop";
+import type { CustomField } from "@/routes/admin/form-builder";
 
 
 type SearchParams = { tournament?: string };
@@ -47,6 +48,17 @@ function Register() {
   const [showGateway, setShowGateway] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
 
+  // Admin-built custom fields
+  const { data: formConfig } = useQuery({
+    queryKey: ["registration_form_config"],
+    queryFn: async () => {
+      const { data } = await supabase.from("site_content").select("body").eq("key", "registration_form_config").maybeSingle();
+      try { return JSON.parse(data?.body ?? "{}") as { fields?: CustomField[] }; } catch { return { fields: [] }; }
+    },
+  });
+  const customFields: CustomField[] = useMemo(() => formConfig?.fields ?? [], [formConfig]);
+  const [customAnswers, setCustomAnswers] = useState<Record<string, any>>({});
+
   useEffect(() => {
     if (tournament?.tournament_categories?.[0]) setCategoryId(tournament.tournament_categories[0].id);
   }, [tournament]);
@@ -54,7 +66,14 @@ function Register() {
   const category = tournament?.tournament_categories?.find((c: any) => c.id === categoryId);
   const amount = Number(category?.entry_fee ?? tournament?.entry_fee ?? 0);
 
-  const canStep2 = tournamentSlug && player.full_name && player.email && player.phone && player.city && categoryId && photoFile;
+  const customValid = customFields.every((f) => {
+    if (!f.required) return true;
+    const v = customAnswers[f.id];
+    if (f.type === "checkbox") return v === true;
+    return v !== undefined && v !== null && String(v).trim() !== "";
+  });
+
+  const canStep2 = tournamentSlug && player.full_name && player.email && player.phone && player.city && categoryId && photoFile && customValid;
 
   const onPhotoChange = async (f: File | null) => {
     if (!f) { setPhotoFile(null); setPhotoPreview(""); return; }
@@ -125,6 +144,7 @@ function Register() {
         dummy_payment_id: payment.dummy_payment_id ?? null,
         proof_url: payment.proof_url ?? null,
         terms_accepted_at: new Date().toISOString(),
+        custom_fields: customAnswers,
       }).select().single();
       if (re) throw re;
 
@@ -241,6 +261,58 @@ function Register() {
                 </div>
               </div>
             </div>
+
+            {customFields.length > 0 && (
+              <div className="sm:col-span-2 mt-2 pt-4 border-t border-border space-y-4">
+                <div className="text-sm font-medium text-gold uppercase tracking-wider text-xs">Additional questions</div>
+                {customFields.map((f) => (
+                  <div key={f.id}>
+                    {f.type === "checkbox" ? (
+                      <label className="flex items-start gap-2 text-sm">
+                        <input
+                          type="checkbox"
+                          checked={!!customAnswers[f.id]}
+                          onChange={(e) => setCustomAnswers({ ...customAnswers, [f.id]: e.target.checked })}
+                          className="mt-0.5"
+                        />
+                        <span>{f.label}{f.required && "*"}</span>
+                      </label>
+                    ) : (
+                      <>
+                        <label className="text-sm font-medium">{f.label}{f.required && "*"}</label>
+                        {f.type === "textarea" ? (
+                          <textarea
+                            value={customAnswers[f.id] ?? ""}
+                            onChange={(e) => setCustomAnswers({ ...customAnswers, [f.id]: e.target.value })}
+                            placeholder={f.placeholder}
+                            rows={3}
+                            className="mt-1 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
+                          />
+                        ) : f.type === "select" ? (
+                          <select
+                            value={customAnswers[f.id] ?? ""}
+                            onChange={(e) => setCustomAnswers({ ...customAnswers, [f.id]: e.target.value })}
+                            className="mt-1 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
+                          >
+                            <option value="">Select…</option>
+                            {(f.options ?? []).map((o) => <option key={o} value={o}>{o}</option>)}
+                          </select>
+                        ) : (
+                          <input
+                            type={f.type === "phone" ? "tel" : f.type}
+                            value={customAnswers[f.id] ?? ""}
+                            onChange={(e) => setCustomAnswers({ ...customAnswers, [f.id]: e.target.value })}
+                            placeholder={f.placeholder}
+                            className="mt-1 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
+                          />
+                        )}
+                      </>
+                    )}
+                    {f.helpText && <div className="text-xs text-muted-foreground mt-1">{f.helpText}</div>}
+                  </div>
+                ))}
+              </div>
+            )}
 
             <div className="sm:col-span-2 flex gap-3 mt-2">
               <button onClick={() => setStep(1)} className="flex-1 py-2.5 rounded-lg border border-border">Back</button>
