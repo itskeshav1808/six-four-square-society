@@ -564,6 +564,7 @@ export type Database = {
           checked_in_by: string | null
           checkin_status: Database["public"]["Enums"]["checkin_status"]
           created_at: string
+          custom_fields: Json
           dummy_order_id: string | null
           dummy_payment_id: string | null
           id: string
@@ -588,6 +589,7 @@ export type Database = {
           checked_in_by?: string | null
           checkin_status?: Database["public"]["Enums"]["checkin_status"]
           created_at?: string
+          custom_fields?: Json
           dummy_order_id?: string | null
           dummy_payment_id?: string | null
           id?: string
@@ -612,6 +614,7 @@ export type Database = {
           checked_in_by?: string | null
           checkin_status?: Database["public"]["Enums"]["checkin_status"]
           created_at?: string
+          custom_fields?: Json
           dummy_order_id?: string | null
           dummy_payment_id?: string | null
           id?: string
