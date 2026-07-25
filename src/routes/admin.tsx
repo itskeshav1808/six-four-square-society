@@ -1,6 +1,6 @@
 import { createFileRoute, Outlet, Link, useRouterState } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth-context";
-import { LayoutDashboard, Trophy, Users, ShieldCheck, Radio, HandCoins, Package, Award, Image, BarChart3, Settings, LogOut, Handshake, ClipboardList, Megaphone, Menu, X } from "lucide-react";
+import { LayoutDashboard, Trophy, Users, ShieldCheck, Radio, HandCoins, Package, Award, Image, BarChart3, Settings, LogOut, Handshake, ClipboardList, Megaphone, Menu, X, FileText, FormInput } from "lucide-react";
 import { Brand } from "@/components/brand";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useEffect, useState } from "react";

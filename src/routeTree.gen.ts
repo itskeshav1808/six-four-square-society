@@ -26,6 +26,7 @@ import { Route as AdminSettingsRouteImport } from './routes/admin/settings'
 import { Route as AdminRegistrationsRouteImport } from './routes/admin/registrations'
 import { Route as AdminMediaRouteImport } from './routes/admin/media'
 import { Route as AdminInventoryRouteImport } from './routes/admin/inventory'
+import { Route as AdminFormBuilderRouteImport } from './routes/admin/form-builder'
 import { Route as AdminFinanceRouteImport } from './routes/admin/finance'
 import { Route as AdminControlCenterRouteImport } from './routes/admin/control-center'
 import { Route as AdminContentRouteImport } from './routes/admin/content'
@@ -130,6 +131,11 @@ const AdminMediaRoute = AdminMediaRouteImport.update({
 const AdminInventoryRoute = AdminInventoryRouteImport.update({
   id: '/inventory',
   path: '/inventory',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminFormBuilderRoute = AdminFormBuilderRouteImport.update({
+  id: '/form-builder',
+  path: '/form-builder',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminFinanceRoute = AdminFinanceRouteImport.update({
@@ -259,6 +265,7 @@ export interface FileRoutesByFullPath {
   '/admin/content': typeof AdminContentRoute
   '/admin/control-center': typeof AdminControlCenterRoute
   '/admin/finance': typeof AdminFinanceRoute
+  '/admin/form-builder': typeof AdminFormBuilderRoute
   '/admin/inventory': typeof AdminInventoryRoute
   '/admin/media': typeof AdminMediaRoute
   '/admin/registrations': typeof AdminRegistrationsRoute
@@ -295,6 +302,7 @@ export interface FileRoutesByTo {
   '/admin/content': typeof AdminContentRoute
   '/admin/control-center': typeof AdminControlCenterRoute
   '/admin/finance': typeof AdminFinanceRoute
+  '/admin/form-builder': typeof AdminFormBuilderRoute
   '/admin/inventory': typeof AdminInventoryRoute
   '/admin/media': typeof AdminMediaRoute
   '/admin/registrations': typeof AdminRegistrationsRoute
@@ -336,6 +344,7 @@ export interface FileRoutesById {
   '/admin/content': typeof AdminContentRoute
   '/admin/control-center': typeof AdminControlCenterRoute
   '/admin/finance': typeof AdminFinanceRoute
+  '/admin/form-builder': typeof AdminFormBuilderRoute
   '/admin/inventory': typeof AdminInventoryRoute
   '/admin/media': typeof AdminMediaRoute
   '/admin/registrations': typeof AdminRegistrationsRoute
@@ -378,6 +387,7 @@ export interface FileRouteTypes {
     | '/admin/content'
     | '/admin/control-center'
     | '/admin/finance'
+    | '/admin/form-builder'
     | '/admin/inventory'
     | '/admin/media'
     | '/admin/registrations'
@@ -414,6 +424,7 @@ export interface FileRouteTypes {
     | '/admin/content'
     | '/admin/control-center'
     | '/admin/finance'
+    | '/admin/form-builder'
     | '/admin/inventory'
     | '/admin/media'
     | '/admin/registrations'
@@ -454,6 +465,7 @@ export interface FileRouteTypes {
     | '/admin/content'
     | '/admin/control-center'
     | '/admin/finance'
+    | '/admin/form-builder'
     | '/admin/inventory'
     | '/admin/media'
     | '/admin/registrations'
@@ -601,6 +613,13 @@ declare module '@tanstack/react-router' {
       path: '/inventory'
       fullPath: '/admin/inventory'
       preLoaderRoute: typeof AdminInventoryRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/form-builder': {
+      id: '/admin/form-builder'
+      path: '/form-builder'
+      fullPath: '/admin/form-builder'
+      preLoaderRoute: typeof AdminFormBuilderRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/finance': {
@@ -809,6 +828,7 @@ interface AdminRouteChildren {
   AdminContentRoute: typeof AdminContentRoute
   AdminControlCenterRoute: typeof AdminControlCenterRoute
   AdminFinanceRoute: typeof AdminFinanceRoute
+  AdminFormBuilderRoute: typeof AdminFormBuilderRoute
   AdminInventoryRoute: typeof AdminInventoryRoute
   AdminMediaRoute: typeof AdminMediaRoute
   AdminRegistrationsRoute: typeof AdminRegistrationsRoute
@@ -827,6 +847,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminContentRoute: AdminContentRoute,
   AdminControlCenterRoute: AdminControlCenterRoute,
   AdminFinanceRoute: AdminFinanceRoute,
+  AdminFormBuilderRoute: AdminFormBuilderRoute,
   AdminInventoryRoute: AdminInventoryRoute,
   AdminMediaRoute: AdminMediaRoute,
   AdminRegistrationsRoute: AdminRegistrationsRoute,
