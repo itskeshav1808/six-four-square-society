@@ -48,6 +48,17 @@ function Register() {
   const [showGateway, setShowGateway] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
 
+  // Admin-built custom fields
+  const { data: formConfig } = useQuery({
+    queryKey: ["registration_form_config"],
+    queryFn: async () => {
+      const { data } = await supabase.from("site_content").select("body").eq("key", "registration_form_config").maybeSingle();
+      try { return JSON.parse(data?.body ?? "{}") as { fields?: CustomField[] }; } catch { return { fields: [] }; }
+    },
+  });
+  const customFields: CustomField[] = useMemo(() => formConfig?.fields ?? [], [formConfig]);
+  const [customAnswers, setCustomAnswers] = useState<Record<string, any>>({});
+
   useEffect(() => {
     if (tournament?.tournament_categories?.[0]) setCategoryId(tournament.tournament_categories[0].id);
   }, [tournament]);
@@ -55,7 +66,14 @@ function Register() {
   const category = tournament?.tournament_categories?.find((c: any) => c.id === categoryId);
   const amount = Number(category?.entry_fee ?? tournament?.entry_fee ?? 0);
 
-  const canStep2 = tournamentSlug && player.full_name && player.email && player.phone && player.city && categoryId && photoFile;
+  const customValid = customFields.every((f) => {
+    if (!f.required) return true;
+    const v = customAnswers[f.id];
+    if (f.type === "checkbox") return v === true;
+    return v !== undefined && v !== null && String(v).trim() !== "";
+  });
+
+  const canStep2 = tournamentSlug && player.full_name && player.email && player.phone && player.city && categoryId && photoFile && customValid;
 
   const onPhotoChange = async (f: File | null) => {
     if (!f) { setPhotoFile(null); setPhotoPreview(""); return; }
