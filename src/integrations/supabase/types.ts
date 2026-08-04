@@ -276,8 +276,13 @@ export type Database = {
         Row: {
           album: string | null
           caption: string | null
+          category: string | null
           created_at: string
+          description: string | null
           id: string
+          is_featured: boolean
+          storage_path: string | null
+          title: string | null
           tournament_id: string | null
           uploaded_by: string | null
           url: string
@@ -285,8 +290,13 @@ export type Database = {
         Insert: {
           album?: string | null
           caption?: string | null
+          category?: string | null
           created_at?: string
+          description?: string | null
           id?: string
+          is_featured?: boolean
+          storage_path?: string | null
+          title?: string | null
           tournament_id?: string | null
           uploaded_by?: string | null
           url: string
@@ -294,8 +304,13 @@ export type Database = {
         Update: {
           album?: string | null
           caption?: string | null
+          category?: string | null
           created_at?: string
+          description?: string | null
           id?: string
+          is_featured?: boolean
+          storage_path?: string | null
+          title?: string | null
           tournament_id?: string | null
           uploaded_by?: string | null
           url?: string
@@ -1054,6 +1069,7 @@ export type Database = {
         Returns: boolean
       }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
+      phone_already_registered: { Args: { _phone: string }; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "volunteer"

@@ -2,7 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import QRCode from "qrcode";
-import { CheckCircle2, Clock } from "lucide-react";
+import { CheckCircle2, Clock, MessageCircle } from "lucide-react";
+import { motion } from "framer-motion";
 
 export const Route = createFileRoute("/_public/register/success/$id")({
   head: () => ({ meta: [{ title: "Registration confirmed" }, { name: "robots", content: "noindex" }] }),
@@ -13,12 +14,13 @@ function SuccessPage() {
   const { id } = Route.useParams();
   const [reg, setReg] = useState<any>(null);
   const [qrDataUrl, setQrDataUrl] = useState<string>("");
+  const [whatsappUrl, setWhatsappUrl] = useState<string>("");
 
   useEffect(() => {
     (async () => {
       const { data } = await supabase
         .from("registrations")
-        .select("*, tournament:tournaments(name, start_date, venue), player:players(full_name, email, avatar_url)")
+        .select("*, tournament:tournaments(name, start_date, venue), player:players(full_name, email, phone, avatar_url)")
         .eq("id", id)
         .maybeSingle();
       setReg(data);
@@ -29,31 +31,60 @@ function SuccessPage() {
         const dataUrl = await QRCode.toDataURL(checkinUrl, { width: 320, margin: 1, color: { dark: "#0b1220", light: "#ffffff" } });
         setQrDataUrl(dataUrl);
       }
+      const { data: wa } = await supabase.from("site_content").select("title").eq("key", "whatsapp_group_url").maybeSingle();
+      if (wa?.title) setWhatsappUrl(wa.title.trim());
     })();
   }, [id]);
-
 
   if (!reg) return <div className="p-16 text-center">Loading…</div>;
   const verified = reg.payment_status === "verified";
 
   return (
     <div className="mx-auto max-w-xl px-4 sm:px-6 lg:px-8 py-12">
-      <div className="rounded-2xl border border-border bg-card p-8 text-center">
-        {verified ? (
-          <><CheckCircle2 className="mx-auto text-success" size={56} />
-          <h1 className="mt-4 font-display text-3xl font-semibold">You're in!</h1>
-          <p className="mt-2 text-muted-foreground">Save this QR code — you'll need it for check-in at the venue.</p></>
-        ) : (
-          <><Clock className="mx-auto text-warning" size={56} />
-          <h1 className="mt-4 font-display text-3xl font-semibold">Registration received</h1>
-          <p className="mt-2 text-muted-foreground">An admin will verify your payment shortly. Once approved, your QR check-in code will be active.</p></>
-        )}
+      <motion.div
+        initial={{ opacity: 0, y: 18 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+        className="rounded-2xl border border-border bg-card p-8 text-center"
+      >
+        <motion.div
+          initial={{ scale: 0.7, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ delay: 0.1, type: "spring", stiffness: 220, damping: 18 }}
+        >
+          {verified ? <CheckCircle2 className="mx-auto text-success" size={56} /> : <Clock className="mx-auto text-warning" size={56} />}
+        </motion.div>
+        <h1 className="mt-4 font-display text-3xl font-semibold">Registration Successful 🎉</h1>
+        <p className="mt-2 text-muted-foreground">
+          {verified
+            ? "You're in! Save the QR code below — you'll need it for check-in at the venue."
+            : "We've received your registration. An admin will verify your payment shortly, and your QR check-in code becomes active on approval."}
+        </p>
+
+        {/* WhatsApp group */}
+        <div className="mt-6 rounded-2xl border border-gold/40 bg-gold/5 p-5">
+          <a
+            href={whatsappUrl || "https://chat.whatsapp.com/"}
+            target="_blank"
+            rel="noreferrer"
+            className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-[#25D366] px-6 py-4 text-base font-semibold text-black hover:opacity-90 transition-transform hover:scale-[1.02]"
+          >
+            <MessageCircle size={20} /> Join Official Tournament WhatsApp Group
+          </a>
+          <p className="mt-3 text-sm text-muted-foreground">
+            All tournament announcements, schedules, round pairings and live updates are shared through the official
+            WhatsApp group. Please join now so you don't miss anything.
+          </p>
+        </div>
 
         <div className="mt-6 rounded-xl bg-muted/50 p-4 text-sm text-left space-y-1">
           <div><span className="text-muted-foreground">Player:</span> {reg.player?.full_name}</div>
           <div><span className="text-muted-foreground">Event:</span> {reg.tournament?.name}</div>
+          <div><span className="text-muted-foreground">Mobile:</span> {reg.player?.phone ?? "—"}</div>
           <div><span className="text-muted-foreground">Amount:</span> ₹{reg.amount}</div>
+          <div><span className="text-muted-foreground">Payment:</span> {reg.payment_status}</div>
           <div><span className="text-muted-foreground">Status:</span> {reg.status}</div>
+          <div><span className="text-muted-foreground">Registered at:</span> {new Date(reg.created_at).toLocaleString("en-IN")}</div>
         </div>
 
         {qrDataUrl && (
@@ -68,7 +99,7 @@ function SuccessPage() {
           <Link to="/" className="px-4 py-2 rounded-lg border border-border text-sm">Home</Link>
           <Link to="/tournaments" className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm">More tournaments</Link>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }

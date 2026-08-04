@@ -24,6 +24,19 @@ function slugify(s: string) {
   return s.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") + "-" + Math.random().toString(36).slice(2, 6);
 }
 
+/** Keeps only digits and drops a leading +91 / 0 so users can paste any format. */
+function normalizeIndianPhone(raw: string) {
+  let d = raw.replace(/\D/g, "");
+  if (d.length > 10 && d.startsWith("91")) d = d.slice(d.length - 10);
+  if (d.length === 11 && d.startsWith("0")) d = d.slice(1);
+  return d.slice(0, 10);
+}
+
+const INDIAN_MOBILE = /^[6-9]\d{9}$/;
+function isValidIndianPhone(raw: string) {
+  return INDIAN_MOBILE.test(normalizeIndianPhone(raw));
+}
+
 function Register() {
   const search = Route.useSearch() as SearchParams;
   const nav = useNavigate();
@@ -73,7 +86,43 @@ function Register() {
     return v !== undefined && v !== null && String(v).trim() !== "";
   });
 
-  const canStep2 = tournamentSlug && player.full_name && player.email && player.phone && player.city && categoryId && photoFile && customValid;
+  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(player.email.trim());
+  const phoneValid = isValidIndianPhone(player.phone);
+  const parentPhoneValid = !player.parent_phone.trim() || isValidIndianPhone(player.parent_phone);
+
+  const canStep2 =
+    !!tournamentSlug && !!player.full_name.trim() && emailValid && phoneValid && parentPhoneValid &&
+    !!player.city.trim() && !!categoryId && !!photoFile && customValid;
+
+  const [checkingPhone, setCheckingPhone] = useState(false);
+
+  /** Validates everything on step 2, blocks duplicate mobile numbers, then advances. */
+  const goToPayment = async () => {
+    if (!player.full_name.trim()) return toast.error("Please enter the player's full name.");
+    if (!emailValid) return toast.error("Please enter a valid email address.");
+    if (!phoneValid) return toast.error("Please enter a valid 10-digit mobile number.");
+    if (!parentPhoneValid) return toast.error("Parent phone must be a valid 10-digit mobile number.");
+    if (!player.city.trim()) return toast.error("Please enter your city.");
+    if (!photoFile) return toast.error("Please upload your photo.");
+    if (!customValid) return toast.error("Please answer all required questions.");
+
+    setCheckingPhone(true);
+    try {
+      const { data, error } = await supabase.rpc("phone_already_registered", {
+        _phone: normalizeIndianPhone(player.phone),
+      });
+      if (error) throw error;
+      if (data === true) {
+        toast.error("This mobile number is already registered for a tournament. Please use a different number or contact us.");
+        return;
+      }
+      setStep(3);
+    } catch (e: any) {
+      toast.error(e.message ?? "We couldn't verify your mobile number. Please try again.");
+    } finally {
+      setCheckingPhone(false);
+    }
+  };
 
   const onPhotoChange = async (f: File | null) => {
     if (!f) { setPhotoFile(null); setPhotoPreview(""); return; }
@@ -123,8 +172,8 @@ function Register() {
       const { data: p, error: pe } = await supabase.from("players").insert({
         full_name: player.full_name, dob: player.dob || null, gender: player.gender || null,
         city: player.city, state: player.state || null, school: player.school || null,
-        phone: player.phone, email: player.email,
-        parent_name: player.parent_name || null, parent_phone: player.parent_phone || null,
+        phone: normalizeIndianPhone(player.phone), email: player.email.trim(),
+        parent_name: player.parent_name || null, parent_phone: player.parent_phone ? normalizeIndianPhone(player.parent_phone) : null,
         fide_id: player.fide_id || null, cda_id: player.cda_id || null,
         rating: player.rating ? parseInt(player.rating) : 0,
         emergency_contact: player.emergency_contact || null,
@@ -220,25 +269,43 @@ function Register() {
           <div className="grid gap-4 sm:grid-cols-2">
             {(
               [
-                ["Full name*", "full_name"], ["Email*", "email"], ["Phone*", "phone"],
+                ["Full name*", "full_name"], ["Email*", "email"], ["Mobile number*", "phone"],
                 ["City*", "city"], ["State", "state"], ["Date of birth", "dob", "date"],
                 ["Gender", "gender"], ["School", "school"],
                 ["Parent name", "parent_name"], ["Parent phone", "parent_phone"],
                 ["FIDE ID", "fide_id"], ["CDA ID", "cda_id"],
                 ["Rating", "rating", "number"], ["Emergency contact", "emergency_contact"],
               ] as const
-            ).map(([label, key, type]) => (
-              <div key={key} className={key === "emergency_contact" ? "sm:col-span-2" : ""}>
-                <label className="text-sm font-medium">{label}</label>
-                <input
-                  type={type ?? "text"}
-                  value={(player as any)[key]}
-                  onChange={(e) => setPlayer({ ...player, [key]: e.target.value })}
-                  required={String(label).includes("*")}
-                  className="mt-1 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
-                />
-              </div>
-            ))}
+            ).map(([label, key, type]) => {
+              const isPhone = key === "phone" || key === "parent_phone";
+              const value = (player as any)[key] as string;
+              const showPhoneError = isPhone && value.length > 0 && !isValidIndianPhone(value);
+              return (
+                <div key={key} className={key === "emergency_contact" ? "sm:col-span-2" : ""}>
+                  <label className="text-sm font-medium" htmlFor={`f-${key}`}>{label}</label>
+                  <input
+                    id={`f-${key}`}
+                    type={isPhone ? "tel" : (type ?? "text")}
+                    inputMode={isPhone ? "numeric" : undefined}
+                    maxLength={isPhone ? 10 : undefined}
+                    autoComplete={isPhone ? "tel-national" : undefined}
+                    placeholder={isPhone ? "10-digit mobile number" : undefined}
+                    value={value}
+                    onChange={(e) =>
+                      setPlayer({ ...player, [key]: isPhone ? normalizeIndianPhone(e.target.value) : e.target.value })
+                    }
+                    required={String(label).includes("*")}
+                    aria-invalid={showPhoneError || undefined}
+                    className={`mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm ${showPhoneError ? "border-destructive" : "border-input"}`}
+                  />
+                  {isPhone && (
+                    <div className={`mt-1 text-xs ${showPhoneError ? "text-destructive" : "text-muted-foreground"}`}>
+                      {showPhoneError ? "Please enter a valid 10-digit mobile number." : "Indian mobile number, 10 digits (starts with 6–9)."}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
             <div className="sm:col-span-2">
               <label className="text-sm font-medium">Photo* <span className="text-xs text-muted-foreground font-normal">(auto-cropped to your face, printed on your certificate & profile)</span></label>
               <div className="mt-1 flex items-center gap-4 rounded-lg border border-dashed border-input bg-background p-3">
@@ -316,7 +383,9 @@ function Register() {
 
             <div className="sm:col-span-2 flex gap-3 mt-2">
               <button onClick={() => setStep(1)} className="flex-1 py-2.5 rounded-lg border border-border">Back</button>
-              <button onClick={() => setStep(3)} disabled={!canStep2} className="flex-1 py-2.5 rounded-lg bg-primary text-primary-foreground font-medium disabled:opacity-50">Continue</button>
+              <button onClick={goToPayment} disabled={!canStep2 || checkingPhone} className="flex-1 py-2.5 rounded-lg bg-primary text-primary-foreground font-medium disabled:opacity-50 inline-flex items-center justify-center gap-2">
+                {checkingPhone ? <><Loader2 size={14} className="animate-spin" />Checking…</> : "Continue"}
+              </button>
             </div>
           </div>
         )}
