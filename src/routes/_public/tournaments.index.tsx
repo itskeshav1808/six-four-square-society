@@ -15,7 +15,7 @@ export const Route = createFileRoute("/_public/tournaments/")({
         <div className="mt-10 grid gap-4 md:grid-cols-2">
           {data.length === 0 && <div className="text-muted-foreground">No tournaments yet.</div>}
           {data.map((t) => (
-            <Link to="/tournaments/$slug" params={{ slug: t.slug }} key={t.id} className="rounded-2xl border border-border bg-card p-6 hover:shadow-lg transition-all hover:-translate-y-0.5">
+            <Link to="/tournaments/$slug" params={{ slug: t.slug }} key={t.id} className="glow-border rounded-2xl border border-border bg-card p-6 hover:shadow-lg transition-all hover:-translate-y-0.5">
               <div className="flex items-center gap-2 text-xs">
                 <span className={`px-2 py-0.5 rounded-full ${t.status === "ongoing" ? "bg-success/20 text-success" : t.status === "completed" ? "bg-muted text-muted-foreground" : "bg-gold/20 text-gold"}`}>{t.status}</span>
                 <span className="text-muted-foreground">{format(new Date(t.start_date), "MMM d, yyyy")}</span>
