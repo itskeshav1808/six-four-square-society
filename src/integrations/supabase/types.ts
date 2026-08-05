@@ -1070,6 +1070,15 @@ export type Database = {
       }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
       phone_already_registered: { Args: { _phone: string }; Returns: boolean }
+      player_already_registered: {
+        Args: {
+          _category_id?: string
+          _dob?: string
+          _full_name: string
+          _tournament_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role: "admin" | "volunteer"

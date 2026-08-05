@@ -3,41 +3,64 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { motion, useScroll, useTransform, useReducedMotion } from "framer-motion";
 import { useRef } from "react";
 import { ArrowRight, Trophy, Users, Calendar, Sparkles } from "lucide-react";
-import { featuredTournamentQuery, siteContentQuery, sponsorsQuery } from "@/lib/supabase-queries";
+import { featuredTournamentQuery, siteContentQuery, sponsorsQuery, mediaQuery } from "@/lib/supabase-queries";
 import { format } from "date-fns";
 import { DailyPuzzle } from "@/components/daily-puzzle";
 import { Reveal, Stagger, StaggerItem } from "@/components/reveal";
-import { AnimatedBoard } from "@/components/animated-board";
+import { HeroBoard, NotationText } from "@/components/hero-scene";
+import { JourneyTimeline } from "@/components/journey-timeline";
+import { GalleryStrip } from "@/components/gallery-strip";
+import { FinalMove } from "@/components/final-move";
+import { Magnetic } from "@/components/magnetic";
+import { CountUp } from "@/components/count-up";
 
 export const Route = createFileRoute("/_public/")({
+  head: () => ({
+    meta: [
+      { title: "64 Squares Society — Premier Chess Tournaments in India" },
+      {
+        name: "description",
+        content:
+          "Rated chess tournaments, live standings, and a community built for the long game. Register for the next 64 Squares Society event.",
+      },
+      { property: "og:title", content: "64 Squares Society — Every Move Matters" },
+      {
+        property: "og:description",
+        content: "Premier chess tournaments, live standings, and a community built for the long game.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
   loader: ({ context }) => {
     context.queryClient.ensureQueryData(featuredTournamentQuery);
     context.queryClient.ensureQueryData(siteContentQuery("home_hero_title"));
     context.queryClient.ensureQueryData(siteContentQuery("home_hero_subtitle"));
     context.queryClient.ensureQueryData(sponsorsQuery);
+    context.queryClient.ensureQueryData(mediaQuery);
   },
   component: Home,
 });
+
+const EASE = [0.22, 1, 0.36, 1] as const;
 
 function HeroTitle({ title }: { title?: string | null }) {
   const full = title?.trim() || "Every Move Matters";
   const idx = full.toLowerCase().lastIndexOf("matters");
   if (idx === -1) {
-    return <>{full}</>;
+    return <NotationText text={full} delay={0.55} />;
   }
   const before = full.slice(0, idx).trimEnd();
   const after = full.slice(idx + "matters".length).trimStart();
   return (
     <>
-      {before}
+      {before ? <NotationText text={before} delay={0.55} /> : null}
       {before ? <br /> : null}
-      <span className="text-gradient-gold">Matters</span>
-      {after ? ` ${after}` : null}
+      <NotationText text="Matters" className="text-gradient-gold" delay={before ? 0.55 + before.length * 0.03 : 0.55} />
+      {after ? <NotationText text={` ${after}`} delay={1.1} /> : null}
     </>
   );
 }
-
-const EASE = [0.22, 1, 0.36, 1] as const;
 
 function Home() {
   const { data: featured } = useSuspenseQuery(featuredTournamentQuery);
@@ -48,23 +71,23 @@ function Home() {
   const reduce = useReducedMotion();
   const heroRef = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
-  // Soft parallax — subtle enough to stay comfortable on mobile.
+  // Scene 2 — the board glides down as the next scene rises.
   const heroY = useTransform(scrollYProgress, [0, 1], [0, reduce ? 0 : 60]);
   const heroFade = useTransform(scrollYProgress, [0, 1], [1, reduce ? 1 : 0.35]);
+  const boardY = useTransform(scrollYProgress, [0, 1], [0, reduce ? 0 : 140]);
+  const boardFade = useTransform(scrollYProgress, [0, 1], [1, reduce ? 1 : 0.2]);
 
   return (
     <div>
-      {/* Hero */}
+      {/* Scene 1 — Opening move */}
       <section ref={heroRef} className="relative overflow-hidden">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-16 pb-24 sm:pt-24 sm:pb-32">
-          <motion.div style={{ y: heroY, opacity: heroFade }} className="max-w-3xl">
-            <motion.div
-              initial="hidden"
-              animate="show"
-              variants={{ hidden: {}, show: { transition: { staggerChildren: 0.1, delayChildren: 0.05 } } }}
-            >
+          <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+            <motion.div style={{ y: heroY, opacity: heroFade }} className="max-w-3xl">
               <motion.span
-                variants={{ hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: EASE } } }}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.25, ease: EASE }}
                 className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-muted-foreground"
               >
                 <motion.span
@@ -76,37 +99,49 @@ function Home() {
                 </motion.span>
                 64 Squares Society
               </motion.span>
-              <motion.h1
-                variants={{ hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: EASE } } }}
-                className="mt-4 font-display text-5xl sm:text-7xl font-semibold leading-[1.05]"
-              >
+
+              <h1 className="mt-4 font-display text-5xl sm:text-7xl font-semibold leading-[1.05]">
                 <HeroTitle title={heroTitle?.title} />
-              </motion.h1>
+              </h1>
+
               <motion.p
-                variants={{ hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: EASE } } }}
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 1.35, ease: EASE }}
                 className="mt-6 text-lg text-muted-foreground max-w-xl"
               >
                 {heroSub?.title ?? "Premier chess tournaments, live standings, and a community built for the long game."}
               </motion.p>
+
               <motion.div
-                variants={{ hidden: { opacity: 0, y: 14 }, show: { opacity: 1, y: 0, transition: { duration: 0.55, ease: EASE } } }}
+                initial={{ opacity: 0, y: 18 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 1.65, ease: EASE }}
                 className="mt-8 flex flex-wrap gap-3"
               >
-                <Link
-                  to="/register"
-                  className="group inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-6 py-3 text-sm font-medium hover:opacity-90 transition-transform hover:scale-[1.03] active:scale-100"
-                >
-                  Register now <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-                </Link>
-                <Link
-                  to="/tournaments"
-                  className="inline-flex items-center gap-2 rounded-full border border-border px-6 py-3 text-sm font-medium hover:bg-accent/20 transition-transform hover:scale-[1.03] active:scale-100"
-                >
-                  Upcoming tournaments
-                </Link>
+                <Magnetic>
+                  <Link
+                    to="/register"
+                    className="group inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-6 py-3 text-sm font-medium hover:opacity-90 transition-transform hover:scale-[1.03] active:scale-100"
+                  >
+                    Register now <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                  </Link>
+                </Magnetic>
+                <Magnetic>
+                  <Link
+                    to="/tournaments"
+                    className="inline-flex items-center gap-2 rounded-full border border-border px-6 py-3 text-sm font-medium hover:bg-accent/20 transition-transform hover:scale-[1.03] active:scale-100"
+                  >
+                    Upcoming tournaments
+                  </Link>
+                </Magnetic>
               </motion.div>
             </motion.div>
-          </motion.div>
+
+            <motion.div style={{ y: boardY, opacity: boardFade }} className="hidden lg:block justify-self-end">
+              <HeroBoard size={340} />
+            </motion.div>
+          </div>
         </div>
       </section>
 
@@ -114,7 +149,7 @@ function Home() {
       {featured && (
         <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-16">
           <Reveal>
-            <div className="glass rounded-3xl p-8 sm:p-12 relative overflow-hidden">
+            <div className="glass glow-border rounded-3xl p-8 sm:p-12 relative overflow-hidden">
               <motion.div
                 aria-hidden
                 initial={{ opacity: 0, scale: 0.8 }}
@@ -151,19 +186,23 @@ function Home() {
                         >
                           <Trophy size={14} />
                         </motion.span>
-                        ₹{Number(featured.prize_pool ?? 0).toLocaleString("en-IN")}
+                        ₹<CountUp value={Number(featured.prize_pool ?? 0)} />
                       </div>
                     </StaggerItem>
                   </Stagger>
                   <Reveal delay={0.15}>
                     <div className="mt-8 flex gap-3">
-                      <Link to="/tournaments/$slug" params={{ slug: featured.slug }} className="rounded-full bg-primary text-primary-foreground px-5 py-2.5 text-sm font-medium hover:opacity-90 transition-transform hover:scale-[1.03]">View details</Link>
-                      <Link to="/register" className="rounded-full border border-border px-5 py-2.5 text-sm font-medium hover:bg-accent/20 transition-transform hover:scale-[1.03]">Register</Link>
+                      <Magnetic>
+                        <Link to="/tournaments/$slug" params={{ slug: featured.slug }} className="inline-flex rounded-full bg-primary text-primary-foreground px-5 py-2.5 text-sm font-medium hover:opacity-90 transition-transform hover:scale-[1.03]">View details</Link>
+                      </Magnetic>
+                      <Magnetic>
+                        <Link to="/register" className="inline-flex rounded-full border border-border px-5 py-2.5 text-sm font-medium hover:bg-accent/20 transition-transform hover:scale-[1.03]">Register</Link>
+                      </Magnetic>
                     </div>
                   </Reveal>
                 </div>
                 <div className="relative flex items-center justify-center min-h-[280px]">
-                  <AnimatedBoard size={256} />
+                  <HeroBoard size={256} />
                 </div>
               </div>
             </div>
@@ -188,9 +227,17 @@ function Home() {
               <motion.div
                 whileHover={reduce ? undefined : { y: -6 }}
                 transition={{ duration: 0.25, ease: EASE }}
-                className="h-full rounded-2xl border border-border bg-card p-6 hover:shadow-xl hover:border-gold/40 transition-colors"
+                className="group h-full rounded-2xl border border-border bg-card p-6 glow-border hover:shadow-xl hover:border-gold/40 transition-colors"
               >
-                <f.icon className="text-gold" size={28} />
+                <motion.span
+                  className="inline-flex"
+                  initial={{ rotate: -8, opacity: 0, scale: 0.9 }}
+                  whileInView={{ rotate: 0, opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, ease: EASE }}
+                >
+                  <f.icon className="text-gold transition-transform duration-300 group-hover:rotate-[8deg]" size={28} />
+                </motion.span>
                 <h3 className="mt-4 font-display text-xl font-semibold">{f.title}</h3>
                 <p className="mt-2 text-sm text-muted-foreground">{f.body}</p>
               </motion.div>
@@ -199,6 +246,12 @@ function Home() {
         </Stagger>
       </section>
 
+      {/* Journey timeline */}
+      <JourneyTimeline />
+
+      {/* Gallery */}
+      <GalleryStrip />
+
       {/* Sponsors */}
       {sponsors.length > 0 && (
         <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
@@ -206,11 +259,11 @@ function Home() {
             <div className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Powered by</div>
             <h2 className="mt-2 font-display text-2xl">Our Sponsors</h2>
           </Reveal>
-          <Stagger className="flex flex-wrap items-center justify-center gap-6 opacity-80" gap={0.06}>
+          <Stagger className="flex flex-wrap items-center justify-center gap-6 opacity-80" gap={0.12}>
             {sponsors.map((s) => (
               <StaggerItem key={s.id}>
                 <motion.div
-                  whileHover={reduce ? undefined : { scale: 1.05 }}
+                  whileHover={reduce ? undefined : { scale: 1.05, y: -3 }}
                   transition={{ duration: 0.2 }}
                   className="px-6 py-3 rounded-lg border border-border bg-card"
                 >
@@ -221,6 +274,9 @@ function Home() {
           </Stagger>
         </section>
       )}
+
+      {/* Final move */}
+      <FinalMove />
     </div>
   );
 }

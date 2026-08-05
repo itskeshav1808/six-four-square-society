@@ -168,3 +168,51 @@
   background-clip: text;
   color: transparent;
 }
+
+/* Travelling glow border for cards (GPU-friendly: only background-position animates) */
+@keyframes glow-travel {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+.glow-border {
+  position: relative;
+}
+.glow-border::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in oklab, var(--gold) 80%, transparent) 25%,
+    transparent 50%,
+    color-mix(in oklab, var(--gold) 80%, transparent) 75%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+.glow-border:hover::after {
+  opacity: 1;
+  animation: glow-travel 2.4s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .glow-border:hover::after { animation: none; }
+}
+
+
+/* Scoped light-on-navy context (final CTA scene) */
+.on-navy {
+  --foreground: oklch(0.98 0.005 90);
+  --muted-foreground: oklch(0.82 0.02 260);
+  --border: oklch(0.4 0.04 260);
+  color: var(--foreground);
+}
