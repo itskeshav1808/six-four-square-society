@@ -12,17 +12,17 @@ export function FinalMove() {
   const reduce = useReducedMotion();
   const ref = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end end"] });
-  const veil = useTransform(scrollYProgress, [0, 1], [0, reduce ? 0 : 0.85]);
+  const veil = useTransform(scrollYProgress, [0, 1], [0, reduce ? 0 : 0.92]);
   const kingX = useTransform(scrollYProgress, [0.15, 0.85], ["-38%", "0%"]);
 
   return (
     <section ref={ref} className="relative overflow-hidden">
       <motion.div aria-hidden className="absolute inset-0 bg-navy" style={{ opacity: veil }} />
-      <div className="relative mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-28 text-center">
+      <div className="on-navy relative mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-28 text-center">
         {/* Final rank */}
         <div className="mx-auto flex w-40 justify-between opacity-70">
           {[0, 1, 2, 3].map((i) => (
-            <span key={i} className={`h-6 w-6 rounded-sm ${i % 2 === 0 ? "bg-white/70" : "bg-foreground/30"}`} />
+            <span key={i} className={`h-6 w-6 rounded-sm ${i % 2 === 0 ? "bg-gold/70" : "bg-gold/20"}`} />
           ))}
         </div>
         <motion.span
@@ -55,7 +55,7 @@ export function FinalMove() {
           <Magnetic>
             <Link
               to="/register"
-              className="group inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-8 py-3.5 text-sm font-medium transition-transform hover:scale-[1.04] active:scale-100"
+              className="group inline-flex items-center gap-2 rounded-full bg-gold text-gold-foreground px-8 py-3.5 text-sm font-medium transition-transform hover:scale-[1.04] active:scale-100"
             >
               Register Now <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
             </Link>

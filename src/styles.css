@@ -208,3 +208,11 @@
   .glow-border:hover::after { animation: none; }
 }
 
+
+/* Scoped light-on-navy context (final CTA scene) */
+.on-navy {
+  --foreground: oklch(0.98 0.005 90);
+  --muted-foreground: oklch(0.82 0.02 260);
+  --border: oklch(0.4 0.04 260);
+  color: var(--foreground);
+}
