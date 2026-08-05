@@ -48,16 +48,16 @@ function HeroTitle({ title }: { title?: string | null }) {
   const full = title?.trim() || "Every Move Matters";
   const idx = full.toLowerCase().lastIndexOf("matters");
   if (idx === -1) {
-    return <NotationText text={full} delay={0.9} />;
+    return <NotationText text={full} delay={0.55} />;
   }
   const before = full.slice(0, idx).trimEnd();
   const after = full.slice(idx + "matters".length).trimStart();
   return (
     <>
-      {before ? <NotationText text={before} delay={0.9} /> : null}
+      {before ? <NotationText text={before} delay={0.55} /> : null}
       {before ? <br /> : null}
-      <NotationText text="Matters" className="text-gradient-gold" delay={before ? 0.9 + before.length * 0.045 : 0.9} />
-      {after ? <NotationText text={` ${after}`} delay={1.6} /> : null}
+      <NotationText text="Matters" className="text-gradient-gold" delay={before ? 0.55 + before.length * 0.03 : 0.55} />
+      {after ? <NotationText text={` ${after}`} delay={1.1} /> : null}
     </>
   );
 }
@@ -87,7 +87,7 @@ function Home() {
               <motion.span
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.45, ease: EASE }}
+                transition={{ duration: 0.6, delay: 0.25, ease: EASE }}
                 className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-muted-foreground"
               >
                 <motion.span
@@ -107,7 +107,7 @@ function Home() {
               <motion.p
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 2.1, ease: EASE }}
+                transition={{ duration: 0.6, delay: 1.35, ease: EASE }}
                 className="mt-6 text-lg text-muted-foreground max-w-xl"
               >
                 {heroSub?.title ?? "Premier chess tournaments, live standings, and a community built for the long game."}
@@ -116,7 +116,7 @@ function Home() {
               <motion.div
                 initial={{ opacity: 0, y: 18 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 2.55, ease: EASE }}
+                transition={{ duration: 0.6, delay: 1.65, ease: EASE }}
                 className="mt-8 flex flex-wrap gap-3"
               >
                 <Magnetic>

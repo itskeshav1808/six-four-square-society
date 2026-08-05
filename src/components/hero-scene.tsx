@@ -51,22 +51,22 @@ export function HeroBoard({ size = 320 }: { size?: number }) {
 
       {/* White king slides in from the bottom rank */}
       <motion.span
-        className="absolute flex items-center justify-center select-none text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.45)]"
+        className="absolute flex items-center justify-center select-none text-gold drop-shadow-[0_2px_6px_rgba(0,0,0,0.45)]"
         style={{ width: cell, height: cell, fontSize: cell * 0.82, left: cell * 4, top: cell * 7 }}
         initial={reduce ? { opacity: 0 } : { opacity: 0, y: cell * 1.4 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7, delay: 1.1, ease: EASE }}
+        transition={{ duration: 0.7, delay: 0.8, ease: EASE }}
       >
         ♔
       </motion.span>
 
       {/* Black king answers */}
       <motion.span
-        className="absolute flex items-center justify-center select-none text-foreground drop-shadow"
-        style={{ width: cell, height: cell, fontSize: cell * 0.82, left: cell * 3, top: 0 }}
+        className="absolute flex items-center justify-center select-none text-navy drop-shadow"
+        style={{ width: cell, height: cell, fontSize: cell * 0.82, left: cell * 2, top: 0 }}
         initial={reduce ? { opacity: 0 } : { opacity: 0, y: -cell * 1.4 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7, delay: 1.5, ease: EASE }}
+        transition={{ duration: 0.7, delay: 1.05, ease: EASE }}
       >
         ♚
       </motion.span>
@@ -79,7 +79,7 @@ export function NotationText({
   text,
   className,
   delay = 0,
-  charStep = 0.045,
+  charStep = 0.03,
 }: {
   text: string;
   className?: string;
