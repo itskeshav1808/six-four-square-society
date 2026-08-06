@@ -1,4 +1,4 @@
-import { motion, useMotionValue, useReducedMotion, useSpring } from "framer-motion";
+import { motion, useMotionValue, useReducedMotion, useSpring, useTransform } from "framer-motion";
 import type { ReactNode } from "react";
 import { useCallback } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -24,26 +24,28 @@ export function Tilt({
 
   const rx = useMotionValue(0);
   const ry = useMotionValue(0);
-  const gx = useMotionValue(50);
-  const gy = useMotionValue(50);
+  const px = useMotionValue(0.5);
+  const py = useMotionValue(0.5);
   const go = useMotionValue(0);
 
   const srx = useSpring(rx, { stiffness: 180, damping: 20, mass: 0.4 });
   const sry = useSpring(ry, { stiffness: 180, damping: 20, mass: 0.4 });
   const sgo = useSpring(go, { stiffness: 120, damping: 20 });
+  const glareLeft = useTransform(px, (v) => `${v * 100}%`);
+  const glareTop = useTransform(py, (v) => `${v * 100}%`);
 
   const onMove = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
       const r = e.currentTarget.getBoundingClientRect();
-      const px = (e.clientX - r.left) / r.width;
-      const py = (e.clientY - r.top) / r.height;
-      ry.set((px - 0.5) * max * 2);
-      rx.set(-(py - 0.5) * max * 2);
-      gx.set(px * 100);
-      gy.set(py * 100);
+      const nx = (e.clientX - r.left) / r.width;
+      const ny = (e.clientY - r.top) / r.height;
+      ry.set((nx - 0.5) * max * 2);
+      rx.set(-(ny - 0.5) * max * 2);
+      px.set(nx);
+      py.set(ny);
       go.set(1);
     },
-    [max, rx, ry, gx, gy, go],
+    [max, rx, ry, px, py, go],
   );
 
   const reset = useCallback(() => {
@@ -64,17 +66,19 @@ export function Tilt({
       >
         {children}
         {glare ? (
-          <motion.span
-            aria-hidden
-            className="pointer-events-none absolute inset-0 rounded-[inherit]"
-            style={{
-              opacity: sgo,
-              background: "radial-gradient(220px circle at var(--gx) var(--gy), color-mix(in oklab, var(--gold) 22%, transparent), transparent 70%)",
-              // @ts-expect-error custom props
-              "--gx": gx,
-              "--gy": gy,
-            }}
-          />
+          <span aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden rounded-[inherit]">
+            <motion.span
+              className="absolute h-72 w-72 -translate-x-1/2 -translate-y-1/2 rounded-full"
+              style={{
+                left: glareLeft,
+                top: glareTop,
+                opacity: sgo,
+                background:
+                  "radial-gradient(circle, color-mix(in oklab, var(--gold) 24%, transparent), transparent 70%)",
+                willChange: "transform, opacity",
+              }}
+            />
+          </span>
         ) : null}
       </motion.div>
     </div>
