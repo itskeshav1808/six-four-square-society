@@ -29,8 +29,12 @@ export function JourneyTimeline() {
         transition={{ duration: 0.55, ease: EASE }}
         className="text-center"
       >
-        <div className="text-xs uppercase tracking-[0.2em] text-muted-foreground">The Game Plan</div>
-        <h2 className="mt-2 font-display text-3xl sm:text-4xl font-semibold">From First Move to Champion</h2>
+        <div className="flex items-center justify-center gap-3">
+          <span className="font-display text-sm text-gold">IV.</span>
+          <span className="h-px w-8 bg-gold/50" />
+          <span className="text-[11px] uppercase tracking-[0.28em] text-muted-foreground">The Game Plan</span>
+        </div>
+        <h2 className="mt-4 font-display text-4xl sm:text-5xl font-semibold leading-[1.03]">From First Move to Champion</h2>
       </motion.div>
 
       <div ref={ref} className="relative mt-14 pl-14 sm:pl-20">
