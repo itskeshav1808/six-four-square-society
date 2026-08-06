@@ -66,10 +66,12 @@ function Home() {
 
       <section className="mx-auto max-w-7xl px-4 pb-8 sm:px-6 lg:px-8">
         <ActLabel index="IV." name="The Attack" move="!?" className="mb-6" />
+        <ActHeading lines={["Sharpen your", "calculation daily."]} className="mb-10" />
         <Reveal>
           <DailyPuzzle />
         </Reveal>
       </section>
+
 
       {/* Act V — Victory: prizes */}
       <PrizePodium pool={Number(featured?.prize_pool ?? 0)} />
