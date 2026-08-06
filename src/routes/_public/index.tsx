@@ -12,7 +12,7 @@ import { FeaturedMatch } from "@/components/featured-match";
 import { PrizePodium } from "@/components/prize-podium";
 import { SponsorRibbon } from "@/components/sponsor-ribbon";
 import { ScrollProgress } from "@/components/scroll-progress";
-import { ActLabel, ActHeading } from "@/components/act";
+import { ActHeading } from "@/components/act";
 
 export const Route = createFileRoute("/_public/")({
   head: () => ({
@@ -65,8 +65,13 @@ function Home() {
       <JourneyTimeline />
 
       <section className="mx-auto max-w-7xl px-4 pb-8 sm:px-6 lg:px-8">
-        <ActLabel index="IV." name="The Attack" move="!?" className="mb-6" />
-        <ActHeading lines={["Sharpen your", "calculation daily."]} className="mb-10" />
+        <ActHeading
+          index="IV."
+          act="The Attack"
+          move="!?"
+          title={["Sharpen your", "calculation daily."]}
+          blurb="A fresh tactical position every day — the same habit our champions keep."
+        />
         <Reveal>
           <DailyPuzzle />
         </Reveal>
