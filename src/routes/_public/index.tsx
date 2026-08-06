@@ -12,7 +12,7 @@ import { FeaturedMatch } from "@/components/featured-match";
 import { PrizePodium } from "@/components/prize-podium";
 import { SponsorRibbon } from "@/components/sponsor-ribbon";
 import { ScrollProgress } from "@/components/scroll-progress";
-import { ActLabel } from "@/components/act";
+import { ActLabel, ActHeading } from "@/components/act";
 
 export const Route = createFileRoute("/_public/")({
   head: () => ({
