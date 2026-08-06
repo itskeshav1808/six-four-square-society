@@ -22,7 +22,7 @@ export function GalleryStrip() {
         className="flex items-end justify-between gap-4"
       >
         <div>
-          <div className="text-xs uppercase tracking-[0.2em] text-muted-foreground">From the arena</div>
+          <div className="flex items-center gap-3"><span className="font-display text-sm text-gold">VI.</span><span className="h-px w-8 bg-gold/50" /><span className="text-[11px] uppercase tracking-[0.28em] text-muted-foreground">From the arena</span></div>
           <h2 className="mt-2 font-display text-3xl font-semibold">Gallery</h2>
         </div>
         <Link to="/gallery" className="text-sm text-gold hover:underline">View all</Link>
