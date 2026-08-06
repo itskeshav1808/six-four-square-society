@@ -216,3 +216,85 @@
   --border: oklch(0.4 0.04 260);
   color: var(--foreground);
 }
+
+/* ─────────────────────────────────────────────────────────────
+   Cinematic homepage — "the match" design layer
+   ───────────────────────────────────────────────────────────── */
+
+/* Dark stage panel used for Opening / Endgame acts */
+.stage {
+  background:
+    radial-gradient(120% 80% at 50% -10%, color-mix(in oklab, var(--gold) 12%, transparent), transparent 60%),
+    linear-gradient(180deg, oklch(0.17 0.045 260), oklch(0.11 0.03 260));
+}
+.stage-vignette {
+  background: radial-gradient(90% 70% at 50% 45%, transparent 40%, oklch(0.08 0.02 260 / 0.75) 100%);
+}
+
+/* Fine gold hairline separator */
+.hairline {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in oklab, var(--gold) 55%, transparent),
+    transparent
+  );
+}
+
+/* Checker texture band */
+.checker-band {
+  background-image:
+    linear-gradient(45deg, color-mix(in oklab, var(--gold) 10%, transparent) 25%, transparent 25%, transparent 75%, color-mix(in oklab, var(--gold) 10%, transparent) 75%),
+    linear-gradient(45deg, color-mix(in oklab, var(--gold) 10%, transparent) 25%, transparent 25%, transparent 75%, color-mix(in oklab, var(--gold) 10%, transparent) 75%);
+  background-size: 24px 24px;
+  background-position: 0 0, 12px 12px;
+}
+
+/* Gold light sweep across a headline (GPU: transform only) */
+@keyframes sweep-x {
+  0% { transform: translateX(-120%); }
+  100% { transform: translateX(220%); }
+}
+.sweep {
+  animation: sweep-x 5.5s ease-in-out 1.6s infinite;
+  will-change: transform;
+}
+
+/* Marquee ribbon */
+@keyframes marquee-x {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.marquee-track {
+  animation: marquee-x var(--marquee-duration, 32s) linear infinite;
+  will-change: transform;
+}
+.marquee-mask {
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+.marquee-wrap:hover .marquee-track { animation-play-state: paused; }
+
+/* Perspective wrapper for 3D board / cards */
+.perspective {
+  perspective: 1200px;
+  transform-style: preserve-3d;
+}
+
+/* Outlined display type */
+.text-stroke {
+  color: transparent;
+  -webkit-text-stroke: 1px color-mix(in oklab, var(--gold) 70%, transparent);
+}
+
+/* Soft luxe elevation */
+.elev {
+  box-shadow:
+    0 1px 0 0 color-mix(in oklab, var(--gold) 14%, transparent) inset,
+    0 24px 60px -30px oklch(0.2 0.05 260 / 0.45);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sweep, .marquee-track { animation: none; }
+}
