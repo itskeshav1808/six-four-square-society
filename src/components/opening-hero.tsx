@@ -138,17 +138,6 @@ export function OpeningHero({
                   tail ? (
                     <span className="relative inline-block">
                       <span className="text-gradient-gold">{tail}</span>
-                      {!reduce && (
-                        <span aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
-                          <span
-                            className="sweep absolute inset-y-0 w-1/3"
-                            style={{
-                              background:
-                                "linear-gradient(90deg, transparent, color-mix(in oklab, var(--gold) 45%, transparent), transparent)",
-                            }}
-                          />
-                        </span>
-                      )}
                     </span>
                   ) : null,
                 ].filter(Boolean)}
@@ -224,7 +213,7 @@ export function OpeningHero({
             ) : null}
           </motion.div>
 
-          <motion.div style={{ y: boardY, scale: boardScale }} className="justify-self-center lg:justify-self-end">
+          <motion.div style={{ y: boardY, scale: boardScale }} className="w-full max-w-[420px] justify-self-center lg:justify-self-end">
             <StageBoard />
           </motion.div>
         </div>
