@@ -1,7 +1,6 @@
 import { motion, useReducedMotion } from "framer-motion";
 import { CountUp } from "@/components/count-up";
 import { useMounted } from "@/components/home/use-mounted";
-import { useMounted } from "@/components/home/use-mounted";
 import type { Cms } from "@/lib/home-content";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
@@ -12,7 +11,6 @@ const EASE = [0.22, 1, 0.36, 1] as const;
  */
 export function AboutAct({ cms }: { cms: Cms }) {
   const reduce = useReducedMotion();
-  const mounted = useMounted();
   const mounted = useMounted();
   const sentences = cms.lines("home_about_body", [
     "Chess rewards patience.",
