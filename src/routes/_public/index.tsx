@@ -1,18 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { featuredTournamentQuery, siteContentQuery, sponsorsQuery, mediaQuery } from "@/lib/supabase-queries";
-import { DailyPuzzle } from "@/components/daily-puzzle";
-import { Reveal } from "@/components/reveal";
-import { JourneyTimeline } from "@/components/journey-timeline";
-import { GalleryStrip } from "@/components/gallery-strip";
-import { FinalMove } from "@/components/final-move";
-import { OpeningHero } from "@/components/opening-hero";
-import { DevelopmentSection } from "@/components/development-section";
-import { FeaturedMatch } from "@/components/featured-match";
-import { PrizePodium } from "@/components/prize-podium";
+import { featuredTournamentQuery, sponsorsQuery, mediaQuery } from "@/lib/supabase-queries";
+import { siteContentAllQuery, makeCms } from "@/lib/home-content";
+import { HomeHero } from "@/components/home/hero";
+import { AboutAct } from "@/components/home/about-act";
+import { Pillars } from "@/components/home/pillars";
+import { Journey } from "@/components/home/journey";
+import { Prizes } from "@/components/home/prizes";
+import { GalleryShowcase } from "@/components/home/gallery-showcase";
+import { Closing } from "@/components/home/closing";
 import { SponsorRibbon } from "@/components/sponsor-ribbon";
 import { ScrollProgress } from "@/components/scroll-progress";
-import { ActHeading } from "@/components/act";
+import { DailyPuzzle } from "@/components/daily-puzzle";
+import { Reveal } from "@/components/reveal";
 
 export const Route = createFileRoute("/_public/")({
   head: () => ({
@@ -21,7 +21,7 @@ export const Route = createFileRoute("/_public/")({
       {
         name: "description",
         content:
-          "Rated chess tournaments, live standings, and a community built for the long game. Register for the next 64 Squares Society event.",
+          "Rated chess tournaments, live standings, transparent prizes and a community built for the long game. Register for the next 64 Squares Society event.",
       },
       { property: "og:title", content: "64 Squares Society — Every Move Matters" },
       {
@@ -34,8 +34,7 @@ export const Route = createFileRoute("/_public/")({
   }),
   loader: ({ context }) => {
     context.queryClient.ensureQueryData(featuredTournamentQuery);
-    context.queryClient.ensureQueryData(siteContentQuery("home_hero_title"));
-    context.queryClient.ensureQueryData(siteContentQuery("home_hero_subtitle"));
+    context.queryClient.ensureQueryData(siteContentAllQuery);
     context.queryClient.ensureQueryData(sponsorsQuery);
     context.queryClient.ensureQueryData(mediaQuery);
   },
@@ -44,51 +43,58 @@ export const Route = createFileRoute("/_public/")({
 
 function Home() {
   const { data: featured } = useSuspenseQuery(featuredTournamentQuery);
-  const { data: heroTitle } = useSuspenseQuery(siteContentQuery("home_hero_title"));
-  const { data: heroSub } = useSuspenseQuery(siteContentQuery("home_hero_subtitle"));
+  const { data: content } = useSuspenseQuery(siteContentAllQuery);
   const { data: sponsors } = useSuspenseQuery(sponsorsQuery);
+  const { data: media } = useSuspenseQuery(mediaQuery);
+  const cms = makeCms(content);
 
   return (
     <div>
       <ScrollProgress />
 
-      {/* Act I — Opening */}
-      <OpeningHero title={heroTitle?.title} subtitle={heroSub?.title} featured={featured} />
+      {/* Opening — cinematic stage + the essentials */}
+      <HomeHero cms={cms} featured={featured} />
 
-      {/* Act II — Development */}
-      <DevelopmentSection />
+      {/* Development — who we are, in numbers */}
+      <AboutAct cms={cms} />
 
-      {/* Act III — Middlegame: the next event */}
-      {featured && <FeaturedMatch featured={featured} />}
+      {/* Position — how we run events */}
+      <Pillars cms={cms} />
 
-      {/* Act IV — The Attack: journey + puzzle */}
-      <JourneyTimeline />
+      {/* Middlegame — the path from entry to champion */}
+      <Journey cms={cms} />
 
+      {/* Daily practice */}
       <section className="mx-auto max-w-7xl px-4 pb-8 sm:px-6 lg:px-8">
-        <ActHeading
-          index="IV."
-          act="The Attack"
-          move="!?"
-          title={["Sharpen your", "calculation daily."]}
-          blurb="A fresh tactical position every day — the same habit our champions keep."
-        />
+        <div className="max-w-2xl">
+          <div className="flex items-center gap-3">
+            <span className="h-px w-8 rule-gold" />
+            <span className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground">Practice</span>
+          </div>
+          <h2 className="mt-4 font-display text-4xl font-semibold tracking-tight sm:text-5xl">
+            {cms.t("home_puzzle_heading", "Sharpen your calculation daily")}
+          </h2>
+        </div>
         <Reveal>
           <DailyPuzzle />
         </Reveal>
       </section>
 
+      {/* Achievement — prizes */}
+      <Prizes cms={cms} pool={Number(featured?.prize_pool ?? 0)} />
 
-      {/* Act V — Victory: prizes */}
-      <PrizePodium pool={Number(featured?.prize_pool ?? 0)} />
+      {/* Gallery — signature showcase */}
+      <GalleryShowcase cms={cms} media={media} />
 
-      {/* Interlude — the arena */}
-      <GalleryStrip />
+      {/* Partners */}
+      <SponsorRibbon
+        sponsors={sponsors}
+        label={cms.t("home_sponsors_label", "Backed by")}
+        heading={cms.t("home_sponsors_heading", "Our partners")}
+      />
 
-      {/* Sponsors */}
-      <SponsorRibbon sponsors={sponsors} />
-
-      {/* Endgame */}
-      <FinalMove />
+      {/* Your move */}
+      <Closing cms={cms} />
     </div>
   );
 }

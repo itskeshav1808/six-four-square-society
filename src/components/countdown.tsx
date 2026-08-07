@@ -15,12 +15,17 @@ function parts(ms: number) {
 /** Live clock counting down to the next tournament's first move. */
 export function Countdown({ date }: { date: string }) {
   const target = new Date(date).getTime();
-  const [now, setNow] = useState(() => Date.now());
+  // Time-dependent output must not be rendered on the server, otherwise the
+  // hydrated tree mismatches and React abandons parts of the subtree.
+  const [now, setNow] = useState<number | null>(null);
 
   useEffect(() => {
+    setNow(Date.now());
     const id = window.setInterval(() => setNow(Date.now()), 1000);
     return () => window.clearInterval(id);
   }, []);
+
+  if (now === null) return <div className="h-[62px]" aria-hidden />;
 
   const done = target - now <= 0;
   const items = parts(target - now);
