@@ -28,7 +28,7 @@ export function GalleryShowcase({ cms, media }: { cms: Cms; media: MediaItem[] }
       <div aria-hidden className="stage-vignette absolute inset-0" />
       <div className="on-navy relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <motion.div
-          initial={mounted ? ({ opacity: 0, y: 10 ) : false}}
+          initial={{ opacity: 0, y: 10 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-60px" }}
           transition={{ duration: 0.5, ease: EASE }}
@@ -51,7 +51,7 @@ export function GalleryShowcase({ cms, media }: { cms: Cms; media: MediaItem[] }
         </motion.div>
 
         <motion.div
-          initial={mounted ? (reduce ? { opacity: 0 ) : false} : { opacity: 0, scale: 0.98 }}
+          initial={reduce ? { opacity: 0 } : { opacity: 0, scale: 0.98 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true, margin: "-80px" }}
           transition={{ duration: 0.8, ease: EASE }}

@@ -23,7 +23,7 @@ export function AboutAct({ cms }: { cms: Cms }) {
       <div className="grid gap-12 lg:grid-cols-[0.9fr_1.1fr]">
         <div>
           <motion.div
-            initial={mounted ? ({ opacity: 0, y: 10 ) : false}}
+            initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-60px" }}
             transition={{ duration: 0.5, ease: EASE }}
@@ -36,7 +36,7 @@ export function AboutAct({ cms }: { cms: Cms }) {
             <span className="block overflow-hidden pb-[0.06em]">
               <motion.span
                 className="block"
-                initial={mounted ? (reduce ? { opacity: 0 ) : false} : { opacity: 0, y: "110%" }}
+                initial={reduce ? { opacity: 0 } : { opacity: 0, y: "110%" }}
                 whileInView={{ opacity: 1, y: "0%" }}
                 viewport={{ once: true, margin: "-80px" }}
                 transition={{ duration: 0.85, ease: EASE }}
@@ -54,7 +54,7 @@ export function AboutAct({ cms }: { cms: Cms }) {
                 <motion.span
                   className="block"
                   style={{ willChange: "transform, opacity" }}
-                  initial={mounted ? (reduce ? { opacity: 0 ) : false} : { opacity: 0, y: "105%" }}
+                  initial={reduce ? { opacity: 0 } : { opacity: 0, y: "105%" }}
                   whileInView={{ opacity: 1, y: "0%" }}
                   viewport={{ once: true, margin: "-80px" }}
                   transition={{ duration: 0.7, delay: i * 0.12, ease: EASE }}
@@ -73,7 +73,7 @@ export function AboutAct({ cms }: { cms: Cms }) {
                   <div key={label + i}>
                     <motion.div
                       className="h-px w-full origin-left rule-gold"
-                      initial={mounted ? ({ scaleX: 0 ) : false}}
+                      initial={{ scaleX: 0 }}
                       whileInView={{ scaleX: 1 }}
                       viewport={{ once: true, margin: "-40px" }}
                       transition={{ duration: 0.7, delay: i * 0.1, ease: EASE }}

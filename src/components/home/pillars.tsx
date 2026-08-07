@@ -18,7 +18,7 @@ export function Pillars({ cms }: { cms: Cms }) {
   return (
     <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
       <motion.div
-        initial={mounted ? ({ opacity: 0, y: 10 ) : false}}
+        initial={{ opacity: 0, y: 10 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-60px" }}
         transition={{ duration: 0.5, ease: EASE }}
@@ -39,7 +39,7 @@ export function Pillars({ cms }: { cms: Cms }) {
             key={title + i}
             className="square group rounded-2xl p-6 sm:p-8"
             style={{ willChange: "clip-path, opacity" }}
-            initial={mounted ? (reduce ? { opacity: 0 ) : false} : { opacity: 0, clipPath: "inset(0 100% 0 0 round 1rem)" }}
+            initial={reduce ? { opacity: 0 } : { opacity: 0, clipPath: "inset(0 100% 0 0 round 1rem)" }}
             whileInView={{ opacity: 1, clipPath: "inset(0 0% 0 0 round 1rem)" }}
             viewport={{ once: true, margin: "-80px" }}
             transition={{ duration: 0.8, delay: i * 0.1, ease: EASE }}

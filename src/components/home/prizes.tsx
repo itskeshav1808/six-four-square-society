@@ -20,7 +20,7 @@ export function Prizes({ cms, pool }: { cms: Cms; pool: number }) {
   return (
     <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
       <motion.div
-        initial={mounted ? ({ opacity: 0, y: 10 ) : false}}
+        initial={{ opacity: 0, y: 10 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-60px" }}
         transition={{ duration: 0.5, ease: EASE }}
@@ -45,7 +45,7 @@ export function Prizes({ cms, pool }: { cms: Cms; pool: number }) {
             <motion.div
               key={s.place}
               className="flex w-1/3 max-w-[220px] flex-col items-center"
-              initial={mounted ? (reduce ? { opacity: 0 ) : false} : { opacity: 0, y: 40 }}
+              initial={reduce ? { opacity: 0 } : { opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-80px" }}
               transition={{ duration: 0.7, delay: 0.12 * i, ease: EASE }}

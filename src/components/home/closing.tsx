@@ -51,7 +51,7 @@ export function Closing({ cms }: { cms: Cms }) {
           <span className="block overflow-hidden pb-[0.06em]">
             <motion.span
               className="block italic text-gradient-gold"
-              initial={mounted ? (reduce ? { opacity: 0 ) : false} : { opacity: 0, y: "110%" }}
+              initial={reduce ? { opacity: 0 } : { opacity: 0, y: "110%" }}
               whileInView={{ opacity: 1, y: "0%" }}
               viewport={{ once: true, margin: "-80px" }}
               transition={{ duration: 0.9, ease: EASE }}
@@ -61,7 +61,7 @@ export function Closing({ cms }: { cms: Cms }) {
           </span>
         </h2>
         <motion.p
-          initial={mounted ? ({ opacity: 0, y: 12 ) : false}}
+          initial={{ opacity: 0, y: 12 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-60px" }}
           transition={{ duration: 0.6, delay: 0.2, ease: EASE }}
@@ -71,7 +71,7 @@ export function Closing({ cms }: { cms: Cms }) {
         </motion.p>
 
         <motion.div
-          initial={mounted ? ({ opacity: 0, y: 14 ) : false}}
+          initial={{ opacity: 0, y: 14 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-60px" }}
           transition={{ duration: 0.6, delay: 0.3, ease: EASE }}
