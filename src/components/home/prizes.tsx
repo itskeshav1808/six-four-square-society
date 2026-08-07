@@ -1,6 +1,7 @@
 import { motion, useReducedMotion } from "framer-motion";
 import { Link } from "@tanstack/react-router";
 import { CountUp } from "@/components/count-up";
+import { useMounted } from "@/components/home/use-mounted";
 import type { Cms } from "@/lib/home-content";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
@@ -14,11 +15,12 @@ const SPLIT = [
 /** Act IV — Achievement. Columns rise from the board, values count up. */
 export function Prizes({ cms, pool }: { cms: Cms; pool: number }) {
   const reduce = useReducedMotion();
+  const mounted = useMounted();
 
   return (
     <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
       <motion.div
-        initial={{ opacity: 0, y: 10 }}
+        initial={mounted ? ({ opacity: 0, y: 10 ) : false}}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-60px" }}
         transition={{ duration: 0.5, ease: EASE }}
@@ -43,7 +45,7 @@ export function Prizes({ cms, pool }: { cms: Cms; pool: number }) {
             <motion.div
               key={s.place}
               className="flex w-1/3 max-w-[220px] flex-col items-center"
-              initial={reduce ? { opacity: 0 } : { opacity: 0, y: 40 }}
+              initial={mounted ? (reduce ? { opacity: 0 ) : false} : { opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-80px" }}
               transition={{ duration: 0.7, delay: 0.12 * i, ease: EASE }}

@@ -1,5 +1,6 @@
 import { motion, useReducedMotion } from "framer-motion";
 import { CountUp } from "@/components/count-up";
+import { useMounted } from "@/components/home/use-mounted";
 import type { Cms } from "@/lib/home-content";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
@@ -10,6 +11,7 @@ const EASE = [0.22, 1, 0.36, 1] as const;
  */
 export function AboutAct({ cms }: { cms: Cms }) {
   const reduce = useReducedMotion();
+  const mounted = useMounted();
   const sentences = cms.lines("home_about_body", [
     "Chess rewards patience.",
     "So do we. Every 64 Squares event is run by players, for players.",
@@ -21,7 +23,7 @@ export function AboutAct({ cms }: { cms: Cms }) {
       <div className="grid gap-12 lg:grid-cols-[0.9fr_1.1fr]">
         <div>
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
+            initial={mounted ? ({ opacity: 0, y: 10 ) : false}}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-60px" }}
             transition={{ duration: 0.5, ease: EASE }}
@@ -34,7 +36,7 @@ export function AboutAct({ cms }: { cms: Cms }) {
             <span className="block overflow-hidden pb-[0.06em]">
               <motion.span
                 className="block"
-                initial={reduce ? { opacity: 0 } : { opacity: 0, y: "110%" }}
+                initial={mounted ? (reduce ? { opacity: 0 ) : false} : { opacity: 0, y: "110%" }}
                 whileInView={{ opacity: 1, y: "0%" }}
                 viewport={{ once: true, margin: "-80px" }}
                 transition={{ duration: 0.85, ease: EASE }}
@@ -52,7 +54,7 @@ export function AboutAct({ cms }: { cms: Cms }) {
                 <motion.span
                   className="block"
                   style={{ willChange: "transform, opacity" }}
-                  initial={reduce ? { opacity: 0 } : { opacity: 0, y: "105%" }}
+                  initial={mounted ? (reduce ? { opacity: 0 ) : false} : { opacity: 0, y: "105%" }}
                   whileInView={{ opacity: 1, y: "0%" }}
                   viewport={{ once: true, margin: "-80px" }}
                   transition={{ duration: 0.7, delay: i * 0.12, ease: EASE }}
@@ -71,7 +73,7 @@ export function AboutAct({ cms }: { cms: Cms }) {
                   <div key={label + i}>
                     <motion.div
                       className="h-px w-full origin-left rule-gold"
-                      initial={{ scaleX: 0 }}
+                      initial={mounted ? ({ scaleX: 0 ) : false}}
                       whileInView={{ scaleX: 1 }}
                       viewport={{ once: true, margin: "-40px" }}
                       transition={{ duration: 0.7, delay: i * 0.1, ease: EASE }}

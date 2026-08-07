@@ -1,5 +1,6 @@
 import { motion, useReducedMotion, useScroll, useSpring, useTransform } from "framer-motion";
 import { useRef } from "react";
+import { useMounted } from "@/components/home/use-mounted";
 import type { Cms } from "@/lib/home-content";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
@@ -10,6 +11,7 @@ const EASE = [0.22, 1, 0.36, 1] as const;
  */
 export function Journey({ cms }: { cms: Cms }) {
   const reduce = useReducedMotion();
+  const mounted = useMounted();
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start 75%", "end 55%"] });
   const progress = useSpring(scrollYProgress, { stiffness: 90, damping: 26, mass: 0.4 });
@@ -21,7 +23,7 @@ export function Journey({ cms }: { cms: Cms }) {
   return (
     <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
       <motion.div
-        initial={{ opacity: 0, y: 10 }}
+        initial={mounted ? ({ opacity: 0, y: 10 ) : false}}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-60px" }}
         transition={{ duration: 0.5, ease: EASE }}
@@ -60,7 +62,7 @@ export function Journey({ cms }: { cms: Cms }) {
               key={title + i}
               className="relative"
               style={{ willChange: "transform, opacity" }}
-              initial={reduce ? { opacity: 0 } : { opacity: 0, x: -24 }}
+              initial={mounted ? (reduce ? { opacity: 0 ) : false} : { opacity: 0, x: -24 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, margin: "-80px" }}
               transition={{ duration: 0.6, ease: EASE }}
