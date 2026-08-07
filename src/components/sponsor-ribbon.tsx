@@ -6,7 +6,15 @@ import { EASE } from "@/components/act";
  * Sponsor ribbon — a continuous, pausable marquee. Duplicated once so the
  * translateX(-50%) loop is seamless; only transform animates.
  */
-export function SponsorRibbon({ sponsors }: { sponsors: { id: string; name: string }[] }) {
+export function SponsorRibbon({
+  sponsors,
+  label = "Backed by",
+  heading = "Our sponsors",
+}: {
+  sponsors: { id: string; name: string }[];
+  label?: string;
+  heading?: string;
+}) {
   if (sponsors.length === 0) return null;
   const row = [...sponsors, ...sponsors];
   const duration = Math.max(18, sponsors.length * 6);
@@ -20,8 +28,8 @@ export function SponsorRibbon({ sponsors }: { sponsors: { id: string; name: stri
         transition={{ duration: 0.5, ease: EASE }}
         className="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8"
       >
-        <div className="text-[11px] uppercase tracking-[0.28em] text-muted-foreground">Backed by</div>
-        <h2 className="mt-3 font-display text-3xl font-semibold">Our sponsors</h2>
+        <div className="text-[11px] uppercase tracking-[0.28em] text-muted-foreground">{label}</div>
+        <h2 className="mt-3 font-display text-3xl font-semibold">{heading}</h2>
       </motion.div>
 
       <div className="hairline mx-auto mt-10 max-w-5xl" />

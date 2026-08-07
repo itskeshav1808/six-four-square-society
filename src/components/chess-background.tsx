@@ -2,16 +2,22 @@ import { useMemo } from "react";
 
 const PIECES = ["♟", "♞", "♝", "♜", "♛", "♚"];
 
+/** Deterministic pseudo-random so server and client HTML agree on hydration. */
+function rand(seed: number) {
+  const x = Math.sin(seed * 127.1) * 43758.5453;
+  return x - Math.floor(x);
+}
+
 export function ChessBackground({ density = 14 }: { density?: number }) {
   const items = useMemo(
     () =>
       Array.from({ length: density }).map((_, i) => ({
         piece: PIECES[i % PIECES.length],
-        left: Math.random() * 100,
-        size: 18 + Math.random() * 26,
-        duration: 22 + Math.random() * 28,
-        delay: -Math.random() * 40,
-        opacity: 0.05 + Math.random() * 0.08,
+        left: rand(i + 1) * 100,
+        size: 18 + rand(i + 2.3) * 26,
+        duration: 22 + rand(i + 5.7) * 28,
+        delay: -rand(i + 9.1) * 40,
+        opacity: 0.05 + rand(i + 13.5) * 0.08,
       })),
     [density],
   );
