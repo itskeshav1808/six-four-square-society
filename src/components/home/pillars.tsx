@@ -1,5 +1,6 @@
 import { motion, useReducedMotion } from "framer-motion";
 import { useMounted } from "@/components/home/use-mounted";
+import { useMounted } from "@/components/home/use-mounted";
 import type { Cms } from "@/lib/home-content";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
@@ -12,13 +13,14 @@ const GLYPHS = ["♜", "♞", "♝", "♛", "♚", "♟"];
 export function Pillars({ cms }: { cms: Cms }) {
   const reduce = useReducedMotion();
   const mounted = useMounted();
+  const mounted = useMounted();
   const items = cms.pairs("home_pillars", []);
   if (items.length === 0) return null;
 
   return (
     <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
       <motion.div
-        initial={{ opacity: 0, y: 10 }}
+        initial={mounted ? { opacity: 0, y: 10 } : false}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-60px" }}
         transition={{ duration: 0.5, ease: EASE }}
@@ -39,7 +41,7 @@ export function Pillars({ cms }: { cms: Cms }) {
             key={title + i}
             className="square group rounded-2xl p-6 sm:p-8"
             style={{ willChange: "clip-path, opacity" }}
-            initial={reduce ? { opacity: 0 } : { opacity: 0, clipPath: "inset(0 100% 0 0 round 1rem)" }}
+            initial={!mounted ? false : reduce ? { opacity: 0 } : { opacity: 0, clipPath: "inset(0 100% 0 0 round 1rem)" }}
             whileInView={{ opacity: 1, clipPath: "inset(0 0% 0 0 round 1rem)" }}
             viewport={{ once: true, margin: "-80px" }}
             transition={{ duration: 0.8, delay: i * 0.1, ease: EASE }}
