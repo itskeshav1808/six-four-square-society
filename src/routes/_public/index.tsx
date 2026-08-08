@@ -13,6 +13,8 @@ import { SponsorRibbon } from "@/components/sponsor-ribbon";
 import { ScrollProgress } from "@/components/scroll-progress";
 import { DailyPuzzle } from "@/components/daily-puzzle";
 import { Reveal } from "@/components/reveal";
+import { ChessScrollBoard } from "@/components/chess-scroll-board";
+import { SfxToggle } from "@/components/sfx-toggle";
 
 export const Route = createFileRoute("/_public/")({
   head: () => ({
@@ -41,6 +43,23 @@ export const Route = createFileRoute("/_public/")({
   component: Home,
 });
 
+/** Wrapper that tags a section for the scroll board's colour blending. */
+function Scene({
+  id,
+  theme,
+  children,
+}: {
+  id: string;
+  theme: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="board-through" data-board-section={id} data-board-theme={theme}>
+      {children}
+    </div>
+  );
+}
+
 function Home() {
   const { data: featured } = useSuspenseQuery(featuredTournamentQuery);
   const { data: content } = useSuspenseQuery(siteContentAllQuery);
@@ -49,52 +68,74 @@ function Home() {
   const cms = makeCms(content);
 
   return (
-    <div>
+    <div className="relative">
       <ScrollProgress />
+      <ChessScrollBoard cms={cms} />
+      <div className="fixed bottom-4 right-[7.5rem] z-40 flex items-center rounded-full glass px-1.5 py-1.5 shadow-lg">
+        <SfxToggle />
+      </div>
 
       {/* Opening — cinematic stage + the essentials */}
-      <HomeHero cms={cms} featured={featured} />
+      <Scene id="hero" theme="dark">
+        <HomeHero cms={cms} featured={featured} />
+      </Scene>
 
       {/* Development — who we are, in numbers */}
-      <AboutAct cms={cms} />
+      <Scene id="about" theme="cream">
+        <AboutAct cms={cms} />
+      </Scene>
 
       {/* Position — how we run events */}
-      <Pillars cms={cms} />
+      <Scene id="pillars" theme="green">
+        <Pillars cms={cms} />
+      </Scene>
 
       {/* Middlegame — the path from entry to champion */}
-      <Journey cms={cms} />
+      <Scene id="journey" theme="green">
+        <Journey cms={cms} />
+      </Scene>
 
       {/* Daily practice */}
-      <section className="mx-auto max-w-7xl px-4 pb-8 sm:px-6 lg:px-8">
-        <div className="max-w-2xl">
-          <div className="flex items-center gap-3">
-            <span className="h-px w-8 rule-gold" />
-            <span className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground">Practice</span>
+      <Scene id="puzzle" theme="cream">
+        <section className="mx-auto max-w-7xl px-4 pb-8 sm:px-6 lg:px-8">
+          <div className="max-w-2xl">
+            <div className="flex items-center gap-3">
+              <span className="h-px w-8 rule-gold" />
+              <span className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground">Practice</span>
+            </div>
+            <h2 className="mt-4 font-display text-4xl font-semibold tracking-tight sm:text-5xl">
+              {cms.t("home_puzzle_heading", "Sharpen your calculation daily")}
+            </h2>
           </div>
-          <h2 className="mt-4 font-display text-4xl font-semibold tracking-tight sm:text-5xl">
-            {cms.t("home_puzzle_heading", "Sharpen your calculation daily")}
-          </h2>
-        </div>
-        <Reveal>
-          <DailyPuzzle />
-        </Reveal>
-      </section>
+          <Reveal>
+            <DailyPuzzle />
+          </Reveal>
+        </section>
+      </Scene>
 
       {/* Achievement — prizes */}
-      <Prizes cms={cms} pool={Number(featured?.prize_pool ?? 0)} />
+      <Scene id="prizes" theme="dark">
+        <Prizes cms={cms} pool={Number(featured?.prize_pool ?? 0)} />
+      </Scene>
 
       {/* Gallery — signature showcase */}
-      <GalleryShowcase cms={cms} media={media} />
+      <Scene id="gallery" theme="dark">
+        <GalleryShowcase cms={cms} media={media} />
+      </Scene>
 
       {/* Partners */}
-      <SponsorRibbon
-        sponsors={sponsors}
-        label={cms.t("home_sponsors_label", "Backed by")}
-        heading={cms.t("home_sponsors_heading", "Our partners")}
-      />
+      <Scene id="sponsors" theme="cream">
+        <SponsorRibbon
+          sponsors={sponsors}
+          label={cms.t("home_sponsors_label", "Backed by")}
+          heading={cms.t("home_sponsors_heading", "Our partners")}
+        />
+      </Scene>
 
       {/* Your move */}
-      <Closing cms={cms} />
+      <Scene id="closing" theme="dark">
+        <Closing cms={cms} />
+      </Scene>
     </div>
   );
 }

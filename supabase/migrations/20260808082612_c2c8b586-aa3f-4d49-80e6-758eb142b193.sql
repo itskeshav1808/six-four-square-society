@@ -1,0 +1,5 @@
+INSERT INTO public.site_content (key, title, body) VALUES
+('board_themes','Board colour themes (JSON)', '{"dark":{"light":[42,34,22],"dark":[24,19,9],"pieceLight":[242,233,216],"pieceDark":[138,113,71]},"green":{"light":[220,211,180],"dark":[32,64,47],"pieceLight":[244,239,221],"pieceDark":[47,78,58]},"cream":{"light":[255,253,248],"dark":[228,219,196],"pieceLight":[36,31,22],"pieceDark":[138,106,59]}}'),
+('board_chess_script','Scroll chess game script (JSON)', '[{"pieceId":"wpe","targetRow":4,"targetCol":4},{"pieceId":"bpe","targetRow":3,"targetCol":4},{"pieceId":"wbf","targetRow":4,"targetCol":2},{"pieceId":"bnb","targetRow":2,"targetCol":2},{"pieceId":"wq","targetRow":3,"targetCol":7},{"pieceId":"bng","targetRow":2,"targetCol":5},{"pieceId":"wq","targetRow":1,"targetCol":5,"capturesPieceId":"bpf","mate":true}]'),
+('board_disabled_sections','Sections with board hidden (comma separated ids)', '')
+ON CONFLICT (key) DO NOTHING;
