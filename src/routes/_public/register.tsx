@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
+import { GroupRegister } from "@/components/register/group-register";
 import { useSuspenseQuery, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { tournamentsQuery, tournamentBySlugQuery } from "@/lib/supabase-queries";
@@ -60,6 +61,8 @@ function Register() {
   const [submitting, setSubmitting] = useState(false);
   const [showGateway, setShowGateway] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
+  const [mode, setMode] = useState<"individual" | "group">("individual");
+  const [groupPay, setGroupPay] = useState<{ amount: number; label: string; cb: (pid: string) => void } | null>(null);
 
   // Admin-built custom fields
   const { data: formConfig } = useQuery({
@@ -236,6 +239,32 @@ function Register() {
         <h1 className="mt-2 font-display text-4xl font-semibold">Join a tournament</h1>
       </div>
 
+      <div className="mb-8 grid grid-cols-2 gap-2">
+        {([
+          ["individual", "Register as an individual", "One player, one entry fee"],
+          ["group", "Register a group (5+ players)", "One payment, discounted per entry"],
+        ] as const).map(([key, title, sub]) => (
+          <button
+            key={key}
+            onClick={() => setMode(key)}
+            className={`rounded-xl border p-4 text-left ${mode === key ? "border-primary bg-primary/5" : "border-border"}`}
+          >
+            <div className="text-sm font-medium">{title}</div>
+            <div className="mt-1 text-xs text-muted-foreground">{sub}</div>
+          </button>
+        ))}
+      </div>
+
+      {mode === "group" ? (
+        <div className="rounded-2xl border border-border bg-card p-6 sm:p-8">
+          <GroupRegister
+            tournaments={upcoming as any}
+            initialSlug={tournamentSlug}
+            onGateway={(amount, label, cb) => setGroupPay({ amount, label, cb })}
+          />
+        </div>
+      ) : (
+      <>
       <div className="flex items-center gap-2 mb-8 text-sm">
         {["Event", "Player details", "Payment"].map((s, i) => (
           <div key={s} className="flex-1 flex items-center gap-2">
@@ -445,8 +474,22 @@ function Register() {
           </div>
         )}
       </div>
+      </>
+      )}
 
       <AnimatePresence>
+        {groupPay && (
+          <DummyRazorpayModal
+            amount={groupPay.amount}
+            tournamentName={groupPay.label}
+            onClose={() => setGroupPay(null)}
+            onSuccess={(pid) => {
+              const cb = groupPay.cb;
+              setGroupPay(null);
+              cb(pid);
+            }}
+          />
+        )}
         {showGateway && <DummyRazorpayModal amount={amount} tournamentName={tournament?.name ?? ""} onClose={() => setShowGateway(false)} onSuccess={(pid) => { setShowGateway(false); onGatewaySuccess(pid); }} />}
       </AnimatePresence>
     </div>

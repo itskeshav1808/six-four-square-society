@@ -47,6 +47,7 @@ import { Route as PublicTournamentsIndexRouteImport } from './routes/_public/tou
 import { Route as VCheckinTokenRouteImport } from './routes/v/checkin.$token'
 import { Route as PublicTournamentsSlugRouteImport } from './routes/_public/tournaments.$slug'
 import { Route as PublicPlayersSlugRouteImport } from './routes/_public/players.$slug'
+import { Route as PublicGTokenRouteImport } from './routes/_public/g.$token'
 import { Route as PublicRegisterSuccessIdRouteImport } from './routes/_public/register.success.$id'
 
 const VolunteerRoute = VolunteerRouteImport.update({
@@ -238,6 +239,11 @@ const PublicPlayersSlugRoute = PublicPlayersSlugRouteImport.update({
   path: '/players/$slug',
   getParentRoute: () => PublicRoute,
 } as any)
+const PublicGTokenRoute = PublicGTokenRouteImport.update({
+  id: '/g/$token',
+  path: '/g/$token',
+  getParentRoute: () => PublicRoute,
+} as any)
 const PublicRegisterSuccessIdRoute = PublicRegisterSuccessIdRouteImport.update({
   id: '/success/$id',
   path: '/success/$id',
@@ -278,6 +284,7 @@ export interface FileRoutesByFullPath {
   '/volunteer/check-in': typeof VolunteerCheckInRoute
   '/admin/': typeof AdminIndexRoute
   '/volunteer/': typeof VolunteerIndexRoute
+  '/g/$token': typeof PublicGTokenRoute
   '/players/$slug': typeof PublicPlayersSlugRoute
   '/tournaments/$slug': typeof PublicTournamentsSlugRoute
   '/v/checkin/$token': typeof VCheckinTokenRoute
@@ -316,6 +323,7 @@ export interface FileRoutesByTo {
   '/': typeof PublicIndexRoute
   '/admin': typeof AdminIndexRoute
   '/volunteer': typeof VolunteerIndexRoute
+  '/g/$token': typeof PublicGTokenRoute
   '/players/$slug': typeof PublicPlayersSlugRoute
   '/tournaments/$slug': typeof PublicTournamentsSlugRoute
   '/v/checkin/$token': typeof VCheckinTokenRoute
@@ -358,6 +366,7 @@ export interface FileRoutesById {
   '/_public/': typeof PublicIndexRoute
   '/admin/': typeof AdminIndexRoute
   '/volunteer/': typeof VolunteerIndexRoute
+  '/_public/g/$token': typeof PublicGTokenRoute
   '/_public/players/$slug': typeof PublicPlayersSlugRoute
   '/_public/tournaments/$slug': typeof PublicTournamentsSlugRoute
   '/v/checkin/$token': typeof VCheckinTokenRoute
@@ -400,6 +409,7 @@ export interface FileRouteTypes {
     | '/volunteer/check-in'
     | '/admin/'
     | '/volunteer/'
+    | '/g/$token'
     | '/players/$slug'
     | '/tournaments/$slug'
     | '/v/checkin/$token'
@@ -438,6 +448,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/volunteer'
+    | '/g/$token'
     | '/players/$slug'
     | '/tournaments/$slug'
     | '/v/checkin/$token'
@@ -479,6 +490,7 @@ export interface FileRouteTypes {
     | '/_public/'
     | '/admin/'
     | '/volunteer/'
+    | '/_public/g/$token'
     | '/_public/players/$slug'
     | '/_public/tournaments/$slug'
     | '/v/checkin/$token'
@@ -762,6 +774,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicPlayersSlugRouteImport
       parentRoute: typeof PublicRoute
     }
+    '/_public/g/$token': {
+      id: '/_public/g/$token'
+      path: '/g/$token'
+      fullPath: '/g/$token'
+      preLoaderRoute: typeof PublicGTokenRouteImport
+      parentRoute: typeof PublicRoute
+    }
     '/_public/register/success/$id': {
       id: '/_public/register/success/$id'
       path: '/success/$id'
@@ -796,6 +815,7 @@ interface PublicRouteChildren {
   PublicSponsorsRoute: typeof PublicSponsorsRoute
   PublicTermsRoute: typeof PublicTermsRoute
   PublicIndexRoute: typeof PublicIndexRoute
+  PublicGTokenRoute: typeof PublicGTokenRoute
   PublicPlayersSlugRoute: typeof PublicPlayersSlugRoute
   PublicTournamentsSlugRoute: typeof PublicTournamentsSlugRoute
   PublicTournamentsIndexRoute: typeof PublicTournamentsIndexRoute
@@ -813,6 +833,7 @@ const PublicRouteChildren: PublicRouteChildren = {
   PublicSponsorsRoute: PublicSponsorsRoute,
   PublicTermsRoute: PublicTermsRoute,
   PublicIndexRoute: PublicIndexRoute,
+  PublicGTokenRoute: PublicGTokenRoute,
   PublicPlayersSlugRoute: PublicPlayersSlugRoute,
   PublicTournamentsSlugRoute: PublicTournamentsSlugRoute,
   PublicTournamentsIndexRoute: PublicTournamentsIndexRoute,

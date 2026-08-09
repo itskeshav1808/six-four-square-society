@@ -8,7 +8,7 @@ import {
   type Piece,
   type Rgb,
 } from "@/lib/board-config";
-import { initSfx, playMoveFeedback } from "@/lib/move-sfx";
+import { initSfx, playMoveFeedback, playTick } from "@/lib/move-sfx";
 import type { Cms } from "@/lib/home-content";
 
 /**
@@ -63,6 +63,10 @@ export function ChessScrollBoard({ cms }: { cms: Cms }) {
           else visible.delete(e.target as HTMLElement);
         }
         dirty = true;
+        // The first observation lands after the initial paint — repaint so the
+        // board fades in without waiting for the visitor to scroll.
+        schedule();
+
       },
       { threshold: 0 },
     );
@@ -126,7 +130,7 @@ export function ChessScrollBoard({ cms }: { cms: Cms }) {
       return { theme: acc!, active: true };
     };
 
-    const applySnapshot = (index: number, announce: boolean) => {
+    const applySnapshot = (index: number, direction: 0 | 1 | -1) => {
       const snap = snapshots[Math.max(0, Math.min(index, snapshots.length - 1))]!;
       const cell = size / 8;
       for (const p of snap) {
@@ -136,10 +140,31 @@ export function ChessScrollBoard({ cms }: { cms: Cms }) {
         el.style.top = `${p.row * cell}px`;
         el.style.opacity = p.captured ? "0" : "1";
       }
-      if (!announce || index === 0) return;
+      if (direction === 0) return;
+      // Scrolling back up rewinds the game — a soft tick instead of a full move cue.
+      if (direction === -1) {
+        playTick();
+        return;
+      }
       const move = script[index - 1];
       if (!move) return;
       playMoveFeedback(move.mate ? "mate" : move.capturesPieceId ? "capture" : "move");
+    };
+
+
+    /**
+     * Scroll is the single source of truth: the ply index is derived from the
+     * page progress every frame, so scrolling back replays the game in reverse.
+     * The game concludes at ~87% of the scroll so the mate is never cut off.
+     */
+    const syncGame = () => {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = max > 0 ? Math.min(Math.max(window.scrollY / max, 0), 1) : 0;
+      const moveIndex = Math.round(Math.min(progress / 0.87, 1) * script.length);
+      if (moveIndex === lastMove) return;
+      const direction: 0 | 1 | -1 = lastMove < 0 ? 0 : moveIndex > lastMove ? 1 : -1;
+      lastMove = moveIndex;
+      applySnapshot(moveIndex, direction);
     };
 
     const paint = (now: number) => {
@@ -152,6 +177,9 @@ export function ChessScrollBoard({ cms }: { cms: Cms }) {
       }
       lastPaint = now;
       dirty = false;
+
+      // Board state tracks scroll even while the layer is faded out.
+      syncGame();
 
       const { theme, active } = blend();
       layer.style.opacity = active ? "1" : "0";
@@ -172,17 +200,8 @@ export function ChessScrollBoard({ cms }: { cms: Cms }) {
 
       layer.style.setProperty("--piece-light", css(theme.pieceLight));
       layer.style.setProperty("--piece-dark", css(theme.pieceDark));
-
-      // Scripted game — concludes at ~87% of scroll so it never gets cut off.
-      const max = document.documentElement.scrollHeight - window.innerHeight;
-      const progress = max > 0 ? Math.min(Math.max(window.scrollY / max, 0), 1) : 0;
-      const moveIndex = Math.round(Math.min(progress / 0.87, 1) * script.length);
-      if (moveIndex !== lastMove) {
-        const announce = lastMove >= 0 && moveIndex > lastMove;
-        lastMove = moveIndex;
-        applySnapshot(moveIndex, announce);
-      }
     };
+
 
     const schedule = () => {
       if (!raf) raf = requestAnimationFrame(paint);
@@ -194,12 +213,12 @@ export function ChessScrollBoard({ cms }: { cms: Cms }) {
     const onResize = () => {
       sections = Array.from(document.querySelectorAll<HTMLElement>("[data-board-theme]"));
       resize();
-      applySnapshot(Math.max(lastMove, 0), false);
+      applySnapshot(Math.max(lastMove, 0), 0);
       schedule();
     };
 
     resize();
-    applySnapshot(0, false);
+    applySnapshot(0, 0);
     schedule();
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onResize);

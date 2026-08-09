@@ -18,7 +18,7 @@ const GROUPS: { label: string; match: (k: string) => boolean }[] = [
   { label: "Rules", match: (k) => k.startsWith("rules") },
   { label: "Prizes", match: (k) => k.startsWith("prize") },
   { label: "Legal", match: (k) => k.startsWith("privacy") || k.startsWith("terms") },
-  { label: "Registration", match: (k) => k.startsWith("register") || k === "registration_form_config" || k === "whatsapp_group_url" },
+  { label: "Registration", match: (k) => k.startsWith("register") || k === "registration_form_config" || k === "whatsapp_group_url" || k.startsWith("group_discount") },
   { label: "Sponsors & Media", match: (k) => k.startsWith("sponsors") || k.startsWith("gallery") || k.startsWith("media") },
   { label: "Footer & Misc", match: () => true }, // catch-all
 ];
