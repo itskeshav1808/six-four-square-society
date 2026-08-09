@@ -142,6 +142,21 @@ export function ChessScrollBoard({ cms }: { cms: Cms }) {
       playMoveFeedback(move.mate ? "mate" : move.capturesPieceId ? "capture" : "move");
     };
 
+    /**
+     * Scroll is the single source of truth: the ply index is derived from the
+     * page progress every frame, so scrolling back replays the game in reverse.
+     * The game concludes at ~87% of the scroll so the mate is never cut off.
+     */
+    const syncGame = () => {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = max > 0 ? Math.min(Math.max(window.scrollY / max, 0), 1) : 0;
+      const moveIndex = Math.round(Math.min(progress / 0.87, 1) * script.length);
+      if (moveIndex === lastMove) return;
+      const forward = lastMove >= 0 && moveIndex > lastMove;
+      lastMove = moveIndex;
+      applySnapshot(moveIndex, forward);
+    };
+
     const paint = (now: number) => {
       raf = 0;
       if (!dirty) return;
@@ -152,6 +167,9 @@ export function ChessScrollBoard({ cms }: { cms: Cms }) {
       }
       lastPaint = now;
       dirty = false;
+
+      // Board state tracks scroll even while the layer is faded out.
+      syncGame();
 
       const { theme, active } = blend();
       layer.style.opacity = active ? "1" : "0";
@@ -172,17 +190,8 @@ export function ChessScrollBoard({ cms }: { cms: Cms }) {
 
       layer.style.setProperty("--piece-light", css(theme.pieceLight));
       layer.style.setProperty("--piece-dark", css(theme.pieceDark));
-
-      // Scripted game — concludes at ~87% of scroll so it never gets cut off.
-      const max = document.documentElement.scrollHeight - window.innerHeight;
-      const progress = max > 0 ? Math.min(Math.max(window.scrollY / max, 0), 1) : 0;
-      const moveIndex = Math.round(Math.min(progress / 0.87, 1) * script.length);
-      if (moveIndex !== lastMove) {
-        const announce = lastMove >= 0 && moveIndex > lastMove;
-        lastMove = moveIndex;
-        applySnapshot(moveIndex, announce);
-      }
     };
+
 
     const schedule = () => {
       if (!raf) raf = requestAnimationFrame(paint);
