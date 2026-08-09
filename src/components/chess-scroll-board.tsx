@@ -63,6 +63,10 @@ export function ChessScrollBoard({ cms }: { cms: Cms }) {
           else visible.delete(e.target as HTMLElement);
         }
         dirty = true;
+        // The first observation lands after the initial paint — repaint so the
+        // board fades in without waiting for the visitor to scroll.
+        schedule();
+
       },
       { threshold: 0 },
     );
