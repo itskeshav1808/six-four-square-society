@@ -8,7 +8,7 @@ import {
   type Piece,
   type Rgb,
 } from "@/lib/board-config";
-import { initSfx, playMoveFeedback } from "@/lib/move-sfx";
+import { initSfx, playMoveFeedback, playTick } from "@/lib/move-sfx";
 import type { Cms } from "@/lib/home-content";
 
 /**
