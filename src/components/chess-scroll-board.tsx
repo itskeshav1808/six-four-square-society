@@ -130,7 +130,7 @@ export function ChessScrollBoard({ cms }: { cms: Cms }) {
       return { theme: acc!, active: true };
     };
 
-    const applySnapshot = (index: number, announce: boolean) => {
+    const applySnapshot = (index: number, direction: 0 | 1 | -1) => {
       const snap = snapshots[Math.max(0, Math.min(index, snapshots.length - 1))]!;
       const cell = size / 8;
       for (const p of snap) {
@@ -140,11 +140,17 @@ export function ChessScrollBoard({ cms }: { cms: Cms }) {
         el.style.top = `${p.row * cell}px`;
         el.style.opacity = p.captured ? "0" : "1";
       }
-      if (!announce || index === 0) return;
+      if (direction === 0) return;
+      // Scrolling back up rewinds the game — a soft tick instead of a full move cue.
+      if (direction === -1) {
+        playTick();
+        return;
+      }
       const move = script[index - 1];
       if (!move) return;
       playMoveFeedback(move.mate ? "mate" : move.capturesPieceId ? "capture" : "move");
     };
+
 
     /**
      * Scroll is the single source of truth: the ply index is derived from the
