@@ -162,9 +162,9 @@ export function ChessScrollBoard({ cms }: { cms: Cms }) {
       const progress = max > 0 ? Math.min(Math.max(window.scrollY / max, 0), 1) : 0;
       const moveIndex = Math.round(Math.min(progress / 0.87, 1) * script.length);
       if (moveIndex === lastMove) return;
-      const forward = lastMove >= 0 && moveIndex > lastMove;
+      const direction: 0 | 1 | -1 = lastMove < 0 ? 0 : moveIndex > lastMove ? 1 : -1;
       lastMove = moveIndex;
-      applySnapshot(moveIndex, forward);
+      applySnapshot(moveIndex, direction);
     };
 
     const paint = (now: number) => {
@@ -213,12 +213,12 @@ export function ChessScrollBoard({ cms }: { cms: Cms }) {
     const onResize = () => {
       sections = Array.from(document.querySelectorAll<HTMLElement>("[data-board-theme]"));
       resize();
-      applySnapshot(Math.max(lastMove, 0), false);
+      applySnapshot(Math.max(lastMove, 0), 0);
       schedule();
     };
 
     resize();
-    applySnapshot(0, false);
+    applySnapshot(0, 0);
     schedule();
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onResize);
