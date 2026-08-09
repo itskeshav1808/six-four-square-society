@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Search, Download, CheckCircle2, XCircle, QrCode } from "lucide-react";
 import * as XLSX from "xlsx";
+import { GroupBookings } from "@/components/admin/group-bookings";
 
 export const Route = createFileRoute("/admin/registrations")({
   component: RegistrationsAdmin,
@@ -90,6 +91,8 @@ function RegistrationsAdmin() {
           {["pending", "approved", "rejected", "waitlisted", "cancelled"].map((s) => <option key={s}>{s}</option>)}
         </select>
       </div>
+
+      <GroupBookings tournamentFilter={filter.tournament} />
 
       <div className="rounded-2xl border border-border bg-card overflow-x-auto">
         <table className="w-full text-sm">
