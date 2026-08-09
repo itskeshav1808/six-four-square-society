@@ -381,6 +381,7 @@ export type Database = {
         Row: {
           amount: number
           created_at: string
+          group_id: string | null
           id: string
           method: Database["public"]["Enums"]["payment_method"]
           proof_url: string | null
@@ -394,6 +395,7 @@ export type Database = {
         Insert: {
           amount: number
           created_at?: string
+          group_id?: string | null
           id?: string
           method: Database["public"]["Enums"]["payment_method"]
           proof_url?: string | null
@@ -407,6 +409,7 @@ export type Database = {
         Update: {
           amount?: number
           created_at?: string
+          group_id?: string | null
           id?: string
           method?: Database["public"]["Enums"]["payment_method"]
           proof_url?: string | null
@@ -418,6 +421,13 @@ export type Database = {
           verified_by?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "payments_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "registration_groups"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "payments_registration_id_fkey"
             columns: ["registration_id"]
@@ -568,6 +578,144 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      registration_group_members: {
+        Row: {
+          created_at: string
+          group_id: string
+          id: string
+          player_dob: string | null
+          player_name: string | null
+          player_phone: string | null
+          registration_id: string | null
+          slot_number: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          group_id: string
+          id?: string
+          player_dob?: string | null
+          player_name?: string | null
+          player_phone?: string | null
+          registration_id?: string | null
+          slot_number: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          group_id?: string
+          id?: string
+          player_dob?: string | null
+          player_name?: string | null
+          player_phone?: string | null
+          registration_id?: string | null
+          slot_number?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "registration_group_members_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "registration_groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "registration_group_members_registration_id_fkey"
+            columns: ["registration_id"]
+            isOneToOne: false
+            referencedRelation: "registrations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      registration_groups: {
+        Row: {
+          base_fee: number
+          category_id: string | null
+          created_at: string
+          discount_per_entry: number
+          dummy_payment_id: string | null
+          group_size: number
+          id: string
+          manage_token: string
+          notes: string | null
+          organizer_city: string | null
+          organizer_email: string
+          organizer_name: string
+          organizer_phone: string
+          payment_method: Database["public"]["Enums"]["payment_method"]
+          payment_status: Database["public"]["Enums"]["payment_status"]
+          per_entry_price: number
+          proof_url: string | null
+          terms_accepted_at: string | null
+          total_amount: number
+          tournament_id: string
+          updated_at: string
+        }
+        Insert: {
+          base_fee?: number
+          category_id?: string | null
+          created_at?: string
+          discount_per_entry?: number
+          dummy_payment_id?: string | null
+          group_size: number
+          id?: string
+          manage_token?: string
+          notes?: string | null
+          organizer_city?: string | null
+          organizer_email: string
+          organizer_name: string
+          organizer_phone: string
+          payment_method?: Database["public"]["Enums"]["payment_method"]
+          payment_status?: Database["public"]["Enums"]["payment_status"]
+          per_entry_price?: number
+          proof_url?: string | null
+          terms_accepted_at?: string | null
+          total_amount?: number
+          tournament_id: string
+          updated_at?: string
+        }
+        Update: {
+          base_fee?: number
+          category_id?: string | null
+          created_at?: string
+          discount_per_entry?: number
+          dummy_payment_id?: string | null
+          group_size?: number
+          id?: string
+          manage_token?: string
+          notes?: string | null
+          organizer_city?: string | null
+          organizer_email?: string
+          organizer_name?: string
+          organizer_phone?: string
+          payment_method?: Database["public"]["Enums"]["payment_method"]
+          payment_status?: Database["public"]["Enums"]["payment_status"]
+          per_entry_price?: number
+          proof_url?: string | null
+          terms_accepted_at?: string | null
+          total_amount?: number
+          tournament_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "registration_groups_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "tournament_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "registration_groups_tournament_id_fkey"
+            columns: ["tournament_id"]
+            isOneToOne: false
+            referencedRelation: "tournaments"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       registrations: {
         Row: {
