@@ -109,6 +109,11 @@ function AdminLayout() {
             );
           })}
         </nav>
+        <div className="p-3 border-t border-border">
+          <a href="/" target="_blank" rel="noreferrer" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm border border-gold/40 text-gold hover:bg-gold/10 transition">
+            <ExternalLink size={15} />View Site
+          </a>
+        </div>
         <div className="p-3 border-t border-border flex items-center justify-between">
           <ThemeToggle />
           <button onClick={signOut} className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground"><LogOut size={14} />Sign out</button>
