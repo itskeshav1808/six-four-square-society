@@ -1,6 +1,6 @@
 import { createFileRoute, Outlet, Link, useRouterState } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth-context";
-import { LayoutDashboard, Trophy, Users, ShieldCheck, Radio, HandCoins, Package, Award, Image, BarChart3, Settings, LogOut, Handshake, ClipboardList, Megaphone, Menu, X, FileText, FormInput } from "lucide-react";
+import { LayoutDashboard, Trophy, Users, ShieldCheck, Radio, HandCoins, Package, Award, Image, BarChart3, Settings, LogOut, Handshake, ClipboardList, Megaphone, Menu, X, FileText, FormInput, ExternalLink } from "lucide-react";
 import { Brand } from "@/components/brand";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useEffect, useState } from "react";
@@ -69,7 +69,12 @@ function AdminLayout() {
           <Menu size={20} />
         </button>
         <Link to="/admin"><Brand size={28} /></Link>
-        <ThemeToggle />
+        <div className="flex items-center gap-1">
+          <a href="/" target="_blank" rel="noreferrer" title="View Site" className="p-2 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground" aria-label="View Site">
+            <ExternalLink size={18} />
+          </a>
+          <ThemeToggle />
+        </div>
       </header>
 
       {/* Backdrop (mobile only) */}
@@ -104,6 +109,11 @@ function AdminLayout() {
             );
           })}
         </nav>
+        <div className="p-3 border-t border-border">
+          <a href="/" target="_blank" rel="noreferrer" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm border border-gold/40 text-gold hover:bg-gold/10 transition">
+            <ExternalLink size={15} />View Site
+          </a>
+        </div>
         <div className="p-3 border-t border-border flex items-center justify-between">
           <ThemeToggle />
           <button onClick={signOut} className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground"><LogOut size={14} />Sign out</button>
