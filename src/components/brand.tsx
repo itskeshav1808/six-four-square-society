@@ -1,4 +1,4 @@
-import logo from "@/assets/logo.webp.asset.json";
+import logo from "@/assets/logo-v2.png.asset.json";
 
 export function Brand({ size = 40, showText = true }: { size?: number; showText?: boolean }) {
   return (
