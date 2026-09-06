@@ -1,6 +1,6 @@
 import { createFileRoute, Outlet, Link, useRouterState } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth-context";
-import { LayoutDashboard, Trophy, Users, ShieldCheck, Radio, HandCoins, Package, Award, Image, BarChart3, Settings, LogOut, Handshake, ClipboardList, Megaphone, Menu, X, FileText, FormInput } from "lucide-react";
+import { LayoutDashboard, Trophy, Users, ShieldCheck, Radio, HandCoins, Package, Award, Image, BarChart3, Settings, LogOut, Handshake, ClipboardList, Megaphone, Menu, X, FileText, FormInput, ExternalLink } from "lucide-react";
 import { Brand } from "@/components/brand";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useEffect, useState } from "react";
@@ -69,7 +69,12 @@ function AdminLayout() {
           <Menu size={20} />
         </button>
         <Link to="/admin"><Brand size={28} /></Link>
-        <ThemeToggle />
+        <div className="flex items-center gap-1">
+          <a href="/" target="_blank" rel="noreferrer" title="View Site" className="p-2 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground" aria-label="View Site">
+            <ExternalLink size={18} />
+          </a>
+          <ThemeToggle />
+        </div>
       </header>
 
       {/* Backdrop (mobile only) */}
