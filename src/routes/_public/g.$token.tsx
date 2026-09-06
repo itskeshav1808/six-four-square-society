@@ -5,6 +5,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { AlertTriangle, CheckCircle2, Loader2, Users } from "lucide-react";
 import { getGroupByToken, updateGroupMembers } from "@/lib/groups.functions";
+import { getGroupDeadlineState } from "@/lib/group-deadline";
 
 export const Route = createFileRoute("/_public/g/$token")({
   head: () => ({
