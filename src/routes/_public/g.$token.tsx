@@ -5,6 +5,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { AlertTriangle, CheckCircle2, Loader2, Users } from "lucide-react";
 import { getGroupByToken, updateGroupMembers } from "@/lib/groups.functions";
+import { getGroupDeadlineState } from "@/lib/group-deadline";
 
 export const Route = createFileRoute("/_public/g/$token")({
   head: () => ({
@@ -76,11 +77,10 @@ function GroupDashboard() {
 
   const { group } = data;
   const tournament = group.tournament as { name: string; registration_deadline: string | null; start_date: string } | null;
-  const deadline = tournament?.registration_deadline ? new Date(`${tournament.registration_deadline}T23:59:59`) : null;
-  const msLeft = deadline ? deadline.getTime() - Date.now() : null;
-  const closed = msLeft !== null && msLeft < 0;
-  const unnamed = rows.filter((r) => !r.player_name.trim()).length;
-  const urgent = msLeft !== null && msLeft > 0 && msLeft < 48 * 3600 * 1000 && unnamed > 0;
+  const { deadline, closed, unnamed, urgent } = getGroupDeadlineState({
+    registrationDeadline: tournament?.registration_deadline,
+    playerNames: rows.map((r) => r.player_name),
+  });
 
   const save = async () => {
     setSaving(true);
