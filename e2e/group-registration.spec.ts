@@ -90,8 +90,12 @@ test.describe("group registration", () => {
     await expect(page.getByText(/Demo payment \(no real charge\)/)).toBeVisible();
     await expect(page.getByText(new RegExp(`${entries} group entries`))).toBeVisible();
     await page.getByRole("button", { name: "UPI" }).click();
-    const gatewayPay = page.getByRole("button", { name: `Pay ₹${payable}` });
+    // The sheet's own pay button is the last one on the page; its amount is
+    // unformatted, so compare on digits only rather than the exact label.
+    const gatewayPay = page.getByRole("button", { name: /^Pay ₹/ }).last();
+    expect(rupees(await gatewayPay.innerText())).toBe(payable);
     await gatewayPay.click();
+
     await expect(page.getByText("Payment successful")).toBeVisible({ timeout: 30_000 });
 
     // Redirected to the tokenised group dashboard.
