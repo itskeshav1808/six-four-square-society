@@ -10,15 +10,24 @@ import { expect, test, type Page } from "@playwright/test";
  */
 
 const stamp = () => Date.now().toString().slice(-8);
-const rupees = (text: string) => Number(text.replace(/[^\d]/g, ""));
+/** First "₹1,234" style amount in a label, as a plain number. */
+const rupees = (text: string) => Number((text.match(/₹\s*([\d,]+)/)?.[1] ?? "").replace(/,/g, ""));
+
 
 async function openGroupForm(page: Page) {
   await page.goto("/register", { waitUntil: "domcontentloaded" });
-  await page.getByRole("button", { name: /Register a group/i }).click();
-  await expect(page.getByText(/Group entry —/i)).toBeVisible();
+  const groupCard = page.getByRole("button", { name: /Register a group/i });
+  const heading = page.getByText(/Group entry —/i);
+  // The page is server-rendered, so the first click can land before React has
+  // hydrated and simply do nothing — retry until the group panel appears.
+  await expect(async () => {
+    await groupCard.click();
+    await expect(heading).toBeVisible({ timeout: 2000 });
+  }).toPass({ timeout: 30_000 });
   // The tournament <select> is populated from the backend before we continue.
   await expect(page.locator("select").first().locator("option")).not.toHaveCount(0);
 }
+
 
 async function fillOrganizer(page: Page, name: string) {
   await page.locator("#g-name").fill(name);
@@ -83,8 +92,12 @@ test.describe("group registration", () => {
     await expect(page.getByText(/Demo payment \(no real charge\)/)).toBeVisible();
     await expect(page.getByText(new RegExp(`${entries} group entries`))).toBeVisible();
     await page.getByRole("button", { name: "UPI" }).click();
-    const gatewayPay = page.getByRole("button", { name: `Pay ₹${payable}` });
+    // The sheet's own pay button is the last one on the page; its amount is
+    // unformatted, so compare on digits only rather than the exact label.
+    const gatewayPay = page.getByRole("button", { name: /^Pay ₹/ }).last();
+    expect(rupees(await gatewayPay.innerText())).toBe(payable);
     await gatewayPay.click();
+
     await expect(page.getByText("Payment successful")).toBeVisible({ timeout: 30_000 });
 
     // Redirected to the tokenised group dashboard.

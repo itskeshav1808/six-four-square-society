@@ -16,8 +16,14 @@ export default defineConfig({
     baseURL: process.env["E2E_BASE_URL"] ?? "http://localhost:8080",
     viewport: { width: 1280, height: 1800 },
     trace: "retain-on-failure",
+    // The sandbox ships an older Chromium build than this Playwright release
+    // expects, so point at the browser that is actually installed.
+    launchOptions: {
+      executablePath: "/opt/ms-playwright/chromium-1194/chrome-linux/chrome",
+    },
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+
   webServer: {
     command: "bun run dev",
     url: process.env["E2E_BASE_URL"] ?? "http://localhost:8080",
