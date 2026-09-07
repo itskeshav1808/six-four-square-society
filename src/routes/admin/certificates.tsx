@@ -19,7 +19,7 @@ function Certificates() {
   const [tournaments, setTournaments] = useState<any[]>([]);
   const [tid, setTid] = useState("");
   const [regs, setRegs] = useState<any[]>([]);
-  const [tpl, setTpl] = useState({ cert_type: "participation", title: "Certificate of Participation", details: "" });
+  const [tpl, setTpl] = useState({ cert_type: "participation", title: "Certificate of Participation", details: "", rank: "" });
   const [certs, setCerts] = useState<any[]>([]);
   const [buildingMaster, setBuildingMaster] = useState(false);
 
@@ -53,7 +53,9 @@ function Certificates() {
     const doc = await makeCertificatePdf({
       recipient: r.player?.full_name,
       title: tpl.title,
-      details: tpl.details,
+      certType: tpl.cert_type,
+      category: tpl.details,
+      rank: tpl.rank,
       tournamentName: tn,
       qrTargetUrl: target,
       photoUrl: r.player?.avatar_url ?? undefined,
@@ -93,7 +95,8 @@ function Certificates() {
         const doc = await makeCertificatePdf({
           recipient: c.recipient_name ?? c.player?.full_name ?? "Recipient",
           title: c.title ?? "Certificate",
-          details: c.details ?? undefined,
+          certType: c.cert_type ?? undefined,
+          category: c.details ?? undefined,
           tournamentName: c.tournament?.name ?? "",
           issuedAt: c.issued_at,
           qrTargetUrl: c.qr_target_url ?? playerUrl(c.player?.slug),
@@ -132,11 +135,14 @@ function Certificates() {
       <div className="grid gap-6 lg:grid-cols-[1fr_1.5fr]">
         <div className="rounded-2xl border border-border bg-card p-5 space-y-3">
           <select value={tid} onChange={(e) => setTid(e.target.value)} className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"><option value="">Select tournament</option>{tournaments.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}</select>
-          <select value={tpl.cert_type} onChange={(e) => setTpl({ ...tpl, cert_type: e.target.value })} className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm">
-            <option value="participation">Participation</option><option value="winner">Winner</option><option value="volunteer">Volunteer</option><option value="sponsor">Sponsor</option>
+          <select value={tpl.cert_type} onChange={(e) => setTpl({ ...tpl, cert_type: e.target.value, title: e.target.value === "participation" ? "Certificate of Participation" : "Certificate of Excellence" })} className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm">
+            <option value="participation">Certificate of Participation (design 2)</option>
+            <option value="excellence">Certificate of Excellence (design 1)</option>
           </select>
-          <input placeholder="Title" value={tpl.title} onChange={(e) => setTpl({ ...tpl, title: e.target.value })} className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm" />
-          <textarea placeholder="Details / achievement" value={tpl.details} onChange={(e) => setTpl({ ...tpl, details: e.target.value })} rows={3} className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm" />
+          <input placeholder="Category (e.g. Under 12)" value={tpl.details} onChange={(e) => setTpl({ ...tpl, details: e.target.value })} className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm" />
+          {tpl.cert_type !== "participation" && (
+            <input placeholder="Player rank (e.g. 1st)" value={tpl.rank} onChange={(e) => setTpl({ ...tpl, rank: e.target.value })} className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm" />
+          )}
           <button onClick={issueAll} disabled={!tid} className="w-full py-2 rounded-lg bg-primary text-primary-foreground text-sm disabled:opacity-50 inline-flex items-center justify-center gap-2"><Award size={14} />Generate for all approved</button>
           <p className="text-xs text-muted-foreground">Each certificate PDF includes a QR code linking to that player's public Chess Passport.</p>
         </div>
