@@ -10,7 +10,9 @@ import { expect, test, type Page } from "@playwright/test";
  */
 
 const stamp = () => Date.now().toString().slice(-8);
-const rupees = (text: string) => Number(text.replace(/[^\d]/g, ""));
+/** First "₹1,234" style amount in a label, as a plain number. */
+const rupees = (text: string) => Number((text.match(/₹\s*([\d,]+)/)?.[1] ?? "").replace(/,/g, ""));
+
 
 async function openGroupForm(page: Page) {
   await page.goto("/register", { waitUntil: "domcontentloaded" });
