@@ -2,7 +2,8 @@ import { jsPDF } from "jspdf";
 import QRCode from "qrcode";
 import { PDFDocument } from "pdf-lib";
 import { circleMaskDataUrl } from "./face-crop";
-
+import excellenceTpl from "@/assets/cert-excellence.png.asset.json";
+import participationTpl from "@/assets/cert-participation.jpg.asset.json";
 
 export type CertInput = {
   recipient: string;
@@ -12,17 +13,55 @@ export type CertInput = {
   issuedAt?: string | Date;
   qrTargetUrl?: string; // e.g. https://.../players/<slug>
   photoUrl?: string;
+  /** Age/rating category printed on the "of category ____" line. */
+  category?: string;
+  /** Rank badge text (Excellence design only). */
+  rank?: string;
+  /** Which artwork to use. Anything other than "participation" uses Excellence. */
+  certType?: string;
 };
 
-async function fetchImageDataUrl(url: string): Promise<{ dataUrl: string; format: "PNG" | "JPEG" } | null> {
+/** Template artwork is 1549x1080 (aspect 1.434). */
+const TPL_W = 1549;
+const TPL_H = 1080;
+
+type Layout = {
+  url: string;
+  format: "PNG" | "JPEG";
+  /** photo circle: center + diameter, as fractions of template width/height */
+  photo: { cx: number; cy: number; d: number };
+  /** blank line centers for the recipient name and category */
+  name: { cx: number; cy: number };
+  category: { cx: number; cy: number };
+  rank?: { cx: number; cy: number };
+};
+
+const LAYOUTS: Record<"excellence" | "participation", Layout> = {
+  excellence: {
+    url: excellenceTpl.url,
+    format: "PNG",
+    photo: { cx: 0.147, cy: 0.421, d: 0.134 },
+    name: { cx: 0.611, cy: 0.567 },
+    category: { cx: 0.495, cy: 0.604 },
+    rank: { cx: 0.886, cy: 0.489 },
+  },
+  participation: {
+    url: participationTpl.url,
+    format: "JPEG",
+    photo: { cx: 0.196, cy: 0.492, d: 0.151 },
+    name: { cx: 0.668, cy: 0.521 },
+    category: { cx: 0.581, cy: 0.562 },
+  },
+};
+
+async function fetchImageDataUrl(url: string): Promise<string | null> {
   try {
     const res = await fetch(url, { mode: "cors" });
     if (!res.ok) return null;
     const blob = await res.blob();
-    const format = blob.type.includes("png") ? "PNG" : "JPEG";
     return await new Promise((resolve) => {
       const fr = new FileReader();
-      fr.onload = () => resolve({ dataUrl: fr.result as string, format });
+      fr.onload = () => resolve(fr.result as string);
       fr.onerror = () => resolve(null);
       fr.readAsDataURL(blob);
     });
@@ -31,68 +70,92 @@ async function fetchImageDataUrl(url: string): Promise<{ dataUrl: string; format
   }
 }
 
-export async function makeCertificatePdf(input: CertInput): Promise<jsPDF> {
-  const doc = new jsPDF({ orientation: "landscape", unit: "pt", format: "a4" });
-  const w = doc.internal.pageSize.getWidth();
-  const h = doc.internal.pageSize.getHeight();
-  doc.setFillColor(11, 18, 32); doc.rect(0, 0, w, h, "F");
-  doc.setDrawColor(212, 175, 55); doc.setLineWidth(4); doc.rect(24, 24, w - 48, h - 48);
-  doc.setDrawColor(212, 175, 55); doc.setLineWidth(1); doc.rect(36, 36, w - 72, h - 72);
-  doc.setTextColor(212, 175, 55); doc.setFont("times", "bold"); doc.setFontSize(14);
-  doc.text("64 SQUARES SOCIETY", w / 2, 90, { align: "center" });
-  doc.setFontSize(10); doc.setFont("times", "italic");
-  doc.text("Every Move Matters", w / 2, 108, { align: "center" });
+const tplCache = new Map<string, string | null>();
+async function template(url: string) {
+  if (!tplCache.has(url)) tplCache.set(url, await fetchImageDataUrl(url));
+  return tplCache.get(url) ?? null;
+}
 
+/** Shrink font size until the text fits the given width. */
+function fitText(doc: jsPDF, text: string, maxWidth: number, startSize: number, minSize = 9) {
+  let size = startSize;
+  doc.setFontSize(size);
+  while (size > minSize && doc.getTextWidth(text) > maxWidth) {
+    size -= 0.5;
+    doc.setFontSize(size);
+  }
+}
+
+export async function makeCertificatePdf(input: CertInput): Promise<jsPDF> {
+  const kind = (input.certType ?? "").toLowerCase() === "participation" ? "participation" : "excellence";
+  const layout = LAYOUTS[kind];
+
+  const w = 841.89; // A4 landscape width in pt
+  const h = Math.round((w * TPL_H) / TPL_W); // keep artwork aspect
+  const doc = new jsPDF({ orientation: "landscape", unit: "pt", format: [w, h] });
+
+  const bg = await template(layout.url);
+  if (bg) {
+    try {
+      doc.addImage(bg, layout.format, 0, 0, w, h);
+    } catch {
+      // fall through to plain background
+    }
+  }
+  if (!bg) {
+    doc.setFillColor(248, 244, 234);
+    doc.rect(0, 0, w, h, "F");
+  }
+
+  // Participant photo, circle-masked into the artwork's empty frame.
   if (input.photoUrl) {
-    const circularDataUrl = await circleMaskDataUrl(input.photoUrl, 400);
-    if (circularDataUrl) {
-      const size = 80;
-      const cx = 90;
-      const cy = 90;
-      // Gold ring backing
-      doc.setFillColor(212, 175, 55);
-      doc.circle(cx, cy, size / 2 + 4, "F");
-      doc.setFillColor(11, 18, 32);
-      doc.circle(cx, cy, size / 2 + 2, "F");
+    const circular = await circleMaskDataUrl(input.photoUrl, 512);
+    if (circular) {
+      const size = layout.photo.d * w;
+      const cx = layout.photo.cx * w;
+      const cy = layout.photo.cy * h;
       try {
-        // The PNG is already circle-masked with transparent corners.
-        doc.addImage(circularDataUrl, "PNG", cx - size / 2, cy - size / 2, size, size);
+        doc.addImage(circular, "PNG", cx - size / 2, cy - size / 2, size, size);
       } catch {
         // ignore image errors
       }
     }
   }
 
-  doc.setTextColor(255, 255, 255); doc.setFont("times", "bold"); doc.setFontSize(36);
-  doc.text(input.title, w / 2, 180, { align: "center" });
-  doc.setFont("times", "normal"); doc.setFontSize(14);
-  doc.text("This certificate is presented to", w / 2, 220, { align: "center" });
-  doc.setFont("times", "bold"); doc.setFontSize(46); doc.setTextColor(212, 175, 55);
-  doc.text(input.recipient, w / 2, 285, { align: "center" });
-  doc.setTextColor(255, 255, 255); doc.setFont("times", "normal"); doc.setFontSize(14);
-  doc.text(`for outstanding participation in ${input.tournamentName}.`, w / 2, 325, { align: "center" });
-  if (input.details) doc.text(input.details, w / 2, 355, { align: "center" });
+  // Recipient name on the first blank line.
+  doc.setFont("times", "bold");
+  doc.setTextColor(59, 20, 92);
+  fitText(doc, input.recipient, 0.28 * w, 20);
+  doc.text(input.recipient, layout.name.cx * w, layout.name.cy * h, { align: "center" });
 
-  const issued = input.issuedAt ? new Date(input.issuedAt) : new Date();
-  doc.setFontSize(10); doc.setTextColor(180, 180, 180);
-  doc.text(issued.toLocaleDateString(), 100, h - 70);
-  doc.text("Chief Arbiter", w - 100, h - 70, { align: "right" });
+  // Category on the second blank line.
+  if (input.category) {
+    doc.setFont("times", "normal");
+    fitText(doc, input.category, 0.2 * w, 15);
+    doc.text(input.category, layout.category.cx * w, layout.category.cy * h, { align: "center" });
+  }
 
+  // Rank badge (Excellence artwork only).
+  if (input.rank && layout.rank) {
+    doc.setFont("times", "bold");
+    fitText(doc, input.rank, 0.09 * w, 17);
+    doc.text(input.rank, layout.rank.cx * w, layout.rank.cy * h, { align: "center" });
+  }
+
+  // QR to the live player profile, tucked into the lower-right corner.
   if (input.qrTargetUrl) {
     try {
       const qrDataUrl = await QRCode.toDataURL(input.qrTargetUrl, {
         margin: 0,
         width: 240,
-        color: { dark: "#0b1220", light: "#ffffff" },
+        color: { dark: "#2b0f45", light: "#ffffff" },
       });
-      const size = 90;
-      const x = w - 36 - size - 20;
-      const y = h - 36 - size - 20;
+      const size = 54;
+      const x = w - size - 30;
+      const y = h - size - 26;
       doc.setFillColor(255, 255, 255);
-      doc.roundedRect(x - 6, y - 6, size + 12, size + 12, 6, 6, "F");
+      doc.roundedRect(x - 4, y - 4, size + 8, size + 8, 4, 4, "F");
       doc.addImage(qrDataUrl, "PNG", x, y, size, size);
-      doc.setFontSize(8); doc.setTextColor(180, 180, 180);
-      doc.text("Scan for live player profile", x + size / 2, y + size + 16, { align: "center" });
     } catch {
       // ignore QR failures
     }
