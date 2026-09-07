@@ -14,11 +14,18 @@ const rupees = (text: string) => Number(text.replace(/[^\d]/g, ""));
 
 async function openGroupForm(page: Page) {
   await page.goto("/register", { waitUntil: "domcontentloaded" });
-  await page.getByRole("button", { name: /Register a group/i }).click();
-  await expect(page.getByText(/Group entry —/i)).toBeVisible();
+  const groupCard = page.getByRole("button", { name: /Register a group/i });
+  const heading = page.getByText(/Group entry —/i);
+  // The page is server-rendered, so the first click can land before React has
+  // hydrated and simply do nothing — retry until the group panel appears.
+  await expect(async () => {
+    await groupCard.click();
+    await expect(heading).toBeVisible({ timeout: 2000 });
+  }).toPass({ timeout: 30_000 });
   // The tournament <select> is populated from the backend before we continue.
   await expect(page.locator("select").first().locator("option")).not.toHaveCount(0);
 }
+
 
 async function fillOrganizer(page: Page, name: string) {
   await page.locator("#g-name").fill(name);
