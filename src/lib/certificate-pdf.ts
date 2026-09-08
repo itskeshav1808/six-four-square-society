@@ -40,19 +40,20 @@ const LAYOUTS: Record<"excellence" | "participation", Layout> = {
   excellence: {
     url: excellenceTpl.url,
     format: "PNG",
-    photo: { cx: 0.147, cy: 0.421, d: 0.134 },
-    name: { cx: 0.611, cy: 0.567 },
-    category: { cx: 0.495, cy: 0.604 },
-    rank: { cx: 0.886, cy: 0.489 },
+    photo: { cx: 0.157, cy: 0.396, d: 0.152 },
+    name: { cx: 0.605, cy: 0.563 },
+    category: { cx: 0.482, cy: 0.597 },
+    rank: { cx: 0.888, cy: 0.505 },
   },
   participation: {
     url: participationTpl.url,
     format: "JPEG",
-    photo: { cx: 0.196, cy: 0.492, d: 0.151 },
-    name: { cx: 0.668, cy: 0.521 },
-    category: { cx: 0.581, cy: 0.562 },
+    photo: { cx: 0.193, cy: 0.472, d: 0.14 },
+    name: { cx: 0.705, cy: 0.511 },
+    category: { cx: 0.582, cy: 0.556 },
   },
 };
+
 
 async function fetchImageDataUrl(url: string): Promise<string | null> {
   try {
