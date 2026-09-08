@@ -48,7 +48,7 @@ const LAYOUTS: Record<"excellence" | "participation", Layout> = {
   participation: {
     url: participationTpl.url,
     format: "JPEG",
-    photo: { cx: 0.198, cy: 0.483, d: 0.135 },
+    photo: { cx: 0.198, cy: 0.486, d: 0.154 },
     name: { cx: 0.705, cy: 0.511 },
     category: { cx: 0.588, cy: 0.559 },
   },
