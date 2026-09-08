@@ -40,7 +40,7 @@ const LAYOUTS: Record<"excellence" | "participation", Layout> = {
   excellence: {
     url: excellenceTpl.url,
     format: "PNG",
-    photo: { cx: 0.157, cy: 0.398, d: 0.157 },
+    photo: { cx: 0.157, cy: 0.386, d: 0.155 },
     name: { cx: 0.607, cy: 0.567 },
     category: { cx: 0.497, cy: 0.605 },
     rank: { cx: 0.888, cy: 0.5 },
@@ -48,7 +48,7 @@ const LAYOUTS: Record<"excellence" | "participation", Layout> = {
   participation: {
     url: participationTpl.url,
     format: "JPEG",
-    photo: { cx: 0.196, cy: 0.478, d: 0.138 },
+    photo: { cx: 0.198, cy: 0.483, d: 0.135 },
     name: { cx: 0.705, cy: 0.511 },
     category: { cx: 0.588, cy: 0.559 },
   },
