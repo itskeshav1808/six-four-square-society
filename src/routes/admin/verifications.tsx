@@ -13,7 +13,7 @@ function Verifications() {
   const load = async () => {
     const { data } = await supabase
       .from("registrations")
-      .select("*, player:players(full_name,email,phone), tournament:tournaments(name)")
+      .select("*, player:players(full_name), contact:player_private(email,phone), tournament:tournaments(name)")
       .eq("payment_status", "pending")
       .order("created_at", { ascending: true });
     setRows(data ?? []);

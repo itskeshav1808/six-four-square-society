@@ -1,0 +1,10 @@
+REVOKE ALL ON FUNCTION public.handle_new_user() FROM anon, authenticated;
+REVOKE ALL ON FUNCTION public.update_updated_at_column() FROM anon, authenticated;
+REVOKE ALL ON FUNCTION public.guard_registration_insert() FROM anon, authenticated;
+REVOKE ALL ON FUNCTION public.guard_payment_insert() FROM anon, authenticated;
+REVOKE ALL ON FUNCTION public.guard_player_insert() FROM anon, authenticated;
+REVOKE ALL ON FUNCTION public.guard_player_private_insert() FROM anon, authenticated;
+REVOKE ALL ON FUNCTION public.get_registration_receipt(uuid) FROM public;
+GRANT EXECUTE ON FUNCTION public.get_registration_receipt(uuid) TO anon, authenticated;
+REVOKE ALL ON FUNCTION public.checkin_lookup(text) FROM public;
+GRANT EXECUTE ON FUNCTION public.checkin_lookup(text) TO anon, authenticated;

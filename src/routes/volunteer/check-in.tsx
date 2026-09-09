@@ -29,14 +29,15 @@ function CheckIn() {
     if (!tid) return;
     const { data } = await supabase
       .from("registrations")
-      .select("id, checkin_status, qr_token, player:players(full_name,phone,city,rating)")
+      .select("id, checkin_status, qr_token, player:players(full_name,city,rating), contact:player_private(phone)")
       .eq("tournament_id", tid)
       .eq("status", "approved");
     const filtered = (data ?? []).filter((r: any) => {
       if (!q) return true;
       const qq = q.toLowerCase();
-      return [r.player?.full_name, r.player?.phone, r.player?.city].some((v: string) => v?.toLowerCase().includes(qq));
+      return [r.player?.full_name, r.contact?.phone, r.player?.city].some((v: string) => v?.toLowerCase().includes(qq));
     });
+
     setResults(filtered);
   };
 
@@ -115,7 +116,7 @@ function CheckIn() {
             <div key={r.id} className="flex items-center justify-between py-2">
               <div className="text-sm">
                 <div className="font-medium">{r.player?.full_name}</div>
-                <div className="text-xs text-muted-foreground">{r.player?.city} · {r.player?.phone}</div>
+                <div className="text-xs text-muted-foreground">{r.player?.city} · {r.contact?.phone}</div>
               </div>
               {r.checkin_status === "checked_in" ? (
                 <span className="text-xs text-success flex items-center gap-1"><CheckCircle2 size={14} />In</span>
