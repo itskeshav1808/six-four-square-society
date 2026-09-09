@@ -18,11 +18,8 @@ function SuccessPage() {
 
   useEffect(() => {
     (async () => {
-      const { data } = await supabase
-        .from("registrations")
-        .select("*, tournament:tournaments(name, start_date, venue), player:players(full_name, email, phone, avatar_url)")
-        .eq("id", id)
-        .maybeSingle();
+      const { data: rows } = await supabase.rpc("get_registration_receipt", { _id: id });
+      const data = Array.isArray(rows) ? rows[0] : rows;
       setReg(data);
       if (data?.qr_token) {
         // Encode as a URL so any camera app opens the check-in page.
@@ -35,6 +32,7 @@ function SuccessPage() {
       if (wa?.title) setWhatsappUrl(wa.title.trim());
     })();
   }, [id]);
+
 
   if (!reg) return <div className="p-16 text-center">Loading…</div>;
   const verified = reg.payment_status === "verified";
@@ -78,10 +76,11 @@ function SuccessPage() {
         </div>
 
         <div className="mt-6 rounded-xl bg-muted/50 p-4 text-sm text-left space-y-1">
-          <div><span className="text-muted-foreground">Player:</span> {reg.player?.full_name}</div>
-          <div><span className="text-muted-foreground">Event:</span> {reg.tournament?.name}</div>
-          <div><span className="text-muted-foreground">Mobile:</span> {reg.player?.phone ?? "—"}</div>
+          <div><span className="text-muted-foreground">Player:</span> {reg.player_name}</div>
+          <div><span className="text-muted-foreground">Event:</span> {reg.tournament_name}</div>
+          <div><span className="text-muted-foreground">Mobile:</span> {reg.player_phone ?? "—"}</div>
           <div><span className="text-muted-foreground">Amount:</span> ₹{reg.amount}</div>
+
           <div><span className="text-muted-foreground">Payment:</span> {reg.payment_status}</div>
           <div><span className="text-muted-foreground">Status:</span> {reg.status}</div>
           <div><span className="text-muted-foreground">Registered at:</span> {new Date(reg.created_at).toLocaleString("en-IN")}</div>

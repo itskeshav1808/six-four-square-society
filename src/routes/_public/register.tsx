@@ -173,17 +173,26 @@ function Register() {
       const avatarUrl = await uploadPhoto();
       if (!avatarUrl) { setSubmitting(false); return null; }
       const { data: p, error: pe } = await supabase.from("players").insert({
-        full_name: player.full_name, dob: player.dob || null, gender: player.gender || null,
+        full_name: player.full_name, gender: player.gender || null,
         city: player.city, state: player.state || null, school: player.school || null,
-        phone: normalizeIndianPhone(player.phone), email: player.email.trim(),
-        parent_name: player.parent_name || null, parent_phone: player.parent_phone ? normalizeIndianPhone(player.parent_phone) : null,
         fide_id: player.fide_id || null, cda_id: player.cda_id || null,
         rating: player.rating ? parseInt(player.rating) : 0,
-        emergency_contact: player.emergency_contact || null,
         avatar_url: avatarUrl,
         slug: slugify(player.full_name),
-      }).select().single();
+      }).select("id").single();
       if (pe) throw pe;
+
+      // Contact details live in a private table only staff and the player can read.
+      const { error: ppe } = await supabase.from("player_private").insert({
+        player_id: p.id,
+        email: player.email.trim(),
+        phone: normalizeIndianPhone(player.phone),
+        dob: player.dob || null,
+        parent_name: player.parent_name || null,
+        parent_phone: player.parent_phone ? normalizeIndianPhone(player.parent_phone) : null,
+        emergency_contact: player.emergency_contact || null,
+      });
+      if (ppe) throw ppe;
 
       const { data: reg, error: re } = await supabase.from("registrations").insert({
         tournament_id: tournament.id,
@@ -191,13 +200,11 @@ function Register() {
         player_id: p.id,
         amount,
         payment_method: payment.method,
-        payment_status: payment.status,
-        status: payment.status === "verified" ? "approved" : "pending",
         dummy_payment_id: payment.dummy_payment_id ?? null,
         proof_url: payment.proof_url ?? null,
         terms_accepted_at: new Date().toISOString(),
         custom_fields: customAnswers,
-      }).select().single();
+      }).select("id").single();
       if (re) throw re;
 
       await supabase.from("payments").insert({
@@ -205,10 +212,10 @@ function Register() {
         tournament_id: tournament.id,
         amount,
         method: payment.method,
-        status: payment.status,
         reference: payment.dummy_payment_id ?? null,
         proof_url: payment.proof_url ?? null,
       });
+
 
       return reg;
     } catch (err: any) {
