@@ -148,6 +148,13 @@ export type Database = {
             foreignKeyName: "certificates_player_id_fkey"
             columns: ["player_id"]
             isOneToOne: false
+            referencedRelation: "player_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "certificates_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
             referencedRelation: "players"
             referencedColumns: ["id"]
           },
@@ -358,6 +365,13 @@ export type Database = {
             foreignKeyName: "pairings_black_player_id_fkey"
             columns: ["black_player_id"]
             isOneToOne: false
+            referencedRelation: "player_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pairings_black_player_id_fkey"
+            columns: ["black_player_id"]
+            isOneToOne: false
             referencedRelation: "players"
             referencedColumns: ["id"]
           },
@@ -366,6 +380,13 @@ export type Database = {
             columns: ["round_id"]
             isOneToOne: false
             referencedRelation: "rounds"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pairings_white_player_id_fkey"
+            columns: ["white_player_id"]
+            isOneToOne: false
+            referencedRelation: "player_contacts"
             referencedColumns: ["id"]
           },
           {
@@ -433,6 +454,13 @@ export type Database = {
             columns: ["registration_id"]
             isOneToOne: false
             referencedRelation: "registrations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_registration_id_fkey"
+            columns: ["registration_id"]
+            isOneToOne: false
+            referencedRelation: "registrations_staff"
             referencedColumns: ["id"]
           },
           {
@@ -628,6 +656,13 @@ export type Database = {
             referencedRelation: "registrations"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "registration_group_members_registration_id_fkey"
+            columns: ["registration_id"]
+            isOneToOne: false
+            referencedRelation: "registrations_staff"
+            referencedColumns: ["id"]
+          },
         ]
       }
       registration_groups: {
@@ -805,6 +840,13 @@ export type Database = {
             foreignKeyName: "registrations_player_id_fkey"
             columns: ["player_id"]
             isOneToOne: false
+            referencedRelation: "player_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "registrations_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
             referencedRelation: "players"
             referencedColumns: ["id"]
           },
@@ -958,6 +1000,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "standings_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "player_contacts"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "standings_player_id_fkey"
             columns: ["player_id"]
@@ -1206,9 +1255,183 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      player_contacts: {
+        Row: {
+          dob: string | null
+          email: string | null
+          emergency_contact: string | null
+          full_name: string | null
+          id: string | null
+          parent_name: string | null
+          parent_phone: string | null
+          phone: string | null
+          user_id: string | null
+        }
+        Insert: {
+          dob?: string | null
+          email?: string | null
+          emergency_contact?: string | null
+          full_name?: string | null
+          id?: string | null
+          parent_name?: string | null
+          parent_phone?: string | null
+          phone?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          dob?: string | null
+          email?: string | null
+          emergency_contact?: string | null
+          full_name?: string | null
+          id?: string | null
+          parent_name?: string | null
+          parent_phone?: string | null
+          phone?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      registrations_staff: {
+        Row: {
+          amount: number | null
+          approved_at: string | null
+          approved_by: string | null
+          category_id: string | null
+          checked_in_at: string | null
+          checked_in_by: string | null
+          checkin_status: Database["public"]["Enums"]["checkin_status"] | null
+          created_at: string | null
+          custom_fields: Json | null
+          dummy_order_id: string | null
+          dummy_payment_id: string | null
+          id: string | null
+          notes: string | null
+          payment_method: Database["public"]["Enums"]["payment_method"] | null
+          payment_status: Database["public"]["Enums"]["payment_status"] | null
+          player_id: string | null
+          proof_notes: string | null
+          proof_url: string | null
+          qr_token: string | null
+          status: Database["public"]["Enums"]["registration_status"] | null
+          terms_accepted_at: string | null
+          tournament_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          amount?: number | null
+          approved_at?: string | null
+          approved_by?: string | null
+          category_id?: string | null
+          checked_in_at?: string | null
+          checked_in_by?: string | null
+          checkin_status?: Database["public"]["Enums"]["checkin_status"] | null
+          created_at?: string | null
+          custom_fields?: Json | null
+          dummy_order_id?: string | null
+          dummy_payment_id?: string | null
+          id?: string | null
+          notes?: string | null
+          payment_method?: Database["public"]["Enums"]["payment_method"] | null
+          payment_status?: Database["public"]["Enums"]["payment_status"] | null
+          player_id?: string | null
+          proof_notes?: string | null
+          proof_url?: string | null
+          qr_token?: string | null
+          status?: Database["public"]["Enums"]["registration_status"] | null
+          terms_accepted_at?: string | null
+          tournament_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          amount?: number | null
+          approved_at?: string | null
+          approved_by?: string | null
+          category_id?: string | null
+          checked_in_at?: string | null
+          checked_in_by?: string | null
+          checkin_status?: Database["public"]["Enums"]["checkin_status"] | null
+          created_at?: string | null
+          custom_fields?: Json | null
+          dummy_order_id?: string | null
+          dummy_payment_id?: string | null
+          id?: string | null
+          notes?: string | null
+          payment_method?: Database["public"]["Enums"]["payment_method"] | null
+          payment_status?: Database["public"]["Enums"]["payment_status"] | null
+          player_id?: string | null
+          proof_notes?: string | null
+          proof_url?: string | null
+          qr_token?: string | null
+          status?: Database["public"]["Enums"]["registration_status"] | null
+          terms_accepted_at?: string | null
+          tournament_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "registrations_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "tournament_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "registrations_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "player_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "registrations_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "players"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "registrations_tournament_id_fkey"
+            columns: ["tournament_id"]
+            isOneToOne: false
+            referencedRelation: "tournaments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
+      checkin_lookup: {
+        Args: { _token: string }
+        Returns: {
+          checkin_status: Database["public"]["Enums"]["checkin_status"]
+          id: string
+          player_avatar: string
+          player_city: string
+          player_name: string
+          status: Database["public"]["Enums"]["registration_status"]
+          tournament_name: string
+        }[]
+      }
+      get_registration_receipt: {
+        Args: { _id: string }
+        Returns: {
+          amount: number
+          checkin_status: Database["public"]["Enums"]["checkin_status"]
+          created_at: string
+          id: string
+          payment_method: Database["public"]["Enums"]["payment_method"]
+          payment_status: Database["public"]["Enums"]["payment_status"]
+          player_avatar: string
+          player_email: string
+          player_name: string
+          player_phone: string
+          qr_token: string
+          status: Database["public"]["Enums"]["registration_status"]
+          tournament_name: string
+          tournament_start: string
+          tournament_venue: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
