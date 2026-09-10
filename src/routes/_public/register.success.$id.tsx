@@ -44,7 +44,7 @@ function SuccessPage() {
 
 
   if (!reg) return <div className="p-16 text-center">Loading…</div>;
-  const verified = reg.payment_status === "verified";
+  const ticketReady = reg.payment_status === "verified" && reg.status === "approved";
 
   return (
     <div className="mx-auto max-w-xl px-4 sm:px-6 lg:px-8 py-12">
@@ -59,11 +59,11 @@ function SuccessPage() {
           animate={{ scale: 1, opacity: 1 }}
           transition={{ delay: 0.1, type: "spring", stiffness: 220, damping: 18 }}
         >
-          {verified ? <CheckCircle2 className="mx-auto text-success" size={56} /> : <Clock className="mx-auto text-warning" size={56} />}
+          {ticketReady ? <CheckCircle2 className="mx-auto text-success" size={56} /> : <Clock className="mx-auto text-warning" size={56} />}
         </motion.div>
         <h1 className="mt-4 font-display text-3xl font-semibold">Registration Successful 🎉</h1>
         <p className="mt-2 text-muted-foreground">
-          {verified
+          {ticketReady
             ? "Your registration is approved. Save the official entry ticket below and present it at the venue."
             : "We've received your registration. Your entry ticket will be issued here only after the admin verifies your payment and approves your entry."}
         </p>
@@ -95,7 +95,7 @@ function SuccessPage() {
           <div><span className="text-muted-foreground">Registered at:</span> {new Date(reg.created_at).toLocaleString("en-IN")}</div>
         </div>
 
-        {verified && qrDataUrl && (
+        {ticketReady && qrDataUrl && (
           <div className="mt-8">
             <div id="entry-ticket" className="relative overflow-hidden rounded-lg border border-gold/60 bg-primary text-primary-foreground text-left shadow-xl">
               <div className="absolute inset-y-0 left-0 w-1.5 bg-gold" />
