@@ -150,6 +150,20 @@
   .chess-fall { display: none; }
 }
 
+@media print {
+  body * { visibility: hidden; }
+  #entry-ticket, #entry-ticket * { visibility: visible; }
+  #entry-ticket {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    margin: 0;
+    box-shadow: none;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+}
+
 .glass {
   background: color-mix(in oklab, var(--card) 70%, transparent);
   backdrop-filter: blur(12px);
