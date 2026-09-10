@@ -2,11 +2,20 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import QRCode from "qrcode";
-import { CheckCircle2, Clock, MessageCircle } from "lucide-react";
+import { CalendarDays, CheckCircle2, Clock, Download, MapPin, MessageCircle, ShieldCheck, Ticket } from "lucide-react";
 import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/_public/register/success/$id")({
-  head: () => ({ meta: [{ title: "Registration confirmed" }, { name: "robots", content: "noindex" }] }),
+  head: () => ({ meta: [
+    { title: "Tournament Entry Ticket | 64 Squares Society" },
+    { name: "description", content: "View your 64 Squares Society tournament registration status and approved entry ticket." },
+    { property: "og:title", content: "Tournament Entry Ticket | 64 Squares Society" },
+    { property: "og:description", content: "View your tournament registration status and approved entry ticket." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+    { name: "robots", content: "noindex" },
+  ] }),
   component: SuccessPage,
 });
 
@@ -21,7 +30,7 @@ function SuccessPage() {
       const { data: rows } = await supabase.rpc("get_registration_receipt", { _id: id });
       const data = Array.isArray(rows) ? rows[0] : rows;
       setReg(data);
-      if (data?.qr_token) {
+      if (data?.qr_token && data?.status === "approved" && data?.payment_status === "verified") {
         // Encode as a URL so any camera app opens the check-in page.
         const origin = typeof window !== "undefined" ? window.location.origin : "";
         const checkinUrl = `${origin}/v/checkin/${data.qr_token}`;
@@ -55,8 +64,8 @@ function SuccessPage() {
         <h1 className="mt-4 font-display text-3xl font-semibold">Registration Successful 🎉</h1>
         <p className="mt-2 text-muted-foreground">
           {verified
-            ? "You're in! Save the QR code below — you'll need it for check-in at the venue."
-            : "We've received your registration. An admin will verify your payment shortly, and your QR check-in code becomes active on approval."}
+            ? "Your registration is approved. Save the official entry ticket below and present it at the venue."
+            : "We've received your registration. Your entry ticket will be issued here only after the admin verifies your payment and approves your entry."}
         </p>
 
         {/* WhatsApp group */}
@@ -86,11 +95,49 @@ function SuccessPage() {
           <div><span className="text-muted-foreground">Registered at:</span> {new Date(reg.created_at).toLocaleString("en-IN")}</div>
         </div>
 
-        {qrDataUrl && (
-          <div className="mt-6">
-            <div className="text-sm font-medium mb-2">Your check-in QR</div>
-            <img src={qrDataUrl} alt="QR check-in code" className="mx-auto rounded-xl border border-border p-3 bg-white" width={240} height={240} />
-            <a href={qrDataUrl} download={`64s-checkin-${reg.id}.png`} className="mt-3 inline-block text-sm text-primary underline">Download QR</a>
+        {verified && qrDataUrl && (
+          <div className="mt-8">
+            <div id="entry-ticket" className="relative overflow-hidden rounded-lg border border-gold/60 bg-primary text-primary-foreground text-left shadow-xl">
+              <div className="absolute inset-y-0 left-0 w-1.5 bg-gold" />
+              <div className="border-b border-primary-foreground/20 px-6 py-5">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-gold">
+                      <Ticket size={15} /> Official entry ticket
+                    </div>
+                    <div className="mt-2 font-display text-2xl font-semibold">64 Squares Society</div>
+                  </div>
+                  <div className="rounded-md border border-gold/50 px-2.5 py-1 text-[10px] font-bold uppercase text-gold">Approved</div>
+                </div>
+              </div>
+
+              <div className="grid gap-5 p-6 sm:grid-cols-[1fr_auto] sm:items-center">
+                <div className="min-w-0 space-y-4">
+                  <div>
+                    <div className="text-[10px] font-semibold uppercase text-primary-foreground/60">Admit one player</div>
+                    <div className="mt-1 font-display text-2xl font-semibold break-words">{reg.player_name}</div>
+                  </div>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex items-start gap-2"><ShieldCheck size={16} className="mt-0.5 shrink-0 text-gold" /><span>{reg.tournament_name}</span></div>
+                    {reg.tournament_start && <div className="flex items-center gap-2"><CalendarDays size={16} className="shrink-0 text-gold" /><span>{new Date(`${reg.tournament_start}T00:00:00`).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}</span></div>}
+                    {reg.tournament_venue && <div className="flex items-start gap-2"><MapPin size={16} className="mt-0.5 shrink-0 text-gold" /><span>{reg.tournament_venue}</span></div>}
+                  </div>
+                  <div className="font-mono text-[10px] uppercase text-primary-foreground/60">Ticket No. {String(reg.id).slice(0, 8)}</div>
+                </div>
+
+                <div className="mx-auto w-fit rounded-md bg-card p-2.5 text-center sm:mx-0">
+                  <img src={qrDataUrl} alt="Entry ticket check-in code" className="h-36 w-36" width={144} height={144} />
+                  <div className="mt-1 text-[9px] font-bold uppercase text-card-foreground">Scan at entrance</div>
+                </div>
+              </div>
+
+              <div className="border-t border-dashed border-primary-foreground/30 px-6 py-3 text-center text-[10px] uppercase text-primary-foreground/60">
+                Valid for one entry · Keep this ticket ready at check-in
+              </div>
+            </div>
+            <Button type="button" variant="outline" className="mt-4" onClick={() => window.print()}>
+              <Download size={16} /> Print or save ticket
+            </Button>
           </div>
         )}
 

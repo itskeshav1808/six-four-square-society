@@ -9,12 +9,6 @@ export const Route = createFileRoute("/admin/certificates")({
   component: Certificates,
 });
 
-function playerUrl(slug?: string | null) {
-  if (!slug) return undefined;
-  const origin = typeof window !== "undefined" ? window.location.origin : "";
-  return `${origin}/players/${slug}`;
-}
-
 function Certificates() {
   const [tournaments, setTournaments] = useState<any[]>([]);
   const [tid, setTid] = useState("");
@@ -30,7 +24,7 @@ function Certificates() {
   const refreshCerts = () => {
     supabase
       .from("certificates")
-      .select("*, player:players(full_name, slug), tournament:tournaments(name)")
+      .select("*, player:players(full_name), tournament:tournaments(name)")
       .eq("tournament_id", tid)
       .order("issued_at", { ascending: false })
       .then(({ data }) => setCerts(data ?? []));
@@ -40,7 +34,7 @@ function Certificates() {
     if (!tid) return;
     supabase
       .from("registrations")
-      .select("id, player:players(id, full_name, slug, avatar_url)")
+      .select("id, player:players(id, full_name, avatar_url)")
       .eq("tournament_id", tid)
       .eq("status", "approved")
       .then(({ data }) => setRegs(data ?? []));
@@ -49,7 +43,6 @@ function Certificates() {
 
   const issueOne = async (r: any, preview = false) => {
     const tn = tournaments.find((t) => t.id === tid)?.name ?? "";
-    const target = playerUrl(r.player?.slug);
     const doc = await makeCertificatePdf({
       recipient: r.player?.full_name,
       title: tpl.title,
@@ -57,7 +50,6 @@ function Certificates() {
       category: tpl.details,
       rank: tpl.rank,
       tournamentName: tn,
-      qrTargetUrl: target,
       photoUrl: r.player?.avatar_url ?? undefined,
     });
     if (preview) { doc.save(`${r.player?.full_name}.pdf`); return; }
@@ -68,7 +60,7 @@ function Certificates() {
       title: tpl.title,
       recipient_name: r.player?.full_name,
       details: tpl.details,
-      qr_target_url: target ?? null,
+      qr_target_url: null,
     });
     doc.save(`${r.player?.full_name}.pdf`);
   };
@@ -85,7 +77,7 @@ function Certificates() {
     try {
       const { data, error } = await supabase
         .from("certificates")
-        .select("*, player:players(full_name, slug, avatar_url), tournament:tournaments(name)")
+        .select("*, player:players(full_name, avatar_url), tournament:tournaments(name)")
         .order("issued_at", { ascending: true });
       if (error) throw error;
       if (!data?.length) { toast.error("No certificates issued yet"); return; }
@@ -99,7 +91,6 @@ function Certificates() {
           category: c.details ?? undefined,
           tournamentName: c.tournament?.name ?? "",
           issuedAt: c.issued_at,
-          qrTargetUrl: c.qr_target_url ?? playerUrl(c.player?.slug),
           photoUrl: c.player?.avatar_url ?? undefined,
         });
         pdfs.push(doc);
@@ -144,7 +135,7 @@ function Certificates() {
             <input placeholder="Player rank (e.g. 1st)" value={tpl.rank} onChange={(e) => setTpl({ ...tpl, rank: e.target.value })} className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm" />
           )}
           <button onClick={issueAll} disabled={!tid} className="w-full py-2 rounded-lg bg-primary text-primary-foreground text-sm disabled:opacity-50 inline-flex items-center justify-center gap-2"><Award size={14} />Generate for all approved</button>
-          <p className="text-xs text-muted-foreground">Each certificate PDF includes a QR code linking to that player's public Chess Passport.</p>
+          <p className="text-xs text-muted-foreground">Certificates include the participant photo, name, category, and award details.</p>
         </div>
 
         <div className="rounded-2xl border border-border bg-card p-5">

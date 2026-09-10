@@ -1,5 +1,4 @@
 import { jsPDF } from "jspdf";
-import QRCode from "qrcode";
 import { PDFDocument } from "pdf-lib";
 import { circleMaskDataUrl } from "./face-crop";
 import excellenceTpl from "@/assets/cert-excellence.png.asset.json";
@@ -11,7 +10,6 @@ export type CertInput = {
   details?: string;
   tournamentName: string;
   issuedAt?: string | Date;
-  qrTargetUrl?: string; // e.g. https://.../players/<slug>
   photoUrl?: string;
   /** Age/rating category printed on the "of category ____" line. */
   category?: string;
@@ -144,24 +142,6 @@ export async function makeCertificatePdf(input: CertInput): Promise<jsPDF> {
     doc.text(input.rank, layout.rank.cx * w, layout.rank.cy * h, { align: "center" });
   }
 
-  // QR to the live player profile, tucked into the lower-right corner.
-  if (input.qrTargetUrl) {
-    try {
-      const qrDataUrl = await QRCode.toDataURL(input.qrTargetUrl, {
-        margin: 0,
-        width: 240,
-        color: { dark: "#2b0f45", light: "#ffffff" },
-      });
-      const size = 54;
-      const x = w - size - 30;
-      const y = h - size - 26;
-      doc.setFillColor(255, 255, 255);
-      doc.roundedRect(x - 4, y - 4, size + 8, size + 8, 4, 4, "F");
-      doc.addImage(qrDataUrl, "PNG", x, y, size, size);
-    } catch {
-      // ignore QR failures
-    }
-  }
   return doc;
 }
 
