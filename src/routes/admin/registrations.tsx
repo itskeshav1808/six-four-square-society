@@ -47,7 +47,7 @@ function RegistrationsAdmin() {
   const approve = async (r: any) => {
     await supabase.from("registrations").update({ status: "approved", payment_status: "verified", approved_at: new Date().toISOString() }).eq("id", r.id);
     await supabase.from("payments").update({ status: "verified", verified_at: new Date().toISOString() }).eq("registration_id", r.id);
-    toast.success("Approved · QR is now active");
+    toast.success("Approved · entry ticket is now available");
   };
   const reject = async (r: any) => {
     await supabase.from("registrations").update({ status: "rejected" }).eq("id", r.id);
@@ -118,7 +118,7 @@ function RegistrationsAdmin() {
                   <div className="flex gap-1">
                     <button onClick={() => approve(r)} disabled={r.status === "approved"} title="Approve" className="p-1 rounded hover:bg-success/10 text-success disabled:opacity-30 disabled:cursor-not-allowed"><CheckCircle2 size={16} /></button>
                     <button onClick={() => reject(r)} disabled={r.status === "rejected"} title="Reject" className="p-1 rounded hover:bg-destructive/10 text-destructive disabled:opacity-30 disabled:cursor-not-allowed"><XCircle size={16} /></button>
-                    <a href={`/register/success/${r.id}`} target="_blank" rel="noreferrer" title="View QR" className="p-1 rounded hover:bg-muted"><QrCode size={16} /></a>
+                     <a href={`/register/success/${r.id}`} target="_blank" rel="noreferrer" title="View entry ticket" className="p-1 rounded hover:bg-muted"><QrCode size={16} /></a>
                   </div>
                 </td>
               </tr>
