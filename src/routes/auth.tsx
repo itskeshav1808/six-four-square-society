@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth-context";
 import { Brand } from "@/components/brand";
-import { volunteerLoginEmail } from "@/lib/volunteers.functions";
+import { volunteerLoginEmail } from "@/lib/volunteer-login";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({

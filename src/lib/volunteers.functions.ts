@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { volunteerLoginEmail } from "@/lib/volunteer-login";
 
 /**
  * Volunteer accounts.
@@ -13,11 +14,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const PHONE = /^[6-9]\d{9}$/;
 
-export const VOLUNTEER_EMAIL_DOMAIN = "volunteer.64squares.app";
 
-export function volunteerLoginEmail(phone: string) {
-  return `${phone.replace(/\D/g, "").slice(-10)}@${VOLUNTEER_EMAIL_DOMAIN}`;
-}
 
 const createSchema = z.object({
   fullName: z.string().trim().min(2).max(120),
