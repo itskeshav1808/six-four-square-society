@@ -103,6 +103,7 @@ export const playerHistoryQuery = (playerId: string) =>
         .from("registrations")
         .select("id, status, tournament:tournaments(id,name,slug,start_date)")
         .eq("player_id", playerId)
+        .eq("is_draft", false)
         .order("created_at", { ascending: false });
       return data ?? [];
     },

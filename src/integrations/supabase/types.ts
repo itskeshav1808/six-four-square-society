@@ -160,6 +160,59 @@ export type Database = {
           },
         ]
       }
+      entry_batches: {
+        Row: {
+          created_at: string
+          discount_applied: boolean
+          discount_per_entry: number
+          dummy_payment_id: string | null
+          expires_at: string
+          id: string
+          payment_method: Database["public"]["Enums"]["payment_method"] | null
+          proof_url: string | null
+          status: string
+          tournament_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          discount_applied?: boolean
+          discount_per_entry?: number
+          dummy_payment_id?: string | null
+          expires_at: string
+          id?: string
+          payment_method?: Database["public"]["Enums"]["payment_method"] | null
+          proof_url?: string | null
+          status?: string
+          tournament_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          discount_applied?: boolean
+          discount_per_entry?: number
+          dummy_payment_id?: string | null
+          expires_at?: string
+          id?: string
+          payment_method?: Database["public"]["Enums"]["payment_method"] | null
+          proof_url?: string | null
+          status?: string
+          tournament_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "entry_batches_tournament_id_fkey"
+            columns: ["tournament_id"]
+            isOneToOne: false
+            referencedRelation: "tournaments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       expenses: {
         Row: {
           amount: number
@@ -380,6 +433,7 @@ export type Database = {
       payments: {
         Row: {
           amount: number
+          batch_id: string | null
           created_at: string
           group_id: string | null
           id: string
@@ -394,6 +448,7 @@ export type Database = {
         }
         Insert: {
           amount: number
+          batch_id?: string | null
           created_at?: string
           group_id?: string | null
           id?: string
@@ -408,6 +463,7 @@ export type Database = {
         }
         Update: {
           amount?: number
+          batch_id?: string | null
           created_at?: string
           group_id?: string | null
           id?: string
@@ -421,6 +477,13 @@ export type Database = {
           verified_by?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "payments_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "entry_batches"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "payments_group_id_fkey"
             columns: ["group_id"]
@@ -548,6 +611,7 @@ export type Database = {
           id: string
           phone: string | null
           updated_at: string
+          username: string | null
         }
         Insert: {
           avatar_url?: string | null
@@ -557,6 +621,7 @@ export type Database = {
           id: string
           phone?: string | null
           updated_at?: string
+          username?: string | null
         }
         Update: {
           avatar_url?: string | null
@@ -566,6 +631,7 @@ export type Database = {
           id?: string
           phone?: string | null
           updated_at?: string
+          username?: string | null
         }
         Relationships: []
       }
@@ -748,15 +814,18 @@ export type Database = {
           amount: number | null
           approved_at: string | null
           approved_by: string | null
+          batch_id: string | null
           category_id: string | null
           checked_in_at: string | null
           checked_in_by: string | null
           checkin_status: Database["public"]["Enums"]["checkin_status"]
           created_at: string
+          created_by: string | null
           custom_fields: Json
           dummy_order_id: string | null
           dummy_payment_id: string | null
           id: string
+          is_draft: boolean
           notes: string | null
           payment_method: Database["public"]["Enums"]["payment_method"] | null
           payment_status: Database["public"]["Enums"]["payment_status"]
@@ -773,15 +842,18 @@ export type Database = {
           amount?: number | null
           approved_at?: string | null
           approved_by?: string | null
+          batch_id?: string | null
           category_id?: string | null
           checked_in_at?: string | null
           checked_in_by?: string | null
           checkin_status?: Database["public"]["Enums"]["checkin_status"]
           created_at?: string
+          created_by?: string | null
           custom_fields?: Json
           dummy_order_id?: string | null
           dummy_payment_id?: string | null
           id?: string
+          is_draft?: boolean
           notes?: string | null
           payment_method?: Database["public"]["Enums"]["payment_method"] | null
           payment_status?: Database["public"]["Enums"]["payment_status"]
@@ -798,15 +870,18 @@ export type Database = {
           amount?: number | null
           approved_at?: string | null
           approved_by?: string | null
+          batch_id?: string | null
           category_id?: string | null
           checked_in_at?: string | null
           checked_in_by?: string | null
           checkin_status?: Database["public"]["Enums"]["checkin_status"]
           created_at?: string
+          created_by?: string | null
           custom_fields?: Json
           dummy_order_id?: string | null
           dummy_payment_id?: string | null
           id?: string
+          is_draft?: boolean
           notes?: string | null
           payment_method?: Database["public"]["Enums"]["payment_method"] | null
           payment_status?: Database["public"]["Enums"]["payment_status"]
@@ -820,6 +895,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "registrations_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "entry_batches"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "registrations_category_id_fkey"
             columns: ["category_id"]
@@ -1274,6 +1356,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      expire_draft_batches: { Args: Record<PropertyKey, never>; Returns: number }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
       phone_already_registered: { Args: { _phone: string }; Returns: boolean }
       player_already_registered: {

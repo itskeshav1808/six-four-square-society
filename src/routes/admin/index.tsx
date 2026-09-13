@@ -28,14 +28,14 @@ function AdminDashboard() {
     (async () => {
       const [t, r, rev, pending, players, vol, inv, recent, verifs] = await Promise.all([
         supabase.from("tournaments").select("id", { count: "exact", head: true }).in("status", ["published", "ongoing"]),
-        supabase.from("registrations").select("id", { count: "exact", head: true }),
+        supabase.from("registrations").select("id", { count: "exact", head: true }).eq("is_draft", false).neq("status", "cancelled"),
         supabase.from("payments").select("amount").eq("status", "verified"),
-        supabase.from("registrations").select("id", { count: "exact", head: true }).eq("payment_status", "pending"),
+        supabase.from("registrations").select("id", { count: "exact", head: true }).eq("payment_status", "pending").eq("is_draft", false),
         supabase.from("players").select("id", { count: "exact", head: true }),
         supabase.from("volunteers").select("id", { count: "exact", head: true }).eq("is_active", true),
         supabase.from("inventory_items").select("id", { count: "exact", head: true }),
-        supabase.from("registrations").select("id, status, payment_status, amount, created_at, player:players(full_name), tournament:tournaments(name)").order("created_at", { ascending: false }).limit(8),
-        supabase.from("registrations").select("id, amount, proof_url, payment_method, player:players(full_name), tournament:tournaments(name)").eq("payment_status", "pending").order("created_at", { ascending: false }).limit(5),
+        supabase.from("registrations").select("id, status, payment_status, amount, created_at, player:players(full_name), tournament:tournaments(name)").eq("is_draft", false).order("created_at", { ascending: false }).limit(8),
+        supabase.from("registrations").select("id, amount, proof_url, payment_method, player:players(full_name), tournament:tournaments(name)").eq("payment_status", "pending").eq("is_draft", false).order("created_at", { ascending: false }).limit(5),
       ]);
       const revenue = (rev.data ?? []).reduce((a: number, p: any) => a + Number(p.amount || 0), 0);
       setS({ tournaments: t.count ?? 0, registrations: r.count ?? 0, revenue, pending: pending.count ?? 0, players: players.count ?? 0, volunteers: vol.count ?? 0, inventory: inv.count ?? 0 });

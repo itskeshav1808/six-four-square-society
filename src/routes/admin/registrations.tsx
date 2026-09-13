@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { Search, Download, CheckCircle2, XCircle, QrCode } from "lucide-react";
 import * as XLSX from "xlsx";
 import { GroupBookings } from "@/components/admin/group-bookings";
+import { EntryBatches } from "@/components/admin/entry-batches";
 
 export const Route = createFileRoute("/admin/registrations")({
   component: RegistrationsAdmin,
@@ -18,7 +19,9 @@ function RegistrationsAdmin() {
   const load = async () => {
     const { data } = await supabase
       .from("registrations")
-      .select("*, player:players(full_name, email, phone, city, rating), tournament:tournaments(id, name), category:tournament_categories(name)")
+      .select("*, player:players(full_name, city, rating), tournament:tournaments(id, name), category:tournament_categories(name)")
+      .eq("is_draft", false)
+      .is("batch_id", null)
       .order("created_at", { ascending: false });
     setRows(data ?? []);
   };
@@ -92,6 +95,7 @@ function RegistrationsAdmin() {
         </select>
       </div>
 
+      <EntryBatches tournamentFilter={filter.tournament} />
       <GroupBookings tournamentFilter={filter.tournament} />
 
       <div className="rounded-2xl border border-border bg-card overflow-x-auto">

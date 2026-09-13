@@ -15,6 +15,7 @@ function Verifications() {
       .from("registrations")
       .select("*, player:players(full_name), contact:player_private(email,phone), tournament:tournaments(name)")
       .eq("payment_status", "pending")
+      .eq("is_draft", false)
       .order("created_at", { ascending: true });
     setRows(data ?? []);
   };
@@ -24,8 +25,13 @@ function Verifications() {
     const patch = ok
       ? { payment_status: "verified", status: "approved", approved_at: new Date().toISOString() }
       : { payment_status: "failed", status: "rejected" };
-    await supabase.from("registrations").update(patch as any).eq("id", r.id);
-    await supabase.from("payments").update({ status: ok ? "verified" : "failed", verified_at: new Date().toISOString() }).eq("registration_id", r.id);
+    if (r.batch_id) {
+      await supabase.from("registrations").update(patch as any).eq("batch_id", r.batch_id);
+      await supabase.from("payments").update({ status: ok ? "verified" : "failed", verified_at: new Date().toISOString() }).eq("batch_id", r.batch_id);
+    } else {
+      await supabase.from("registrations").update(patch as any).eq("id", r.id);
+      await supabase.from("payments").update({ status: ok ? "verified" : "failed", verified_at: new Date().toISOString() }).eq("registration_id", r.id);
+    }
     toast.success(ok ? "Verified · player approved" : "Marked failed");
     load();
   };

@@ -1,3 +1,4 @@
+CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA extensions;
 
 -- ENUMS
 CREATE TYPE public.app_role AS ENUM ('admin','volunteer');
@@ -140,7 +141,7 @@ CREATE TABLE public.registrations (
   payment_method public.payment_method, amount NUMERIC(10,2) DEFAULT 0,
   dummy_order_id TEXT, dummy_payment_id TEXT,
   proof_url TEXT, proof_notes TEXT,
-  qr_token TEXT UNIQUE NOT NULL DEFAULT encode(gen_random_bytes(16),'hex'),
+  qr_token TEXT UNIQUE NOT NULL DEFAULT encode(extensions.gen_random_bytes(16),'hex'),
   checkin_status public.checkin_status NOT NULL DEFAULT 'not_checked_in',
   checked_in_at TIMESTAMPTZ, checked_in_by UUID REFERENCES auth.users(id),
   notes TEXT, approved_by UUID REFERENCES auth.users(id), approved_at TIMESTAMPTZ,

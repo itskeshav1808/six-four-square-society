@@ -42,7 +42,7 @@ export function PublicHeader() {
           <ThemeToggle />
           {user ? (
             <Link
-              to={role === "admin" ? "/admin" : role === "volunteer" ? "/volunteer" : "/"}
+              to={role === "admin" ? "/admin" : role === "volunteer" ? "/volunteer" : "/dashboard"}
               className="hidden sm:inline-flex text-sm px-3 py-2 rounded-md bg-primary text-primary-foreground hover:opacity-90"
             >
               {role === "admin" ? "Admin" : role === "volunteer" ? "Volunteer" : "Account"}
@@ -68,7 +68,7 @@ export function PublicHeader() {
                 {l.label}
               </Link>
             ))}
-            <Link to="/auth" onClick={() => setOpen(false)} className="px-3 py-2 rounded-md bg-primary text-primary-foreground text-center">
+            <Link to={user ? (role === "admin" ? "/admin" : role === "volunteer" ? "/volunteer" : "/dashboard") : "/auth"} onClick={() => setOpen(false)} className="px-3 py-2 rounded-md bg-primary text-primary-foreground text-center">
               {user ? "Account" : "Sign in"}
             </Link>
           </div>
