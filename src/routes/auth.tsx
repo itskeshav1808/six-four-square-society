@@ -137,9 +137,9 @@ function AuthPage() {
                   maxLength={20}
                   pattern="[A-Za-z0-9_]{3,20}"
                   autoComplete="username"
+                  placeholder="3 to 20 letters, numbers, or underscores"
                   className="mt-1 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
                 />
-                <div className="mt-1 text-xs text-muted-foreground">3 to 20 letters, numbers, or underscores. This is how others will see you.</div>
               </div>
               <div>
                 <label className="text-sm font-medium">Mobile number</label>
@@ -198,7 +198,7 @@ function AuthPage() {
           )}
           <div>
             <label className="text-sm font-medium">Password</label>
-            <input type="password" autoComplete={mode === "signin" || mode === "volunteer" ? "current-password" : "new-password"} value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} className="mt-1 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm" />
+            <input type="password" autoComplete={mode === "signin" || mode === "volunteer" ? "current-password" : "new-password"} placeholder="At least 6 characters" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} className="mt-1 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm" />
           </div>
           <button disabled={loading} type="submit" className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground font-medium hover:opacity-90 disabled:opacity-50">
             {loading ? "…" : mode === "signup" || mode === "staff" ? "Create account" : "Sign in"}

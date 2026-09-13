@@ -129,6 +129,9 @@
     -webkit-font-smoothing: antialiased;
   }
   h1, h2, h3, .font-display { font-family: var(--font-display); letter-spacing: -0.02em; }
+  #lovable-badge {
+    display: none !important;
+  }
 }
 
 /* Chess piece falling animation */
