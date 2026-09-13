@@ -22,6 +22,7 @@ export const Route = createFileRoute("/_public/register/success/$id")({
 function SuccessPage() {
   const { id } = Route.useParams();
   const [reg, setReg] = useState<any>(null);
+  const [missing, setMissing] = useState(false);
   const [qrDataUrl, setQrDataUrl] = useState<string>("");
   const [whatsappUrl, setWhatsappUrl] = useState<string>("");
 
@@ -29,6 +30,10 @@ function SuccessPage() {
     (async () => {
       const { data: rows } = await supabase.rpc("get_registration_receipt", { _id: id });
       const data = Array.isArray(rows) ? rows[0] : rows;
+      if (!data) {
+        setMissing(true);
+        return;
+      }
       setReg(data);
       if (data?.qr_token && data?.status === "approved" && data?.payment_status === "verified") {
         // Encode as a URL so any camera app opens the check-in page.
@@ -43,6 +48,14 @@ function SuccessPage() {
   }, [id]);
 
 
+  if (missing) {
+    return (
+      <div className="mx-auto max-w-xl px-4 py-16 text-center">
+        <p className="text-muted-foreground">We could not find this receipt. Open your dashboard to view your entries.</p>
+        <Link to="/dashboard" className="mt-4 inline-block text-primary underline">Go to dashboard</Link>
+      </div>
+    );
+  }
   if (!reg) return <div className="p-16 text-center">Loading…</div>;
   const ticketReady = reg.payment_status === "verified" && reg.status === "approved";
 

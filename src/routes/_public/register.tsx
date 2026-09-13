@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Outlet, useChildMatches, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useSuspenseQuery, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -45,6 +45,12 @@ const emptyPlayer = {
 };
 
 function Register() {
+  const childMatches = useChildMatches();
+  if (childMatches.length > 0) return <Outlet />;
+  return <RegisterForm />;
+}
+
+function RegisterForm() {
   const search = Route.useSearch() as SearchParams;
   const nav = useNavigate();
   const { user, loading: authLoading } = useAuth();
@@ -257,7 +263,11 @@ function Register() {
           proofUrl: payment.proof_url ?? "",
         },
       });
-      nav({ to: "/register/success/$id", params: { id: paid.firstRegistrationId } });
+      if (!paid.firstRegistrationId) {
+        nav({ to: "/dashboard", replace: true });
+        return;
+      }
+      nav({ to: "/register/success/$id", params: { id: paid.firstRegistrationId }, replace: true });
     } catch (err: any) {
       toast.error(err.message ?? "Payment could not be completed");
     } finally {

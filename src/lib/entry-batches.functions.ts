@@ -254,7 +254,19 @@ export const payDraftBatch = createServerFn({ method: "POST" })
       .eq("user_id", context.userId)
       .maybeSingle();
     if (!batch) throw new Error("No unpaid entries found");
-    if (batch.status !== "draft") throw new Error("This list has already been paid or has expired");
+    if (batch.status === "paid") {
+      const existing = await entriesForBatch(supabaseAdmin, batch.id);
+      const firstId = existing[0]?.id as string | undefined;
+      if (!firstId) throw new Error("Payment is recorded but no entries were found. Open your dashboard.");
+      return {
+        batchId: batch.id,
+        paymentId: null as string | null,
+        total: 0,
+        count: existing.length,
+        firstRegistrationId: firstId,
+      };
+    }
+    if (batch.status !== "draft") throw new Error("This list has expired. Add the entries again to continue.");
 
     const priced = await applyPricing(supabaseAdmin, batch.id, settings);
     if (priced.entries < 1) throw new Error("Add at least one entry before paying");
