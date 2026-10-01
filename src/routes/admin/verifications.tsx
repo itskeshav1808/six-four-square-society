@@ -13,7 +13,7 @@ function Verifications() {
   const load = async () => {
     const { data } = await supabase
       .from("registrations")
-      .select("*, player:players(full_name), contact:player_private(email,phone), tournament:tournaments(name)")
+      .select("*, player:players(full_name, contact:player_private(email, phone)), tournament:tournaments(name)")
       .eq("payment_status", "pending")
       .eq("is_draft", false)
       .order("created_at", { ascending: true });
@@ -57,7 +57,7 @@ function Verifications() {
               </div>
             </div>
             <div className="mt-3 text-xs text-muted-foreground space-y-0.5">
-              <div>{r.player?.email}</div><div>{r.player?.phone}</div>
+              <div>{r.player?.contact?.email}</div><div>{r.player?.contact?.phone}</div>
             </div>
             {r.proof_url && (
               <a href={r.proof_url} target="_blank" rel="noreferrer" className="mt-3 inline-flex items-center gap-1 text-xs text-primary underline"><ExternalLink size={12} />View proof</a>
