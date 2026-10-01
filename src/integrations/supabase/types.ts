@@ -1329,6 +1329,7 @@ export type Database = {
           tournament_name: string
         }[]
       }
+      expire_draft_batches: { Args: never; Returns: number }
       get_registration_receipt: {
         Args: { _id: string }
         Returns: {
@@ -1356,7 +1357,6 @@ export type Database = {
         }
         Returns: boolean
       }
-      expire_draft_batches: { Args: Record<PropertyKey, never>; Returns: number }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
       phone_already_registered: { Args: { _phone: string }; Returns: boolean }
       player_already_registered: {
