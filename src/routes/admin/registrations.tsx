@@ -19,7 +19,7 @@ function RegistrationsAdmin() {
   const load = async () => {
     const { data } = await supabase
       .from("registrations")
-      .select("*, player:players(full_name, city, rating), tournament:tournaments(id, name), category:tournament_categories(name)")
+      .select("*, player:players(full_name, city, rating, contact:player_private(email, phone)), tournament:tournaments(id, name), category:tournament_categories(name)")
       .eq("is_draft", false)
       .is("batch_id", null)
       .order("created_at", { ascending: false });
@@ -37,7 +37,7 @@ function RegistrationsAdmin() {
     if (filter.status && r.status !== filter.status) return false;
     if (filter.q) {
       const q = filter.q.toLowerCase();
-      return [r.player?.full_name, r.player?.email, r.player?.phone, r.player?.city].some((v) => v?.toLowerCase().includes(q));
+      return [r.player?.full_name, r.player?.contact?.email, r.player?.contact?.phone, r.player?.city].some((v) => v?.toLowerCase().includes(q));
     }
     return true;
   }), [rows, filter]);
@@ -59,7 +59,7 @@ function RegistrationsAdmin() {
 
   const exportCsv = () => {
     const data = filtered.map((r) => ({
-      Name: r.player?.full_name, Email: r.player?.email, Phone: r.player?.phone, City: r.player?.city, Rating: r.player?.rating,
+      Name: r.player?.full_name, Email: r.player?.contact?.email, Phone: r.player?.contact?.phone, City: r.player?.city, Rating: r.player?.rating,
       Tournament: r.tournament?.name, Category: r.category?.name, Amount: r.amount, Status: r.status,
       Payment: r.payment_status, Method: r.payment_method, "Check-in": r.checkin_status, "QR": r.qr_token,
       Registered: new Date(r.created_at).toLocaleString(),
@@ -107,7 +107,7 @@ function RegistrationsAdmin() {
             {filtered.map((r) => (
               <tr key={r.id} className="border-t border-border hover:bg-muted/20">
                 <td className="px-3 py-2"><div className="font-medium">{r.player?.full_name}</div><div className="text-xs text-muted-foreground">{r.player?.city} · {r.player?.rating || "unrated"}</div></td>
-                <td className="px-3 py-2 text-xs">{r.player?.email}<br />{r.player?.phone}</td>
+                <td className="px-3 py-2 text-xs">{r.player?.contact?.email}<br />{r.player?.contact?.phone}</td>
                 <td className="px-3 py-2 text-xs">{r.tournament?.name}</td>
                 <td className="px-3 py-2 text-xs">{r.category?.name}</td>
                 <td className="px-3 py-2">₹{r.amount}</td>
