@@ -13,11 +13,11 @@ test.describe("registration account gate", () => {
     await expect(page.getByRole("button", { name: /Register as an individual/i })).toHaveCount(0);
   });
 
-  test("player signup asks for username, mobile, and password", async ({ page }) => {
+  test("player signup asks for name, mobile or email, and password", async ({ page }) => {
     await page.goto("/auth", { waitUntil: "domcontentloaded" });
     await page.getByRole("button", { name: "Create account" }).click();
-    await expect(page.getByText("Username")).toBeVisible();
-    await expect(page.getByText("Mobile number")).toBeVisible();
+    await expect(page.getByText("Name", { exact: true })).toBeVisible();
+    await expect(page.getByText("Mobile number or email")).toBeVisible();
     await expect(page.getByText("Password")).toBeVisible();
   });
 });

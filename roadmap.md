@@ -1,0 +1,8 @@
+# Roadmap
+- [x] Pass 1a: Two-tab sign-in (Log in / Create account), auto role routing
+- [ ] Pass 1b: Security hardening (photo bucket limits, xlsx upgrade, login rate limit)
+- [ ] Pass 2: Celebratory success screen (needs support contact number), participant dashboard tickets, WhatsApp ticket share, FIDE ID optional auto-fetch
+- [ ] Pass 3: Volunteer scanner repair + manual check-in
+- [ ] Pass 4: Form builder + Entries Sheet with column visibility
+- [ ] Pass 5: Chess-Results/ChessManager sync, Find My Board, Hall of Fame
+- [ ] Pass 6: Architectural venue guide
