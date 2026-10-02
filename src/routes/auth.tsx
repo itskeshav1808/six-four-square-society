@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { useAuth } from "@/lib/auth-context";
 import { Brand } from "@/components/brand";
 import { volunteerLoginEmail } from "@/lib/volunteer-login";
-import { looksLikeIndianMobile, playerLoginEmail, USERNAME_PATTERN } from "@/lib/player-login";
+import { looksLikeIndianMobile, playerLoginEmail } from "@/lib/player-login";
 import { signUpPlayer } from "@/lib/player-auth.functions";
 
 type SearchParams = { next?: string };
@@ -27,7 +27,7 @@ export const Route = createFileRoute("/auth")({
   component: AuthPage,
 });
 
-type Mode = "signin" | "signup" | "volunteer" | "staff";
+type Mode = "signin" | "signup";
 
 function safeNext(next?: string) {
   if (!next) return null;
@@ -37,10 +37,8 @@ function safeNext(next?: string) {
 
 function AuthPage() {
   const search = Route.useSearch() as SearchParams;
-  const [mode, setMode] = useState<Mode>(search.next ? "signup" : "signin");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [username, setUsername] = useState("");
+  const [mode, setMode] = useState<Mode>("signin");
+  const [ident, setIdent] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [loading, setLoading] = useState(false);
@@ -63,40 +61,24 @@ function AuthPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      if (mode === "volunteer") {
-        const digits = phone.replace(/\D/g, "");
-        if (digits.length !== 10) throw new Error("Enter your 10-digit mobile number");
-        const { error } = await supabase.auth.signInWithPassword({
-          email: volunteerLoginEmail(digits),
-          password,
-        });
-        if (error) throw new Error("Wrong mobile number or password. Ask an admin to reset it.");
-        toast.success("Signed in");
-      } else if (mode === "signin") {
-        const ident = email.trim();
-        const loginEmail = looksLikeIndianMobile(ident) ? playerLoginEmail(ident) : ident;
-        const { error } = await supabase.auth.signInWithPassword({ email: loginEmail, password });
-        if (error) throw new Error("Wrong mobile number, email, or password.");
-        toast.success("Signed in");
-      } else if (mode === "signup") {
-        if (!USERNAME_PATTERN.test(username.trim())) {
-          throw new Error("Username must be 3 to 20 letters, numbers, or underscores");
-        }
-        await signUpPlayer({ data: { username: username.trim(), phone, password } });
-        const { error } = await supabase.auth.signInWithPassword({
-          email: playerLoginEmail(phone),
-          password,
-        });
+      const id = ident.trim();
+      if (mode === "signup") {
+        const res = await signUpPlayer({ data: { name: fullName.trim(), identifier: id, password } });
+        const { error } = await supabase.auth.signInWithPassword({ email: res.loginEmail, password });
         if (error) throw error;
         toast.success("Account created");
       } else {
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: { emailRedirectTo: window.location.origin, data: { full_name: fullName } },
-        });
-        if (error) throw error;
-        toast.success("Account created — check your email if confirmation is required.");
+        // Mobile numbers may belong to a player or a volunteer account; try both.
+        const candidates = looksLikeIndianMobile(id)
+          ? [playerLoginEmail(id), volunteerLoginEmail(id)]
+          : [id.toLowerCase()];
+        let ok = false;
+        for (const email of candidates) {
+          const { error } = await supabase.auth.signInWithPassword({ email, password });
+          if (!error) { ok = true; break; }
+        }
+        if (!ok) throw new Error("Wrong mobile number, email, or password.");
+        toast.success("Signed in");
       }
     } catch (err: any) {
       toast.error(err.message ?? "Something went wrong");
@@ -109,113 +91,44 @@ function AuthPage() {
     <button
       type="button"
       onClick={() => setMode(m)}
-      className={`flex-1 py-2 rounded-lg text-xs sm:text-sm font-medium transition ${mode === m ? "bg-primary text-primary-foreground" : "bg-muted"}`}
+      className={`flex-1 py-2 rounded-lg text-sm font-medium transition ${mode === m ? "bg-primary text-primary-foreground" : "bg-muted"}`}
     >
       {label}
     </button>
   );
+
+  const field = "mt-1 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm";
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-background">
       <Link to="/" className="mb-8"><Brand size={48} /></Link>
       <div className="w-full max-w-md rounded-2xl border border-border bg-card p-6 sm:p-8 shadow-xl">
         <div className="flex gap-2 mb-6">
-          {tab("signin", "Sign in")}
+          {tab("signin", "Log in")}
           {tab("signup", "Create account")}
-          {tab("volunteer", "Volunteer")}
         </div>
         <form onSubmit={onSubmit} className="space-y-4">
           {mode === "signup" && (
-            <>
-              <div>
-                <label className="text-sm font-medium">Username</label>
-                <input
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  required
-                  minLength={3}
-                  maxLength={20}
-                  pattern="[A-Za-z0-9_]{3,20}"
-                  autoComplete="username"
-                  placeholder="3 to 20 letters, numbers, or underscores"
-                  className="mt-1 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
-                />
-              </div>
-              <div>
-                <label className="text-sm font-medium">Mobile number</label>
-                <input
-                  inputMode="numeric"
-                  maxLength={10}
-                  autoComplete="tel-national"
-                  placeholder="10-digit number"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
-                  required
-                  className="mt-1 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
-                />
-              </div>
-            </>
-          )}
-          {mode === "volunteer" && (
             <div>
-              <label className="text-sm font-medium">Mobile number</label>
-              <input
-                inputMode="numeric"
-                maxLength={10}
-                autoComplete="username"
-                placeholder="10-digit number given to the admin"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
-                required
-                className="mt-1 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
-              />
+              <label className="text-sm font-medium">Name</label>
+              <input value={fullName} onChange={(e) => setFullName(e.target.value)} required minLength={2} maxLength={100} autoComplete="name" className={field} />
             </div>
-          )}
-          {mode === "signin" && (
-            <div>
-              <label className="text-sm font-medium">Mobile number or email</label>
-              <input
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                autoComplete="username"
-                placeholder="10-digit mobile or staff email"
-                className="mt-1 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"
-              />
-            </div>
-          )}
-          {mode === "staff" && (
-            <>
-              <div>
-                <label className="text-sm font-medium">Full name</label>
-                <input value={fullName} onChange={(e) => setFullName(e.target.value)} required className="mt-1 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm" />
-              </div>
-              <div>
-                <label className="text-sm font-medium">Email</label>
-                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required className="mt-1 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm" />
-              </div>
-            </>
           )}
           <div>
+            <label className="text-sm font-medium">Mobile number or email</label>
+            <input value={ident} onChange={(e) => setIdent(e.target.value)} required autoComplete="username" placeholder="10-digit mobile or email" className={field} />
+          </div>
+          <div>
             <label className="text-sm font-medium">Password</label>
-            <input type="password" autoComplete={mode === "signin" || mode === "volunteer" ? "current-password" : "new-password"} placeholder="At least 6 characters" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} className="mt-1 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm" />
+            <input type="password" autoComplete={mode === "signin" ? "current-password" : "new-password"} placeholder="At least 6 characters" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} className={field} />
           </div>
           <button disabled={loading} type="submit" className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground font-medium hover:opacity-90 disabled:opacity-50">
-            {loading ? "…" : mode === "signup" || mode === "staff" ? "Create account" : "Sign in"}
+            {loading ? "…" : mode === "signup" ? "Create account" : "Log in"}
           </button>
         </form>
         <p className="mt-4 text-xs text-muted-foreground text-center">
-          {mode === "volunteer"
-            ? "Volunteer logins are created by an admin. Use the mobile number you gave them plus the password they shared."
-            : mode === "staff"
-              ? "Admin access is restricted to approved emails."
-              : "Players sign in with mobile number and password. Username is for display only."}
+          Players, volunteers, and admins all use this page. You'll be taken to the right area automatically.
         </p>
-        {mode !== "staff" && mode !== "volunteer" && (
-          <button type="button" onClick={() => setMode("staff")} className="mt-3 w-full text-xs text-muted-foreground underline">
-            Staff email signup
-          </button>
-        )}
       </div>
     </div>
   );
