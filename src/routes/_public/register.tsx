@@ -159,6 +159,10 @@ function RegisterForm() {
 
   const uploadPhoto = async (): Promise<string | null> => {
     if (!photoFile) return null;
+    if (!["image/jpeg", "image/png", "image/webp"].includes(photoFile.type)) {
+      throw new Error("Photo must be a JPG, PNG, or WebP image");
+    }
+    if (photoFile.size > 5 * 1024 * 1024) throw new Error("Photo must be under 5 MB");
     try {
       const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.jpg`;
       const { error } = await supabase.storage.from("player-photos").upload(path, photoFile, {

@@ -72,12 +72,25 @@ function AuthPage() {
         const candidates = looksLikeIndianMobile(id)
           ? [playerLoginEmail(id), volunteerLoginEmail(id)]
           : [id.toLowerCase()];
+        const lockUntil = Number(localStorage.getItem("login_lock_until") ?? 0);
+        if (lockUntil > Date.now()) {
+          throw new Error(`Too many failed attempts. Try again in ${Math.ceil((lockUntil - Date.now()) / 60000)} min.`);
+        }
         let ok = false;
         for (const email of candidates) {
           const { error } = await supabase.auth.signInWithPassword({ email, password });
           if (!error) { ok = true; break; }
         }
-        if (!ok) throw new Error("Wrong mobile number, email, or password.");
+        if (!ok) {
+          const fails = Number(localStorage.getItem("login_fails") ?? 0) + 1;
+          localStorage.setItem("login_fails", String(fails));
+          if (fails >= 5) {
+            localStorage.setItem("login_lock_until", String(Date.now() + 5 * 60000));
+            localStorage.setItem("login_fails", "0");
+          }
+          throw new Error("Wrong mobile number, email, or password.");
+        }
+        localStorage.removeItem("login_fails");
         toast.success("Signed in");
       }
     } catch (err: any) {
