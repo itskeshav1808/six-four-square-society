@@ -25,6 +25,7 @@ function SuccessPage() {
   const [missing, setMissing] = useState(false);
   const [qrDataUrl, setQrDataUrl] = useState<string>("");
   const [whatsappUrl, setWhatsappUrl] = useState<string>("");
+  const [supportPhone, setSupportPhone] = useState<string>("");
 
   useEffect(() => {
     (async () => {
@@ -44,6 +45,8 @@ function SuccessPage() {
       }
       const { data: wa } = await supabase.from("site_content").select("title").eq("key", "whatsapp_group_url").maybeSingle();
       if (wa?.title) setWhatsappUrl(wa.title.trim());
+      const { data: sp } = await supabase.from("site_content").select("title").eq("key", "support_phone").maybeSingle();
+      if (sp?.title) setSupportPhone(sp.title.trim());
     })();
   }, [id]);
 
@@ -59,27 +62,97 @@ function SuccessPage() {
   if (!reg) return <div className="p-16 text-center">Loading…</div>;
   const ticketReady = reg.payment_status === "verified" && reg.status === "approved";
 
+  const steps = [
+    { label: "Registration received", done: true },
+    { label: "Payment verification", done: reg.payment_status === "verified" },
+    { label: "Entry ticket issued", done: ticketReady },
+  ];
+  const pieces = ["♔", "♕", "♖", "♗", "♘", "♙", "♚", "♛", "♜", "♝", "♞", "♟"];
+
   return (
-    <div className="mx-auto max-w-xl px-4 sm:px-6 lg:px-8 py-12">
+    <div className="relative mx-auto max-w-xl px-4 sm:px-6 lg:px-8 py-12 overflow-hidden">
+      <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
+        {pieces.concat(pieces).map((p, i) => (
+          <motion.span
+            key={i}
+            className="absolute text-gold/40 select-none"
+            style={{ left: `${(i * 37) % 100}%`, fontSize: 18 + ((i * 7) % 22) }}
+            initial={{ y: -60, opacity: 0, rotate: 0 }}
+            animate={{ y: 900, opacity: [0, 1, 1, 0], rotate: (i % 2 ? 1 : -1) * 220 }}
+            transition={{ duration: 5 + (i % 5), delay: (i % 8) * 0.25, ease: "easeIn" }}
+          >
+            {p}
+          </motion.span>
+        ))}
+      </div>
       <motion.div
-        initial={{ opacity: 0, y: 18 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        className="rounded-2xl border border-border bg-card p-8 text-center"
+        initial={{ opacity: 0, y: 24, scale: 0.97 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+        className="relative rounded-3xl border border-gold/40 bg-card p-8 text-center shadow-2xl"
       >
-        <motion.div
-          initial={{ scale: 0.7, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ delay: 0.1, type: "spring", stiffness: 220, damping: 18 }}
-        >
-          {ticketReady ? <CheckCircle2 className="mx-auto text-success" size={56} /> : <Clock className="mx-auto text-warning" size={56} />}
+        <div className="relative mx-auto h-28 w-28">
+          <motion.div
+            className="absolute inset-0 rounded-full bg-gold/25 blur-2xl"
+            animate={{ scale: [1, 1.3, 1], opacity: [0.6, 1, 0.6] }}
+            transition={{ duration: 2.4, repeat: Infinity }}
+          />
+          <motion.div
+            className="relative flex h-28 w-28 items-center justify-center rounded-full bg-gradient-to-br from-primary to-gold text-primary-foreground"
+            initial={{ scale: 0, rotate: -180 }}
+            animate={{ scale: 1, rotate: 0 }}
+            transition={{ type: "spring", stiffness: 180, damping: 14, delay: 0.2 }}
+          >
+            <CheckCircle2 size={60} strokeWidth={2.2} />
+          </motion.div>
+        </div>
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}>
+          <div className="mt-6 text-xs uppercase tracking-[0.3em] text-gold">{reg.tournament_name}</div>
+          <h1 className="mt-2 font-display text-4xl font-semibold">
+            {ticketReady ? "Your entry is confirmed!" : "You're registered!"}
+          </h1>
+          <p className="mt-1 font-display text-xl text-gold">Well played, {reg.player_name?.split(" ")[0]}.</p>
+          <p className="mt-4 text-muted-foreground">
+            {ticketReady
+              ? "Your registration is approved. Save the official entry ticket below and show it at the venue."
+              : "Your registration and payment details have been received successfully. Your place is reserved while our team completes a quick verification."}
+          </p>
+          {!ticketReady && (
+            <p className="mt-3 inline-flex items-center gap-2 rounded-full bg-success/10 px-4 py-1.5 text-sm font-medium text-success">
+              <ShieldCheck size={16} /> No further action is needed right now
+            </p>
+          )}
         </motion.div>
-        <h1 className="mt-4 font-display text-3xl font-semibold">Registration Successful 🎉</h1>
-        <p className="mt-2 text-muted-foreground">
-          {ticketReady
-            ? "Your registration is approved. Save the official entry ticket below and present it at the venue."
-            : "We've received your registration. Your entry ticket will be issued here only after the admin verifies your payment and approves your entry."}
-        </p>
+
+        <div className="mt-8 text-left space-y-3">
+          {steps.map((st, i) => (
+            <motion.div
+              key={st.label}
+              initial={{ opacity: 0, x: -16 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.9 + i * 0.2 }}
+              className="flex items-center gap-3"
+            >
+              <div className={`flex h-8 w-8 items-center justify-center rounded-full border ${st.done ? "bg-gold text-primary border-gold" : "border-border text-muted-foreground"}`}>
+                {st.done ? <CheckCircle2 size={16} /> : <Clock size={14} />}
+              </div>
+              <span className={st.done ? "font-medium" : "text-muted-foreground"}>{st.label}</span>
+            </motion.div>
+          ))}
+          {!ticketReady && (
+            <p className="text-xs text-muted-foreground pl-11">
+              Your confirmed entry ticket will appear here and in your dashboard as soon as verification is complete.
+            </p>
+          )}
+        </div>
+
+        <div className="mt-6 font-mono text-xs uppercase text-muted-foreground">Reference No. {String(reg.id).slice(0, 8)}</div>
+
+        {supportPhone && (
+          <a href={`tel:${supportPhone.replace(/\s/g, "")}`} className="mt-4 inline-flex items-center gap-2 rounded-xl border border-border px-4 py-2 text-sm">
+            Questions? Call us at <span className="font-semibold text-gold">{supportPhone}</span>
+          </a>
+        )}
 
         {/* WhatsApp group */}
         <div className="mt-6 rounded-2xl border border-gold/40 bg-gold/5 p-5">
@@ -155,7 +228,7 @@ function SuccessPage() {
         )}
 
         <div className="mt-8 flex gap-3 justify-center">
-          <Link to="/" className="px-4 py-2 rounded-lg border border-border text-sm">Home</Link>
+          <Link to="/dashboard" className="px-4 py-2 rounded-lg border border-border text-sm">My dashboard</Link>
           <Link to="/tournaments" className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm">More tournaments</Link>
         </div>
       </motion.div>
