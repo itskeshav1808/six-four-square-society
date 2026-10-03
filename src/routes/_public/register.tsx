@@ -10,6 +10,7 @@ import { cropFaceSquare } from "@/lib/face-crop";
 import type { CustomField } from "@/routes/admin/form-builder";
 import { useAuth } from "@/lib/auth-context";
 import { ProgressOverlay } from "@/components/progress-overlay";
+import { FideBadge } from "@/components/register/fide-badge";
 import { addDraftEntry, getBatchSettings, getMyDraftBatch, payDraftBatch } from "@/lib/entry-batches.functions";
 
 
@@ -385,6 +386,12 @@ function RegisterForm() {
                     <div className={`mt-1 text-xs ${showPhoneError ? "text-destructive" : "text-muted-foreground"}`}>
                       {showPhoneError ? "Please enter a valid 10-digit mobile number." : "Indian mobile number, 10 digits (starts with 6–9)."}
                     </div>
+                  )}
+                  {key === "fide_id" && (
+                    <FideBadge
+                      fideId={value}
+                      onFound={(r) => setPlayer((p: any) => (p.rating ? p : { ...p, rating: String(r) }))}
+                    />
                   )}
                 </div>
               );
