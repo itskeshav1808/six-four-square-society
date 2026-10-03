@@ -390,7 +390,7 @@ function RegisterForm() {
                   {key === "fide_id" && (
                     <FideBadge
                       fideId={value}
-                      onFound={(r) => setPlayer((p: any) => (p.rating ? p : { ...p, rating: String(r) }))}
+                      onFound={(r) => setPlayer((p) => (p.rating ? p : { ...p, rating: String(r) }))}
                     />
                   )}
                 </div>
