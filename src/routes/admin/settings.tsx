@@ -36,6 +36,7 @@ function Settings() {
   return (
     <div className="p-8">
       <h1 className="font-display text-3xl font-semibold mb-6">Settings</h1>
+      <ContactSetup />
       <div className="grid gap-6 lg:grid-cols-2">
         <section className="rounded-2xl border border-border bg-card p-5">
           <h2 className="font-display text-lg font-semibold mb-3">Admin allowlist</h2>
