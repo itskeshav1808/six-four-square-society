@@ -9,6 +9,7 @@ import { CheckCircle2, XCircle, Loader2 } from "lucide-react";
 import { cropFaceSquare } from "@/lib/face-crop";
 import type { CustomField } from "@/routes/admin/form-builder";
 import { useAuth } from "@/lib/auth-context";
+import { ProgressOverlay } from "@/components/progress-overlay";
 import { addDraftEntry, getBatchSettings, getMyDraftBatch, payDraftBatch } from "@/lib/entry-batches.functions";
 
 
@@ -272,9 +273,9 @@ function RegisterForm() {
         return;
       }
       nav({ to: "/register/success/$id", params: { id: paid.firstRegistrationId }, replace: true });
+      // Keep the overlay up until the success page replaces this one.
     } catch (err: any) {
       toast.error(err.message ?? "Payment could not be completed");
-    } finally {
       setSubmitting(false);
     }
   };
@@ -289,7 +290,12 @@ function RegisterForm() {
   };
 
   if (authLoading || !user) {
-    return <div className="mx-auto max-w-2xl px-4 py-16 text-sm text-muted-foreground">Sign in required to register…</div>;
+    return (
+      <div className="mx-auto flex max-w-2xl flex-col items-center px-4 py-24 text-sm text-muted-foreground">
+        <Loader2 size={28} className="animate-spin text-gold" />
+        <p className="mt-3">{authLoading ? "Loading your registration…" : "Taking you to sign in…"}</p>
+      </div>
+    );
   }
 
   return (
@@ -534,6 +540,12 @@ function RegisterForm() {
       </div>
       </>
 
+      {submitting && (
+        <ProgressOverlay
+          title={paymentPath === "gateway" ? "Payment received" : "Submitting your registration"}
+          steps={[paymentPath === "gateway" ? "Payment received" : "Payment proof received", "Reserving your tournament seat", "Generating your registration receipt"]}
+        />
+      )}
       <AnimatePresence>
         {showGateway && <DummyRazorpayModal amount={payTotal} tournamentName={tournament?.name ?? ""} onClose={() => setShowGateway(false)} onSuccess={(pid) => { setShowGateway(false); onGatewaySuccess(pid); }} />}
       </AnimatePresence>

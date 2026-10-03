@@ -7,6 +7,7 @@ import { Brand } from "@/components/brand";
 import { volunteerLoginEmail } from "@/lib/volunteer-login";
 import { looksLikeIndianMobile, playerLoginEmail } from "@/lib/player-login";
 import { signUpPlayer } from "@/lib/player-auth.functions";
+import { ProgressOverlay } from "@/components/progress-overlay";
 
 type SearchParams = { next?: string };
 
@@ -42,6 +43,7 @@ function AuthPage() {
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [loading, setLoading] = useState(false);
+  const [transition, setTransition] = useState<null | "signup" | "signin">(null);
   const nav = useNavigate();
   const { user, role } = useAuth();
 
@@ -66,7 +68,7 @@ function AuthPage() {
         const res = await signUpPlayer({ data: { name: fullName.trim(), identifier: id, password } });
         const { error } = await supabase.auth.signInWithPassword({ email: res.loginEmail, password });
         if (error) throw error;
-        toast.success("Account created");
+        setTransition("signup");
       } else {
         // Mobile numbers may belong to a player or a volunteer account; try both.
         const candidates = looksLikeIndianMobile(id)
@@ -91,7 +93,7 @@ function AuthPage() {
           throw new Error("Wrong mobile number, email, or password.");
         }
         localStorage.removeItem("login_fails");
-        toast.success("Signed in");
+        setTransition("signin");
       }
     } catch (err: any) {
       toast.error(err.message ?? "Something went wrong");
@@ -111,6 +113,16 @@ function AuthPage() {
   );
 
   const field = "mt-1 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm";
+
+  if (transition || user) {
+    return (
+      <ProgressOverlay
+        title={transition === "signup" ? "Welcome to 64 Squares Society!" : "Welcome back!"}
+        steps={["Signed in securely", "Securing your session", "Opening your dashboard"]}
+        interval={700}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-background">
