@@ -1,6 +1,7 @@
 # Roadmap
 - [x] Pass 1a: Two-tab sign-in (Log in / Create account), auto role routing
 - [x] Pass 1b: Security hardening (photo bucket limits, xlsx upgrade, login rate limit)
+- [x] Helpline & WhatsApp group setup (admin Settings)
 - [ ] Pass 2: Celebratory success screen (needs support contact number), participant dashboard tickets, WhatsApp ticket share, FIDE ID optional auto-fetch
 - [ ] Pass 3: Volunteer scanner repair + manual check-in
 - [ ] Pass 4: Form builder + Entries Sheet with column visibility
