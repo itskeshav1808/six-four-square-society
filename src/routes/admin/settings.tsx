@@ -70,3 +70,48 @@ function Settings() {
     </div>
   );
 }
+
+function ContactSetup() {
+  const [phone, setPhone] = useState("");
+  const [wa, setWa] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    supabase.from("site_content").select("key,title").in("key", ["support_phone", "whatsapp_group_url"]).then(({ data }) => {
+      for (const r of data ?? []) {
+        if (r.key === "support_phone") setPhone(r.title ?? "");
+        if (r.key === "whatsapp_group_url") setWa(r.title ?? "");
+      }
+    });
+  }, []);
+
+  const save = async () => {
+    const digits = phone.replace(/\D/g, "").replace(/^91(?=\d{10}$)/, "");
+    if (phone && !/^[6-9]\d{9}$/.test(digits)) return toast.error("Enter a valid 10-digit Indian mobile number");
+    if (wa && !/^https:\/\/(chat\.whatsapp\.com|wa\.me|whatsapp\.com)\//.test(wa.trim())) return toast.error("Paste a WhatsApp invite link (https://chat.whatsapp.com/...)");
+    setSaving(true);
+    const { data: u } = await supabase.auth.getUser();
+    const { error } = await supabase.from("site_content").upsert([
+      { key: "support_phone", title: digits ? `+91 ${digits.slice(0, 5)} ${digits.slice(5)}` : null, updated_by: u.user?.id },
+      { key: "whatsapp_group_url", title: wa.trim() || null, updated_by: u.user?.id },
+    ], { onConflict: "key" });
+    setSaving(false);
+    if (error) toast.error(error.message); else toast.success("Helpline & WhatsApp link saved");
+  };
+
+  return (
+    <section className="mb-6 rounded-2xl border border-gold/40 bg-card p-5">
+      <h2 className="font-display text-lg font-semibold">Official helpline & WhatsApp group</h2>
+      <p className="text-sm text-muted-foreground mb-4">Shown to players on the registration success screen.</p>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <label className="text-sm">Helpline mobile number
+          <input inputMode="numeric" placeholder="98765 43210" value={phone} onChange={(e) => setPhone(e.target.value)} className="mt-1 w-full rounded-lg border border-input bg-background px-3 py-2" />
+        </label>
+        <label className="text-sm">WhatsApp group invite link
+          <input placeholder="https://chat.whatsapp.com/..." value={wa} onChange={(e) => setWa(e.target.value)} className="mt-1 w-full rounded-lg border border-input bg-background px-3 py-2" />
+        </label>
+      </div>
+      <button onClick={save} disabled={saving} className="mt-4 px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm disabled:opacity-50">{saving ? "Saving…" : "Save"}</button>
+    </section>
+  );
+}
