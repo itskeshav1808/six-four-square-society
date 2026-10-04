@@ -1,22 +1,40 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Html5Qrcode } from "html5-qrcode";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Search, CheckCircle2, Camera, CameraOff } from "lucide-react";
+import { Search, CheckCircle2, Camera, CameraOff, Loader2, SwitchCamera, Users } from "lucide-react";
 
 export const Route = createFileRoute("/volunteer/check-in")({
   component: CheckIn,
 });
 
+/** Map raw camera errors to plain-language guidance for volunteers. */
+function cameraErrorMessage(e: any): string {
+  const msg = String(e?.message ?? e ?? "");
+  const name = String(e?.name ?? "");
+  if (name === "NotAllowedError" || /permission|denied/i.test(msg))
+    return "Camera access was blocked. Tap the lock/camera icon in your browser's address bar, allow camera, then try again.";
+  if (name === "NotFoundError" || /no.*camera|not found|devices/i.test(msg))
+    return "No camera found on this device. Use manual search below instead.";
+  if (name === "NotReadableError" || /in use|busy/i.test(msg))
+    return "The camera is being used by another app. Close it and try again.";
+  if (/secure|https/i.test(msg))
+    return "Camera only works on a secure (https) page. Open the site from its normal web address.";
+  return "Camera could not start. Use manual search below as a backup.";
+}
+
 function CheckIn() {
   const [scanning, setScanning] = useState(false);
+  const [starting, setStarting] = useState(false);
   const [tournaments, setTournaments] = useState<any[]>([]);
   const [tid, setTid] = useState("");
   const [q, setQ] = useState("");
   const [results, setResults] = useState<any[]>([]);
   const [last, setLast] = useState<any>(null);
+  const [facing, setFacing] = useState<"environment" | "user">("environment");
   const scannerRef = useRef<Html5Qrcode | null>(null);
+  const lastScanRef = useRef<{ token: string; at: number }>({ token: "", at: 0 });
 
   useEffect(() => {
     supabase.from("tournaments").select("id,name").in("status", ["published", "ongoing"]).then(({ data }) => {
@@ -43,10 +61,13 @@ function CheckIn() {
 
   useEffect(() => { search(); }, [tid, q]);
 
+  const checkedInCount = useMemo(() => results.filter((r) => r.checkin_status === "checked_in").length, [results]);
+
   const checkIn = async (regId: string, name: string) => {
     const { error } = await supabase.from("registrations").update({ checkin_status: "checked_in", checked_in_at: new Date().toISOString() }).eq("id", regId);
     if (error) return toast.error(error.message);
     setLast({ name, at: new Date() });
+    try { navigator.vibrate?.(120); } catch {}
     toast.success(`${name} checked in`);
     search();
   };
@@ -61,22 +82,35 @@ function CheckIn() {
     return decoded.trim();
   };
 
-  const startScan = async () => {
-    setScanning(true);
+  const handleScan = async (decoded: string) => {
+    const token = parseToken(decoded);
+    // Ignore the same code re-scanned within 4 seconds (scanner fires continuously).
+    const now = Date.now();
+    if (token === lastScanRef.current.token && now - lastScanRef.current.at < 4000) return;
+    lastScanRef.current = { token, at: now };
+
+    const { data } = await supabase.from("registrations").select("id, checkin_status, tournament_id, player:players(full_name)").eq("qr_token", token).maybeSingle();
+    if (!data) { toast.error("Unknown QR code — ask the player to open their entry ticket"); return; }
+    if (data.tournament_id !== tid) toast.warning(`Player is registered for a different tournament — checking in anyway`);
+    if (data.checkin_status === "checked_in") { toast(`${data.player?.full_name} already checked in`); return; }
+    await checkIn(data.id, data.player?.full_name ?? "Player");
+  };
+
+  const startScan = async (mode: "environment" | "user" = facing) => {
+    setStarting(true);
     const html5 = new Html5Qrcode("qr-reader");
     scannerRef.current = html5;
     try {
-      await html5.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, async (decoded) => {
-        const token = parseToken(decoded);
-        const { data } = await supabase.from("registrations").select("id, checkin_status, tournament_id, player:players(full_name)").eq("qr_token", token).maybeSingle();
-        if (!data) { toast.error("Unknown QR"); return; }
-        if (data.tournament_id !== tid) toast.warning(`Player is registered for a different tournament — checking in anyway`);
-        if (data.checkin_status === "checked_in") { toast(`${data.player?.full_name} already checked in`); return; }
-        await checkIn(data.id, data.player?.full_name ?? "Player");
-      }, () => {});
+      await html5.start({ facingMode: mode }, { fps: 10, qrbox: 250 }, handleScan, () => {});
+      setFacing(mode);
+      setScanning(true);
     } catch (e: any) {
-      toast.error("Camera error: " + e.message);
+      toast.error(cameraErrorMessage(e), { duration: 6000 });
+      try { await html5.clear(); } catch {}
+      scannerRef.current = null;
       setScanning(false);
+    } finally {
+      setStarting(false);
     }
   };
 
@@ -85,22 +119,42 @@ function CheckIn() {
     scannerRef.current = null;
     setScanning(false);
   };
+
+  const switchCamera = async () => {
+    const next = facing === "environment" ? "user" : "environment";
+    await stopScan();
+    await startScan(next);
+  };
+
   useEffect(() => () => { stopScan(); }, []);
 
   return (
     <div className="mx-auto max-w-3xl p-4 sm:p-6">
-      <h1 className="font-display text-2xl font-semibold mb-4">Check-in station</h1>
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="font-display text-2xl font-semibold">Check-in station</h1>
+        {results.length > 0 && (
+          <span className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full bg-success/10 text-success font-medium">
+            <Users size={13} />{checkedInCount}/{results.length} in
+          </span>
+        )}
+      </div>
       <select value={tid} onChange={(e) => setTid(e.target.value)} className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm mb-4">
+        {tournaments.length === 0 && <option value="">No active tournaments</option>}
         {tournaments.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
       </select>
 
       <div className="rounded-2xl border border-border bg-card p-4 mb-4">
         {!scanning ? (
-          <button onClick={startScan} className="w-full py-3 rounded-lg bg-primary text-primary-foreground text-sm inline-flex items-center justify-center gap-2"><Camera size={16} />Start QR scanner</button>
+          <button onClick={() => startScan()} disabled={starting} className="w-full py-3 rounded-lg bg-primary text-primary-foreground text-sm inline-flex items-center justify-center gap-2 disabled:opacity-60">
+            {starting ? <><Loader2 size={16} className="animate-spin" />Requesting camera access…</> : <><Camera size={16} />Start QR scanner</>}
+          </button>
         ) : (
           <>
             <div id="qr-reader" className="rounded-lg overflow-hidden" />
-            <button onClick={stopScan} className="mt-3 w-full py-2 rounded-lg border border-border text-sm inline-flex items-center justify-center gap-2"><CameraOff size={16} />Stop</button>
+            <div className="mt-3 flex gap-2">
+              <button onClick={switchCamera} className="flex-1 py-2 rounded-lg border border-border text-sm inline-flex items-center justify-center gap-2"><SwitchCamera size={16} />Switch camera</button>
+              <button onClick={stopScan} className="flex-1 py-2 rounded-lg border border-border text-sm inline-flex items-center justify-center gap-2"><CameraOff size={16} />Stop</button>
+            </div>
           </>
         )}
         {last && <div className="mt-3 text-center text-sm text-success"><CheckCircle2 className="inline mr-1" size={14} />Last: {last.name} · {last.at.toLocaleTimeString()}</div>}
