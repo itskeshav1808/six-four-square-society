@@ -5,7 +5,7 @@
 - [x] Smooth sign-in & payment loading screens
 - [x] FIDE rating auto-detect
 - [ ] Pass 2: Celebratory success screen (needs support contact number), participant dashboard tickets, WhatsApp ticket share, FIDE ID optional auto-fetch
-- [ ] Pass 3: Volunteer scanner repair + manual check-in
+- [x] Pass 3: Volunteer scanner repair + manual check-in
 - [ ] Pass 4: Form builder + Entries Sheet with column visibility
 - [ ] Pass 5: Chess-Results/ChessManager sync, Find My Board, Hall of Fame
 - [ ] Pass 6: Architectural venue guide
