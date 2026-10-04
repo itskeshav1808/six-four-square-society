@@ -53,7 +53,7 @@ function CheckIn() {
     const filtered = (data ?? []).filter((r: any) => {
       if (!q) return true;
       const qq = q.toLowerCase();
-      return [r.player?.full_name, r.contact?.phone, r.player?.city].some((v: string) => v?.toLowerCase().includes(qq));
+      return [r.player?.full_name, r.player?.contact?.phone, r.player?.city].some((v: string) => v?.toLowerCase().includes(qq));
     });
 
     setResults(filtered);
@@ -170,7 +170,7 @@ function CheckIn() {
             <div key={r.id} className="flex items-center justify-between py-2">
               <div className="text-sm">
                 <div className="font-medium">{r.player?.full_name}</div>
-                <div className="text-xs text-muted-foreground">{r.player?.city} · {r.contact?.phone}</div>
+                <div className="text-xs text-muted-foreground">{r.player?.city} · {r.player?.contact?.phone}</div>
               </div>
               {r.checkin_status === "checked_in" ? (
                 <span className="text-xs text-success flex items-center gap-1"><CheckCircle2 size={14} />In</span>
