@@ -47,7 +47,7 @@ function CheckIn() {
     if (!tid) return;
     const { data } = await supabase
       .from("registrations")
-      .select("id, checkin_status, qr_token, player:players(full_name,city,rating), contact:player_private(phone)")
+      .select("id, checkin_status, qr_token, player:players(full_name,city,rating, contact:player_private(phone))")
       .eq("tournament_id", tid)
       .eq("status", "approved");
     const filtered = (data ?? []).filter((r: any) => {
