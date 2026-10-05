@@ -10,6 +10,8 @@ export const Route = createFileRoute("/admin/form-builder")({
 
 export type FieldType = "text" | "email" | "phone" | "number" | "date" | "textarea" | "select" | "checkbox";
 
+export type FieldVisibility = "table" | "detail" | "private";
+
 export type CustomField = {
   id: string;
   label: string;
@@ -18,7 +20,15 @@ export type CustomField = {
   placeholder?: string;
   options?: string[]; // for select
   helpText?: string;
+  /** table = column in Entries Sheet · detail = only in row detail · private = detail-only, never exported */
+  visibility?: FieldVisibility;
 };
+
+const VISIBILITY: { value: FieldVisibility; label: string; hint: string }[] = [
+  { value: "table", label: "Table column", hint: "Shown as a column in the Entries Sheet and included in exports" },
+  { value: "detail", label: "Detail only", hint: "Hidden from the table; visible when a row is opened, included in exports" },
+  { value: "private", label: "Private", hint: "Detail-only and never included in Excel/CSV exports" },
+];
 
 const TYPES: { value: FieldType; label: string }[] = [
   { value: "text", label: "Text" },
