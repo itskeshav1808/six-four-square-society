@@ -151,6 +151,13 @@ function FormBuilder() {
                       />
                     </div>
                   )}
+                  <div className="sm:col-span-2">
+                    <label className="text-xs text-muted-foreground">Where should this answer appear?</label>
+                    <select value={f.visibility ?? "table"} onChange={(e) => patch(f.id, { visibility: e.target.value as FieldVisibility })} className="mt-1 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm">
+                      {VISIBILITY.map((v) => <option key={v.value} value={v.value}>{v.label}</option>)}
+                    </select>
+                    <div className="text-xs text-muted-foreground mt-1">{VISIBILITY.find((v) => v.value === (f.visibility ?? "table"))?.hint}</div>
+                  </div>
                   <label className="flex items-center gap-2 text-sm sm:col-span-2">
                     <input type="checkbox" checked={f.required} onChange={(e) => patch(f.id, { required: e.target.checked })} />
                     Required
