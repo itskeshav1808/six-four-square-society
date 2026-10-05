@@ -6,6 +6,7 @@ import { Search, Download, CheckCircle2, XCircle, QrCode } from "lucide-react";
 import * as XLSX from "xlsx";
 import { GroupBookings } from "@/components/admin/group-bookings";
 import { EntryBatches } from "@/components/admin/entry-batches";
+import { DirectEntry } from "@/components/admin/direct-entry";
 
 export const Route = createFileRoute("/admin/registrations")({
   component: RegistrationsAdmin,
@@ -77,7 +78,10 @@ function RegistrationsAdmin() {
           <h1 className="font-display text-3xl font-semibold">Registration Manager</h1>
           <p className="text-sm text-muted-foreground">Spreadsheet view · edits sync live.</p>
         </div>
-        <button onClick={exportCsv} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-border text-sm"><Download size={16} />Export</button>
+        <div className="flex gap-2">
+          <DirectEntry onDone={load} />
+          <button onClick={exportCsv} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-border text-sm"><Download size={16} />Export</button>
+        </div>
       </div>
 
       <div className="flex flex-wrap gap-2 mb-4">
