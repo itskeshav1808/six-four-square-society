@@ -7,6 +7,7 @@ import * as XLSX from "xlsx";
 import { GroupBookings } from "@/components/admin/group-bookings";
 import { EntryBatches } from "@/components/admin/entry-batches";
 import { DirectEntry } from "@/components/admin/direct-entry";
+import { EntriesSheet } from "@/components/admin/entries-sheet";
 
 export const Route = createFileRoute("/admin/registrations")({
   component: RegistrationsAdmin,
@@ -101,6 +102,7 @@ function RegistrationsAdmin() {
 
       <EntryBatches tournamentFilter={filter.tournament} />
       <GroupBookings tournamentFilter={filter.tournament} />
+      <EntriesSheet tournamentFilter={filter.tournament} />
 
       <div className="rounded-2xl border border-border bg-card overflow-x-auto">
         <table className="w-full text-sm">

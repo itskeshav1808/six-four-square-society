@@ -7,6 +7,6 @@
 - [x] Admin Quick Direct Entry (offline/cash/UPI, instant ticket + WhatsApp share)
 - [ ] Pass 2: Celebratory success screen (needs support contact number), participant dashboard tickets, WhatsApp ticket share, FIDE ID optional auto-fetch
 - [x] Pass 3: Volunteer scanner repair + manual check-in
-- [ ] Pass 4: Form builder + Entries Sheet with column visibility
+- [x] Pass 4: Form builder + Entries Sheet with column visibility
 - [ ] Pass 5: Chess-Results/ChessManager sync, Find My Board, Hall of Fame
 - [ ] Pass 6: Architectural venue guide
