@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Download, ChevronDown, ChevronRight, Sheet } from "lucide-react";
@@ -113,8 +113,8 @@ export function EntriesSheet({ tournamentFilter }: { tournamentFilter: string })
                 </thead>
                 <tbody>
                   {rows.map((r) => (
-                    <>
-                      <tr key={r.id} className="border-t border-border hover:bg-muted/20 cursor-pointer" onClick={() => setExpanded((e) => (e === r.id ? null : r.id))}>
+                    <Fragment key={r.id}>
+                      <tr className="border-t border-border hover:bg-muted/20 cursor-pointer" onClick={() => setExpanded((e) => (e === r.id ? null : r.id))}>
                         <td className="px-2 py-2 text-muted-foreground">{expanded === r.id ? <ChevronDown size={14} /> : <ChevronRight size={14} />}</td>
                         <td className="px-3 py-2"><div className="font-medium">{r.player?.full_name}</div><div className="text-xs text-muted-foreground">{r.player?.city}</div></td>
                         <td className="px-3 py-2 text-xs">{r.tournament?.name}</td>
@@ -122,7 +122,7 @@ export function EntriesSheet({ tournamentFilter }: { tournamentFilter: string })
                         {tableFields.map((f) => <td key={f.id} className="px-3 py-2 text-xs whitespace-nowrap">{answer(r, f)}</td>)}
                       </tr>
                       {expanded === r.id && detailFields.length > 0 && (
-                        <tr key={r.id + "_detail"} className="border-t border-border bg-muted/10">
+                        <tr className="border-t border-border bg-muted/10">
                           <td colSpan={4 + tableFields.length} className="px-6 py-3">
                             <div className="grid gap-2 sm:grid-cols-2">
                               {detailFields.map((f) => (
@@ -135,7 +135,7 @@ export function EntriesSheet({ tournamentFilter }: { tournamentFilter: string })
                           </td>
                         </tr>
                       )}
-                    </>
+                    </Fragment>
                   ))}
                   {rows.length === 0 && <tr><td colSpan={4 + tableFields.length} className="px-4 py-10 text-center text-muted-foreground">No entries yet.</td></tr>}
                 </tbody>
