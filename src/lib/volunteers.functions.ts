@@ -36,56 +36,77 @@ async function assertAdmin(supabase: any, userId: string) {
   if (!data) throw new Error("Forbidden: admins only");
 }
 
+function volunteerCreationErrorMessage(error: unknown) {
+  if (typeof error === "object" && error !== null) {
+    const details = error as { code?: unknown; message?: unknown; status?: unknown };
+    if (
+      details.code === "weak_password" ||
+      (details.status === 422 && typeof details.message === "string" && /weak|common|easy to guess/i.test(details.message))
+    ) {
+      return "That password is too common or easy to guess. Please choose a stronger password.";
+    }
+    if (typeof details.message === "string" && details.message.trim()) return details.message;
+  }
+  if (error instanceof Error && error.message.trim()) return error.message;
+  return "Could not create the volunteer. Please try again.";
+}
+
 export const createVolunteerAccount = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: unknown) => createSchema.parse(data))
   .handler(async ({ data, context }) => {
-    await assertAdmin(context.supabase, context.userId);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    try {
+      await assertAdmin(context.supabase, context.userId);
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const phone = data.phone.replace(/\D/g, "").slice(-10);
-    const email = volunteerLoginEmail(phone);
+      const phone = data.phone.replace(/\D/g, "").slice(-10);
+      const email = volunteerLoginEmail(phone);
 
-    const { data: existing } = await supabaseAdmin
-      .from("volunteers")
-      .select("id")
-      .eq("phone", phone)
-      .maybeSingle();
-    if (existing) throw new Error("A volunteer with this mobile number already exists");
+      const { data: existing } = await supabaseAdmin
+        .from("volunteers")
+        .select("id")
+        .eq("phone", phone)
+        .maybeSingle();
+      if (existing) return { ok: false as const, error: "A volunteer with this mobile number already exists" };
 
-    const { data: created, error: createErr } = await supabaseAdmin.auth.admin.createUser({
-      email,
-      password: data.password,
-      email_confirm: true,
-      user_metadata: { full_name: data.fullName, phone, is_volunteer: true },
-    });
-    if (createErr || !created?.user) throw new Error(createErr?.message ?? "Could not create the login");
+      const { data: created, error: createErr } = await supabaseAdmin.auth.admin.createUser({
+        email,
+        password: data.password,
+        email_confirm: true,
+        user_metadata: { full_name: data.fullName, phone, is_volunteer: true },
+      });
+      if (createErr || !created?.user) {
+        return { ok: false as const, error: volunteerCreationErrorMessage(createErr ?? "Could not create the login") };
+      }
 
-    const userId = created.user.id;
+      const userId = created.user.id;
 
-    const { error: roleErr } = await supabaseAdmin
-      .from("user_roles")
-      .insert({ user_id: userId, role: "volunteer" });
-    if (roleErr && !roleErr.message.includes("duplicate")) {
-      await supabaseAdmin.auth.admin.deleteUser(userId);
-      throw new Error(roleErr.message);
+      const { error: roleErr } = await supabaseAdmin
+        .from("user_roles")
+        .insert({ user_id: userId, role: "volunteer" });
+      if (roleErr && !roleErr.message.includes("duplicate")) {
+        await supabaseAdmin.auth.admin.deleteUser(userId);
+        return { ok: false as const, error: volunteerCreationErrorMessage(roleErr) };
+      }
+
+      const { error: volErr } = await supabaseAdmin.from("volunteers").insert({
+        user_id: userId,
+        full_name: data.fullName,
+        email,
+        phone,
+        role_description: data.roleDescription || null,
+        is_active: true,
+        created_by: context.userId,
+      });
+      if (volErr) {
+        await supabaseAdmin.auth.admin.deleteUser(userId);
+        return { ok: false as const, error: volunteerCreationErrorMessage(volErr) };
+      }
+
+      return { ok: true as const, phone, loginEmail: email };
+    } catch (error) {
+      return { ok: false as const, error: volunteerCreationErrorMessage(error) };
     }
-
-    const { error: volErr } = await supabaseAdmin.from("volunteers").insert({
-      user_id: userId,
-      full_name: data.fullName,
-      email,
-      phone,
-      role_description: data.roleDescription || null,
-      is_active: true,
-      created_by: context.userId,
-    });
-    if (volErr) {
-      await supabaseAdmin.auth.admin.deleteUser(userId);
-      throw new Error(volErr.message);
-    }
-
-    return { ok: true as const, phone, loginEmail: email };
   });
 
 export const resetVolunteerPassword = createServerFn({ method: "POST" })

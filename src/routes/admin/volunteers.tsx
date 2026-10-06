@@ -36,13 +36,25 @@ function VolunteersAdmin() {
   };
   useEffect(() => { load(); }, []);
 
+  const errorMessage = (error: unknown) => {
+    const message = error instanceof Error
+      ? error.message
+      : typeof error === "object" && error !== null && "message" in error && typeof error.message === "string"
+        ? error.message
+        : "";
+    if (!message || message === "{}" || message.startsWith('{"t":')) {
+      return "Could not create the volunteer. Please try again.";
+    }
+    return message;
+  };
+
   const addVol = async () => {
     if (!form.full_name.trim()) return toast.error("Enter the volunteer's name");
     if (!/^[6-9]\d{9}$/.test(form.phone.trim())) return toast.error("Enter a valid 10-digit mobile number");
     if (form.password.length < 6) return toast.error("Password must be at least 6 characters");
     setBusy(true);
     try {
-      await createVol({
+      const result = await createVol({
         data: {
           fullName: form.full_name.trim(),
           phone: form.phone.trim(),
@@ -50,11 +62,15 @@ function VolunteersAdmin() {
           roleDescription: form.role_description.trim(),
         },
       });
+      if (!result.ok) {
+        toast.error(result.error);
+        return;
+      }
       toast.success(`Volunteer created. They sign in at /auth with ${form.phone.trim()} and the password you set.`);
       setForm({ full_name: "", phone: "", password: "", role_description: "" });
       load();
     } catch (e: any) {
-      toast.error(e?.message ?? "Could not create the volunteer");
+      toast.error(errorMessage(e));
     } finally {
       setBusy(false);
     }
