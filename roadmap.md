@@ -1,12 +1,12 @@
 # Roadmap
-- [x] Pass 1a: Two-tab sign-in (Log in / Create account), auto role routing
-- [x] Pass 1b: Security hardening (photo bucket limits, xlsx upgrade, login rate limit)
-- [x] Helpline & WhatsApp group setup (admin Settings)
-- [x] Smooth sign-in & payment loading screens
-- [x] FIDE rating auto-detect
-- [x] Admin Quick Direct Entry (offline/cash/UPI, instant ticket + WhatsApp share)
-- [ ] Pass 2: Celebratory success screen (needs support contact number), participant dashboard tickets, WhatsApp ticket share, FIDE ID optional auto-fetch
-- [x] Pass 3: Volunteer scanner repair + manual check-in
-- [x] Pass 4: Form builder + Entries Sheet with column visibility
-- [ ] Pass 5: Chess-Results/ChessManager sync, Find My Board, Hall of Fame
-- [ ] Pass 6: Architectural venue guide
+- [x] Helpline and WhatsApp group settings
+- [x] Smooth sign-in and payment progress screens
+- [x] Optional FIDE rating auto-detection
+- [x] Admin Quick Direct Entry for cash, UPI, and bank transfers
+- [x] Volunteer scanner repair and manual check-in
+- [x] Editable registration form and Entries Sheet
+- [x] Show clear volunteer-account errors instead of `{}`
+- [ ] Official pairing links/sync and player board-and-match search
+- [ ] Hall of Fame and past tournament archive
+- [ ] Admin ticket control, WhatsApp dispatch, and password reset
+- [ ] Interactive architectural venue guide
